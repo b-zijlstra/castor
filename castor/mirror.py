@@ -1,0 +1,137 @@
+#! /usr/bin/env python
+
+# 
+# mirror.py
+# 
+# Author: Bart Zijlstra
+# 
+# (C) Copyright 2014 Inorganic Materials Chemistry
+# 
+# 
+
+#IMPORTS
+import sys
+
+#MY PATHS
+
+#MY CLASSES
+from classes.class_poscar import Poscar
+
+#CLASSES
+class Arguments:
+    """Defines a set of arguments"""
+    def __init__(self):
+        self.posfile = "POSCAR"
+        self.mode = ["all", "top"]
+        self.symmetry_X = "mirror" #Use 'mirror','cell_center', 'atom_center'
+        self.symmetry_Y = "mirror" #Use 'mirror','cell_center', 'atom_center'
+        self.zrange = 0.2 #this is some guess to ignore atoms around the middle (z-axis) of the cell
+    def setup(self, arg_in):
+        self.readmode = None
+        for i in range(1,len(arg_in)):
+            if(self.readmode=="symmetry"):
+                s = arg_in[i].split('-')
+                if(s[0].find('mir')!=-1):
+                    self.symmetry_X = "mirror"
+                    self.symmetry_X = "mirror"
+                elif(s[0].find('cell')!=-1):
+                    self.symmetry_X = "cell_center"
+                    self.symmetry_Y = "cell_center"
+                elif(s[0].find('atom')!=-1):
+                    self.symmetry_X = "atom_center"
+                    self.symmetry_Y = "atom_center"
+                elif(s[0].find('surface')!=-1):
+                    self.symmetry_X = "surface_center"
+                    self.symmetry_Y = "surface_center"
+                if(len(s)==2):
+                    if(s[1].find('mir')!=-1):
+                        self.symmetry_Y = "mirror"
+                    elif(s[1].find('cell')!=-1):
+                        self.symmetry_Y = "cell_center"
+                    elif(s[1].find('atom')!=-1):
+                        self.symmetry_Y = "atom_center"
+                    elif(s[1].find('surface')!=-1):
+                        self.symmetry_Y = "surface_center"
+                self.readmode = None
+                continue
+            elif(self.readmode=="zrange"):
+                self.binrange = float(arg_in[i])
+                self.readmode = None
+                continue
+            elif(self.readmode=="posfile"):
+                self.posfile = arg_in[i]
+                self.readmode = None
+                continue
+            elif(self.readmode=="potfile"):
+                self.potfile = arg_in[i]
+                self.readmode = None
+                continue
+            elif(sys.argv[i] == "-h" or sys.argv[i] == "--help"):
+                self.help()
+                sys.exit()
+            elif(sys.argv[i] == "-s" or sys.argv[i] == "--sym" or sys.argv[i] == "--symmetry"):
+                self.readmode = "symmetry"
+                continue
+            elif(sys.argv[i] == "-z" or sys.argv[i] == "--zr" or sys.argv[i] == "--zrange"):
+                self.readmode = "zrange"
+                continue
+            elif(sys.argv[i] == "-p" or sys.argv[i] == "--pos" or sys.argv[i] == "--poscar"):
+                self.readmode = "posfile"
+                continue
+            elif(sys.argv[i] == "-a" or sys.argv[i] == "--ads" or sys.argv[i] == "--adsorbate"):
+                self.mode[0] = "ads"
+                self.readmode = None
+                continue
+            elif(sys.argv[i] == "-b" or sys.argv[i] == "--bottom"):
+                self.mode[1] = "bottom"
+                self.readmode = None
+                continue
+            elif(sys.argv[i] == "-t" or sys.argv[i] == "--top"):
+                self.mode = "top"
+                self.readmode = None
+                continue
+            elif(sys.argv[i] == "-bever"):
+                print "                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'"
+                sys.exit()
+            elif(sys.argv[i] == "-bahnhof"):
+                print "  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)"
+                sys.exit()
+            else:
+                print "Unexpected argument: " + sys.argv[i]
+                self.help()
+                sys.exit()
+    def help(self):
+        print "Use: mirror.py <options>"
+        print "Options:"
+        print "-s or --sym or --symmetry <sym>          | Set symmetry mode. Example: $mirror.py -s 'cell-atom' (Default = mirror-mirror)"
+        print "-z or --zr or --zrange <range>           | Example: $mirror.py --pot PTCAR (Default = POTCAR)"
+        print "-p or --pos or --poscar <POSCAR name>    | Example: $mirror.py -p CONTCAR (Default = POSCAR)"
+        print "-a or --ads or --adsorbate               | Mirror only the adsorbate (Default = all)"
+        print "-b or --bottom                           | Mirror bottom atoms to top instead of top to bottom (Default = top)"
+        print ""
+        print "-h or -help                              | displays this help message."
+        print ""
+        print "Note on symmetry mode:"
+        print "Symmetry is set separately for 'a' and 'b' directions. -s 'option' = -s 'option-option'"
+        print "'mirror' only changes the z-position of the atom"
+        print "'cell_center' uses the middle of the cell as an inversion point"
+        print "'atom_center' uses the coordinate average of all atoms as an inversion point"
+        print "'mirror-cell_center' uses the middle of the 'a-z' plane as an inversion point"
+        print "Short notations: 'mir' = 'mirror, 'cell' = 'cell_center' and 'atom' = 'atom_center'"
+
+
+#DEFINES
+def main(arg_in):
+    arguments = Arguments()
+    arguments.setup(arg_in)
+    poscar_in = Poscar()
+    poscar_out = Poscar()
+    poscar_in.read(arguments.posfile)
+    poscar_out.read(arguments.posfile)
+    poscar_out.mirror(arguments.mode, arguments.symmetry_X, arguments.symmetry_Y, arguments.zrange)
+    poscar_out.move2unitcell()
+    poscar_out.relabel(poscar_in,"metal")
+    poscar_out.write()
+
+#EXECUTION
+main(sys.argv)

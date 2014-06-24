@@ -1,0 +1,25 @@
+SYSTEM = Surface Cobalt calculation
+
+LREAL=.FALSE.
+LCHARG=  .FALSE.
+
+PREC = medium
+ENCUT = 400
+
+ISMEAR = 1
+SIGMA = 0.2 
+
+EDIFF = 1E-5
+EDIFFG = 1E-4
+NSW = 100
+
+ISIF = 2
+IBRION = 2
+ISPIN = 2
+POTIM = 0.5
+
+IALGO = 38
+NELMIN = 2
+NELM = 40
+
+NPAR=1

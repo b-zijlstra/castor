@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#specify the number of ppn below, accepted values are 2 and 4
+
+#PBS -l nodes=1:ppn=4,walltime=24:00:00
+#PBS -N NAME
+
+#go to path
+cd $PBS_O_WORKDIR
+
+echo $PBS_JOBID
+echo "Start time :"
+date
+
+#go to path
+cd $PBS_O_WORKDIR
+
+# loading modules
+module load vasp-5.3.3.mpi-gcc-4.8.2-atlas-3.11.11
+
+# executing the command on 8 cores
+mpirun -n 8 vasp
+
+echo "End Time :"
+date

@@ -124,69 +124,115 @@ class Poscar:
             atom.x = vec.x
             atom.y = vec.y
             atom.z = vec.z
-    def mirror(self, mode_in = ["all", "top"], symmetry_X_in = "mirror", symmetry_Y_in = "mirror", zrange_in = 0.2):
+    def mirror(self, mode_in = ["all", "top"], symmetry = ["mirror", "mirror"], zplane_in = 0.5 , zrange_in = 0.1):
         self.unitcell.invertMatrix()
         z_direct = self.unitcell.cartesian2direct(Vector(0,0,zrange_in)).z
-        if(z_direct >= 0.5):
-            z_direct = 0.49
-        z_max = 0.5 + z_direct
-        z_min = 0.5 - z_direct
+        z_plane = zplane_in
+        z_max = zplane_in + z_direct
+        z_min = zplane_in - z_direct
+        if(z_max >= 1.0):
+            z_max = 0.99
+        if(z_min <= 0.0):
+            z_min = 0.01
+
         # print >> sys.stderr, z_max
         # print >> sys.stderr, z_min
 
         # cell_center = self.getCellCenter()
         # cell_center.write()
         cell_center = Vector(0.5, 0.5, 0.5)
+        offset = Vector(0.0, 0.0, 0.0)
 
-        atom_center = self.getAtomCenter()
-        # atom_center.write()
+        if(symmetry[0] == "atom_center" or symmetry[1] == "atom_center"):
+            metal = []
+            for i in range(0, self.elnr[0]):
+                if(mode_in[0] == "ads"):
+                    metal.append(self.atoms[i])
+                    continue
+                if((mode_in[1] == "top" and  self.atoms[i].z > z_max) or (mode_in[1] == "bottom" and self.atoms[i].z < z_min)):
+                    metal.append(self.atoms[i])
 
-        sym_x = None
-        sym_y = None
-        sym_z = 0.5
+            atom_center = self.getAtomCenter(metal)
 
-        if(symmetry_X_in == "mirror"):
+        if(symmetry[0] == "offset" or symmetry[1] == "offset"):
+            metaltop = []
+            metalbottom = []
+            top_z = 0.0
+            bottom_z = 1.0
+            for i in range(0, self.elnr[0]):
+                if(self.atoms[i].z > top_z):
+                    top_z = self.atoms[i].z
+                elif(self.atoms[i].z < bottom_z):
+                    bottom_z = self.atoms[i].z
+
+            for i in range(0, self.elnr[0]):
+                if(self.atoms[i].z > top_z - z_direct):
+                    metaltop.append(self.atoms[i])
+                if(self.atoms[i].z < bottom_z + z_direct):
+                    metalbottom.append(self.atoms[i])
+
+            atom_center_top = self.getAtomCenter(metaltop)
+            atom_center_bottom = self.getAtomCenter(metalbottom)
+            print >> sys.stderr, str(atom_center_top.x) + " " + str(atom_center_top.y) + " " + str(atom_center_top.z)
+            print >> sys.stderr, str(atom_center_bottom.x) + " " + str(atom_center_bottom.y) + " " + str(atom_center_bottom.z)
+            if(mode_in[1] == "top"):
+                offset = atom_center_top + atom_center_bottom - cell_center * 2
+            elif(mode_in[1] == "bottom"):
+                offset = cell_center * 2 - atom_center_top - atom_center_bottom
+
+        if(symmetry[0] == "mirror"):
             sym_x = None
-        elif(symmetry_X_in == "cell_center"):
+            offset.x = 0.0
+        elif(symmetry[0] == "cell_center"):
             sym_x = cell_center.x
-        elif(symmetry_X_in == "atom_center"):
+            offset.x = 0.0
+        elif(symmetry[0] == "atom_center"):
             sym_x = atom_center.x
-            sym_z = atom_center.z
+            offset.x = 0.0
+        elif(symmetry[0] == "offset"):
+            sym_x = cell_center.x
 
-        if(symmetry_Y_in == "mirror"):
+        if(symmetry[1] == "mirror"):
             sym_y = None
-        elif(symmetry_Y_in == "cell_center"):
+            offset.x = 0.0
+        elif(symmetry[1] == "cell_center"):
             sym_y = cell_center.y
-        elif(symmetry_Y_in == "atom_center"):
+            offset.x = 0.0
+        elif(symmetry[1] == "atom_center"):
             sym_y = atom_center.y
-            sym_z = atom_center.z
+            offset.x = 0.0
+        elif(symmetry[1] == "offset"):
+            sym_y = cell_center.y
+
+        sym_z = z_plane
+        print >> sys.stderr, str(offset.x) + " " + str(offset.y) + " " + str(offset.z)
 
         newatoms = []
         newelnr = []
-
-        offset = 0
+        number = 0
         for el in range(0,len(self.elnr)):
             newel = 0
             if(el == 0 and mode_in[0] == "ads"):
-                for i in range(offset, offset+self.elnr[el]):
+                for i in range(number, number+self.elnr[el]):
                     newatoms.append(self.atoms[i])
                     newel += 1
                 newelnr.append(newel)
-                offset += self.elnr[el]
+                number += self.elnr[el]
                 continue
 
-            for i in range(offset, offset+self.elnr[el]):
+            for i in range(number, number+self.elnr[el]):
                 if((mode_in[1] == "top" and  self.atoms[i].z > z_min) or (mode_in[1] == "bottom" and self.atoms[i].z < z_max)):
                     if(mode_in[1] == "bottom" and self.atoms[i].z < z_min):
-                        newatoms.append(self.mirror_atom(self.atoms[i], sym_x, sym_y, sym_z))
+                        newatoms.append(self.mirror_atom(self.atoms[i], sym_x, sym_y, sym_z, offset))
                         newel += 1
                     newatoms.append(self.atoms[i])
                     newel += 1
                     if((mode_in[1] == "top" and self.atoms[i].z > z_max)):
-                        newatoms.append(self.mirror_atom(self.atoms[i], sym_x, sym_y, sym_z))
+                        newatoms.append(self.mirror_atom(self.atoms[i], sym_x, sym_y, sym_z, offset))
                         newel += 1
             newelnr.append(newel)
-            offset += self.elnr[el];
+            number += self.elnr[el];
+
 
         if(newelnr[0] != self.elnr[0]):
             print >> sys.stderr, 'WARNING: NUMBER OF METAL ATOMS CHANGED!'
@@ -194,14 +240,14 @@ class Poscar:
         self.atoms = newatoms
         self.elnr = newelnr
 
-    def mirror_atom(self, atom_in, sym_x_in = None, sym_y_in = None, sym_z_in = 0.5):
+    def mirror_atom(self, atom_in, sym_x_in = None, sym_y_in = None, sym_z_in = 0.5, offset_in = Vector(0.0, 0.0, 0.0)):
         newatom = Vector(atom_in.x, atom_in.y, atom_in.z)
         if(sym_x_in != None):
-            newatom.x = 2.0 * sym_x_in - atom_in.x
+            newatom.x = 2.0 * sym_x_in - atom_in.x + offset_in.x
         if(sym_y_in != None):
-            newatom.y = 2.0 * sym_y_in - atom_in.y
+            newatom.y = 2.0 * sym_y_in - atom_in.y + offset_in.y
         if(sym_z_in != None):
-            newatom.z = 2.0 * sym_z_in - atom_in.z
+            newatom.z = 2.0 * sym_z_in - atom_in.z + offset_in.z
         return newatom
 
     def getCellCenter(self):
@@ -213,12 +259,12 @@ class Poscar:
         cell_center = self.unitcell.cartesian2direct(center)
         return cell_center
 
-    def getAtomCenter(self):
+    def getAtomCenter(self, atomlist_in):
         totvec = Vector(0.0, 0.0, 0.0)
-        for atom in self.atoms:
+        for atom in atomlist_in:
             posvec = self.unitcell.direct2cartesian(Vector(atom.x, atom.y, atom.z))
             totvec += posvec
-        div = 1.0/len(self.atoms)
+        div = 1.0/len(atomlist_in)
         totvec *= Vector(div, div, div)
         atom_center = self.unitcell.cartesian2direct(totvec)
         return atom_center

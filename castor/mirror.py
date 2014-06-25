@@ -23,35 +23,39 @@ class Arguments:
     def __init__(self):
         self.posfile = "POSCAR"
         self.mode = ["all", "top"]
-        self.symmetry_X = "mirror" #Use 'mirror','cell_center', 'atom_center'
-        self.symmetry_Y = "mirror" #Use 'mirror','cell_center', 'atom_center'
-        self.zrange = 0.2 #this is some guess to ignore atoms around the middle (z-axis) of the cell
+        self.symmetry = ["mirror", "mirror"] #Use 'mirror','cell_center', 'atom_center'
+        self.zplane = 0.5 #direct middle of the z-axis of the structure
+        self.zrange = 0.1 #deviation tolerance in angstrom
     def setup(self, arg_in):
         self.readmode = None
         for i in range(1,len(arg_in)):
             if(self.readmode=="symmetry"):
                 s = arg_in[i].split('-')
                 if(s[0].find('mir')!=-1):
-                    self.symmetry_X = "mirror"
-                    self.symmetry_X = "mirror"
+                    self.symmetry[0] = "mirror"
+                    self.symmetry[1] = "mirror"
                 elif(s[0].find('cell')!=-1):
-                    self.symmetry_X = "cell_center"
-                    self.symmetry_Y = "cell_center"
+                    self.symmetry[0] = "cell_center"
+                    self.symmetry[1] = "cell_center"
                 elif(s[0].find('atom')!=-1):
-                    self.symmetry_X = "atom_center"
-                    self.symmetry_Y = "atom_center"
-                elif(s[0].find('surface')!=-1):
-                    self.symmetry_X = "surface_center"
-                    self.symmetry_Y = "surface_center"
+                    self.symmetry[0] = "atom_center"
+                    self.symmetry[1] = "atom_center"
+                elif(s[0].find('off')!=-1):
+                    self.symmetry[0] = "offset"
+                    self.symmetry[1] = "offset"
                 if(len(s)==2):
                     if(s[1].find('mir')!=-1):
-                        self.symmetry_Y = "mirror"
+                        self.symmetry[1] = "mirror"
                     elif(s[1].find('cell')!=-1):
-                        self.symmetry_Y = "cell_center"
+                        self.symmetry[1] = "cell_center"
                     elif(s[1].find('atom')!=-1):
-                        self.symmetry_Y = "atom_center"
-                    elif(s[1].find('surface')!=-1):
-                        self.symmetry_Y = "surface_center"
+                        self.symmetry[1] = "atom_center"
+                    elif(s[1].find('off')!=-1):
+                        self.symmetry[1] = "offset"
+                self.readmode = None
+                continue
+            elif(self.readmode=="zplane"):
+                self.zplane = float(arg_in[i])
                 self.readmode = None
                 continue
             elif(self.readmode=="zrange"):
@@ -62,17 +66,16 @@ class Arguments:
                 self.posfile = arg_in[i]
                 self.readmode = None
                 continue
-            elif(self.readmode=="potfile"):
-                self.potfile = arg_in[i]
-                self.readmode = None
-                continue
             elif(sys.argv[i] == "-h" or sys.argv[i] == "--help"):
                 self.help()
                 sys.exit()
             elif(sys.argv[i] == "-s" or sys.argv[i] == "--sym" or sys.argv[i] == "--symmetry"):
                 self.readmode = "symmetry"
                 continue
-            elif(sys.argv[i] == "-z" or sys.argv[i] == "--zr" or sys.argv[i] == "--zrange"):
+            elif(sys.argv[i] == "-z" or sys.argv[i] == "--zp" or sys.argv[i] == "--zplane"):
+                self.readmode = "zplane"
+                continue
+            elif(sys.argv[i] == "-r" or sys.argv[i] == "--zr" or sys.argv[i] == "--zrange"):
                 self.readmode = "zrange"
                 continue
             elif(sys.argv[i] == "-p" or sys.argv[i] == "--pos" or sys.argv[i] == "--poscar"):
@@ -104,7 +107,8 @@ class Arguments:
         print "Use: mirror.py <options>"
         print "Options:"
         print "-s or --sym or --symmetry <sym>          | Set symmetry mode. Example: $mirror.py -s 'cell-atom' (Default = mirror-mirror)"
-        print "-z or --zr or --zrange <range>           | Atoms around the middle (z-axis) to ignore. Example: $mirror.py -z 1.0 (Default = 0.2)"
+        print "-z or --zp or --zplane <val>             | Direct middle of the z-axis of the structure. Example: $mirror.py -z 0.6 (Default = 0.5)"
+        print "-r or --zr or --zrange <range>           | Z-deviation tolerance in angstrom. Example: $mirror.py -r 1.0 (Default = 0.1)"
         print "-p or --pos or --poscar <POSCAR name>    | Example: $mirror.py -p CONTCAR (Default = POSCAR)"
         print "-a or --ads or --adsorbate               | Mirror only the adsorbate (Default = all)"
         print "-b or --bottom                           | Mirror bottom atoms to top instead of top to bottom (Default = top)"
@@ -115,9 +119,10 @@ class Arguments:
         print "Symmetry is set separately for 'a' and 'b' directions. -s 'option' = -s 'option-option'"
         print "'mirror' only changes the z-position of the atom"
         print "'cell_center' uses the middle of the cell as an inversion point"
-        print "'atom_center' uses the coordinate average of all atoms as an inversion point"
+        print "'atom_center' uses the coordinate average of metal atoms as an inversion point"
         print "'mirror-cell_center' uses the middle of the 'a-z' plane as an inversion point"
-        print "Short notations: 'mir' = 'mirror, 'cell' = 'cell_center' and 'atom' = 'atom_center'"
+        print "'offset' assumes that there is no inversion symmetry. An upper and lower part are shifted for correct symmetry."
+        print "Short notations: 'mir' = 'mirror, 'cell' = 'cell_center', 'atom' = 'atom_center' and 'off' = 'offset'"
 
 
 #DEFINES
@@ -128,9 +133,9 @@ def main(arg_in):
     poscar_out = Poscar()
     poscar_in.read(arguments.posfile)
     poscar_out.read(arguments.posfile)
-    poscar_out.mirror(arguments.mode, arguments.symmetry_X, arguments.symmetry_Y, arguments.zrange)
+    poscar_out.mirror(arguments.mode, arguments.symmetry, arguments.zplane, arguments.zrange)
     poscar_out.move2unitcell()
-    poscar_out.relabel(poscar_in,"metal")
+    # poscar_out.relabel(poscar_in,"metal")
     poscar_out.write()
 
 #EXECUTION

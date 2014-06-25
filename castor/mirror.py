@@ -55,7 +55,7 @@ class Arguments:
                 self.readmode = None
                 continue
             elif(self.readmode=="zrange"):
-                self.binrange = float(arg_in[i])
+                self.zrange = float(arg_in[i])
                 self.readmode = None
                 continue
             elif(self.readmode=="posfile"):
@@ -104,7 +104,7 @@ class Arguments:
         print "Use: mirror.py <options>"
         print "Options:"
         print "-s or --sym or --symmetry <sym>          | Set symmetry mode. Example: $mirror.py -s 'cell-atom' (Default = mirror-mirror)"
-        print "-z or --zr or --zrange <range>           | Example: $mirror.py --pot PTCAR (Default = POTCAR)"
+        print "-z or --zr or --zrange <range>           | Atoms around the middle (z-axis) to ignore. Example: $mirror.py -z 1.0 (Default = 0.2)"
         print "-p or --pos or --poscar <POSCAR name>    | Example: $mirror.py -p CONTCAR (Default = POSCAR)"
         print "-a or --ads or --adsorbate               | Mirror only the adsorbate (Default = all)"
         print "-b or --bottom                           | Mirror bottom atoms to top instead of top to bottom (Default = top)"

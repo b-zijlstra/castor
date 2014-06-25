@@ -124,15 +124,15 @@ class Poscar:
             atom.x = vec.x
             atom.y = vec.y
             atom.z = vec.z
-    def mirror(self, mode_in = ["all", "top"], symmetry_X_in = "mirror", symmetry_Y_in = "mirror", zrange_in = "0.4"):
+    def mirror(self, mode_in = ["all", "top"], symmetry_X_in = "mirror", symmetry_Y_in = "mirror", zrange_in = 0.2):
         self.unitcell.invertMatrix()
         z_direct = self.unitcell.cartesian2direct(Vector(0,0,zrange_in)).z
         if(z_direct >= 0.5):
             z_direct = 0.49
         z_max = 0.5 + z_direct
         z_min = 0.5 - z_direct
-        # print z_max
-        # print z_min
+        # print >> sys.stderr, z_max
+        # print >> sys.stderr, z_min
 
         # cell_center = self.getCellCenter()
         # cell_center.write()

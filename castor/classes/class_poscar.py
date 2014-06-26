@@ -173,8 +173,8 @@ class Poscar:
 
             atom_center_top = self.getAtomCenter(metaltop)
             atom_center_bottom = self.getAtomCenter(metalbottom)
-            print >> sys.stderr, str(atom_center_top.x) + " " + str(atom_center_top.y) + " " + str(atom_center_top.z)
-            print >> sys.stderr, str(atom_center_bottom.x) + " " + str(atom_center_bottom.y) + " " + str(atom_center_bottom.z)
+            # print >> sys.stderr, str(atom_center_top.x) + " " + str(atom_center_top.y) + " " + str(atom_center_top.z)
+            # print >> sys.stderr, str(atom_center_bottom.x) + " " + str(atom_center_bottom.y) + " " + str(atom_center_bottom.z)
             if(mode_in[1] == "top"):
                 offset = atom_center_top + atom_center_bottom - cell_center * 2
             elif(mode_in[1] == "bottom"):
@@ -205,7 +205,7 @@ class Poscar:
             sym_y = cell_center.y
 
         sym_z = z_plane
-        print >> sys.stderr, str(offset.x) + " " + str(offset.y) + " " + str(offset.z)
+        # print >> sys.stderr, str(offset.x) + " " + str(offset.y) + " " + str(offset.z)
 
         newatoms = []
         newelnr = []

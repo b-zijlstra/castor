@@ -135,7 +135,7 @@ def main(arg_in):
     poscar_out.read(arguments.posfile)
     poscar_out.mirror(arguments.mode, arguments.symmetry, arguments.zplane, arguments.zrange)
     poscar_out.move2unitcell()
-    # poscar_out.relabel(poscar_in,"metal")
+    poscar_out.relabel(poscar_in,"metal")
     poscar_out.write()
 
 #EXECUTION

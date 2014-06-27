@@ -124,7 +124,7 @@ class Poscar:
             atom.x = vec.x
             atom.y = vec.y
             atom.z = vec.z
-    def mirror(self, mode_in = ["all", "top"], symmetry = ["mirror", "mirror"], zplane_in = 0.5 , zrange_in = 0.1):
+    def mirror(self, mode_in = ["all", "top"], symmetry = ["mirror", "mirror"], zplane_in = 0.5 , zrange_in = 0.01):
         self.unitcell.invertMatrix()
         z_direct = self.unitcell.cartesian2direct(Vector(0,0,zrange_in)).z
         z_plane = zplane_in
@@ -175,10 +175,7 @@ class Poscar:
             atom_center_bottom = self.getAtomCenter(metalbottom)
             # print >> sys.stderr, str(atom_center_top.x) + " " + str(atom_center_top.y) + " " + str(atom_center_top.z)
             # print >> sys.stderr, str(atom_center_bottom.x) + " " + str(atom_center_bottom.y) + " " + str(atom_center_bottom.z)
-            if(mode_in[1] == "top"):
-                offset = atom_center_top + atom_center_bottom - cell_center * 2
-            elif(mode_in[1] == "bottom"):
-                offset = cell_center * 2 - atom_center_top - atom_center_bottom
+            offset = atom_center_top + atom_center_bottom - cell_center * 2
 
         if(symmetry[0] == "mirror"):
             sym_x = None

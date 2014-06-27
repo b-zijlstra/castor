@@ -25,7 +25,7 @@ class Arguments:
         self.mode = ["all", "top"]
         self.symmetry = ["mirror", "mirror"] #Use 'mirror','cell_center', 'atom_center'
         self.zplane = 0.5 #direct middle of the z-axis of the structure
-        self.zrange = 0.1 #deviation tolerance in angstrom
+        self.zrange = 0.01 #deviation tolerance in angstrom
     def setup(self, arg_in):
         self.readmode = None
         for i in range(1,len(arg_in)):

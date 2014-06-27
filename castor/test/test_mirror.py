@@ -22,7 +22,7 @@ def mirror_0001():
     poscar_out = Poscar()
     poscar_in.read(os.path.dirname(os.path.realpath(__file__)) + "/source/mirror/POSCAR")
     poscar_out.read(os.path.dirname(os.path.realpath(__file__)) + "/source/mirror/POSCAR")
-    poscar_out.mirror(["ads", "top"], ["mirror", "mirror"], 0.5, 0.2)
+    poscar_out.mirror(["ads", "top"], ["mirror", "mirror"], 0.5, 0.01)
     poscar_out.move2unitcell()
     return poscar_out
 
@@ -31,7 +31,7 @@ def mirror_1121():
     poscar_out = Poscar()
     poscar_in.read(os.path.dirname(os.path.realpath(__file__)) + "/source/mirror/CONTCAR")
     poscar_out.read(os.path.dirname(os.path.realpath(__file__)) + "/source/mirror/CONTCAR")
-    poscar_out.mirror(["all", "bottom"], ["cell_center", "cell_center"], 0.5, 0.2)
+    poscar_out.mirror(["all", "bottom"], ["cell_center", "cell_center"], 0.5, 0.01)
     poscar_out.move2unitcell()
     poscar_out.relabel(poscar_in,"metal")
     return poscar_out

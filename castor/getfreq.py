@@ -57,19 +57,19 @@ class Arguments:
             if(sys.argv[i] == "-h" or sys.argv[i] == "--help"):
                 self.help()
                 sys.exit()
-            elif(sys.argv[i] == "-o"):
+            elif(sys.argv[i] == "-o" or sys.argv[i] == "--outcar"):
                 readmode = "outcar"
                 continue
-            elif(sys.argv[i] == "-n"):
+            elif(sys.argv[i] == "-n" or sys.argv[i] == "--numbers"):
                 readmode = "numbers"
                 continue
-            elif(sys.argv[i] == "-e"):
+            elif(sys.argv[i] == "-e" or sys.argv[i] == "--element"):
                 readmode = "element"
                 continue
-            elif(sys.argv[i] == "-m"):
+            elif(sys.argv[i] == "-m" or sys.argv[i] == "--mass"):
                 readmode = "mass"
                 continue
-            elif(sys.argv[i] == "--less"):
+            elif(sys.argv[i] == "-l" or sys.argv[i] == "--less"):
                 self.printmode = "less"
                 continue
             elif(sys.argv[i] == "--bever"):
@@ -95,12 +95,13 @@ class Arguments:
     def help(self):
         print "Use: getfreq.py <options>"
         print "Options:"
-        print "-o <outcar name>      | Example: $getfreq.py -o out (Default = OUTCAR)"
-        print "-n <numbers>          | Example: $getfreq.py -n 34,36,38-40 (Default = all)"
-        print "-e <element>          | Example: $getfreq.py -e C (Default = H)"
-        print "-m <mass>             | Example: $getfreq.py -m 13.0 (Default = 2.0)"
+        print "-o or --outcar <outcar name>  | Example: $getfreq.py -o out (Default = OUTCAR)"
+        print "-n or --numbers <numbers>     | Example: $getfreq.py -n 34,36,38-40 (Default = all)"
+        print "-e or --element <element>     | Example: $getfreq.py -e C (Default = H)"
+        print "-m or --mass <mass>           | Example: $getfreq.py -m 13.0 (Default = 2.0)"
+        print "-l or --less                  | Set printmode to 'less' (Default = all)"
         print ""
-        print "-h or --help           | displays this help message"
+        print "-h or --help                  | displays this help message"
 
 #DEFINES
 
@@ -109,15 +110,14 @@ def main(arg_in):
     arguments.setup(arg_in)
     hessian = Hessian()
     hessian.read(arguments.getOutcar())
-    # hessian.mapMass() # do not changes masses
-    # hessian.mapMass("H", 2.0) # change hydrogen mass to 2.0 (deuterium)
+    hessian.diagonalize_ori()
+    hessian.calcFreqs_ori()
     hessian.mapMass(arguments.getElement(), arguments.getMass(), arguments.getNumbers()) # from numberlist, change all element masses to mass
-    # hessian.mapMass("C", 13.003) # change carbon mass to carbon-13
-    hessian.newMassMatrix()
-    hessian.diagonalize()
-    hessian.calcFreqs()
+    if(hessian.changes == True):
+        hessian.newMassMatrix()
+        hessian.diagonalize_new()
+        hessian.calcFreqs_new()
     hessian.write(arguments.getPrintmode())
-
 
 #EXECUTION
 main(sys.argv)

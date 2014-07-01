@@ -21,7 +21,7 @@ import numpy as np
 
 class Hessian:
     """Defines a Hessian"""
-    def __init__(self):
+    def __init__(self, temp_in = 800):
         self.decimals = 6
         self.spaces = 3
         self.vector_atoms = np.dtype(int)
@@ -52,6 +52,9 @@ class Hessian:
         self.numbers = None
         self.element = None
         self.mass = None
+        self.changes = False
+        self.temp = temp_in # in Kelvin - Used for the vibrational partition function
+        self.kb = 8.617332478e-2 # Botzmann constant in meV/K
     def read(self, outcar_in):
         self.outcar = outcar_in
         with open(outcar_in, 'r') as inputfile:
@@ -114,6 +117,8 @@ class Hessian:
         for i in range(0,len(self.vector_atoms)):
             if(self.vector_atoms[i] not in self.massmap):
                 if(self.vector_atoms[i] in self.numberset and mass_in != None):
+                    if(self.changes == False and mass_in != self.getMass(self.vector_atoms[i])):
+                        self.changes = True
                     self.massmap[self.vector_atoms[i]] = mass_in
                 else:
                     self.massmap[self.vector_atoms[i]] = self.getMass(self.vector_atoms[i])
@@ -180,12 +185,17 @@ class Hessian:
         sys.exit()
 
     def diagonalize(self):
+        self.diagonalize_ori()
+        self.diagonalize_new()
+
+    def diagonalize_ori(self):
         if(self.matrix_mass_ori == None or len(self.matrix_mass_ori) == 0 or self.matrix_mass_ori[0].size == 0):
             print "Can not diagonalize original hessian matrix because it does not exist!"
             sys.exit()
         else:
             self.matrix_diag_ori = np.linalg.eigh(self.matrix_mass_ori)
-
+    
+    def diagonalize_new(self):
         if(self.matrix_mass_new == None or len(self.matrix_mass_new) == 0 or self.matrix_mass_new[0].size == 0):
             print "Can not diagonalize original hessian matrix because it does not exist!"
             sys.exit()
@@ -193,20 +203,19 @@ class Hessian:
             self.matrix_diag_new = np.linalg.eigh(self.matrix_mass_new)
 
     def calcFreqs(self):
+        self.calcFreqs_ori()
+        self.calcFreqs_new()
+
+    def calcFreqs_ori(self):
         eig_to_THz = 15.633304592
         eig_to_2PiTHz = 98.2269497148
         eig_to_cm1 = 521.47091
         eig_to_meV = 64.6541499
         list_THz_ori = []
-        list_THz_new = []
         list_2PiTHz_ori = []
-        list_2PiTHz_new = []
         list_cm1_ori = []
-        list_cm1_new = []
         list_meV_ori = []
-        list_meV_new = []
         list_imaginary_ori = []
-        list_imaginary_new = []
         for i in range(0,len(self.matrix_diag_ori[0])):
             eigenval = self.matrix_diag_ori[0][i]
             if(eigenval < 0):
@@ -219,6 +228,22 @@ class Hessian:
             list_2PiTHz_ori.append(eigenval*eig_to_2PiTHz)
             list_cm1_ori.append(eigenval*eig_to_cm1)
             list_meV_ori.append(eigenval*eig_to_meV)
+        self.vector_THz_ori = list_THz_ori
+        self.vector_2PiTHz_ori = list_2PiTHz_ori
+        self.vector_cm1_ori = list_cm1_ori
+        self.vector_meV_ori = list_meV_ori
+        self.vector_imaginary_ori = list_imaginary_ori
+
+    def calcFreqs_new(self):
+        eig_to_THz = 15.633304592
+        eig_to_2PiTHz = 98.2269497148
+        eig_to_cm1 = 521.47091
+        eig_to_meV = 64.6541499
+        list_THz_new = []
+        list_2PiTHz_new = []
+        list_cm1_new = []
+        list_meV_new = []
+        list_imaginary_new = []
         for i in range(0,len(self.matrix_diag_new[0])):
             eigenval = self.matrix_diag_new[0][i]
             if(eigenval < 0):
@@ -231,18 +256,14 @@ class Hessian:
             list_2PiTHz_new.append(eigenval*eig_to_2PiTHz)
             list_cm1_new.append(eigenval*eig_to_cm1)
             list_meV_new.append(eigenval*eig_to_meV)
-        self.vector_THz_ori = list_THz_ori
         self.vector_THz_new = list_THz_new
-        self.vector_2PiTHz_ori = list_2PiTHz_ori
         self.vector_2PiTHz_new = list_2PiTHz_new
-        self.vector_cm1_ori = list_cm1_ori
         self.vector_cm1_new = list_cm1_new
-        self.vector_meV_ori = list_meV_ori
         self.vector_meV_new = list_meV_new
-        self.vector_imaginary_ori = list_imaginary_ori
         self.vector_imaginary_new = list_imaginary_new
 
     def write(self, printmode):
+        kbT = self.temp * self.kb
         if(printmode == "all"):
             print "---------------------------"
             print "-        Settings:        -"
@@ -294,10 +315,13 @@ class Hessian:
                     print string
                 print "\n"
                 zpe = 0.0
+                nu = 1.0
                 for i in range(0,len(self.vector_meV_ori)):
                     if(self.vector_imaginary_ori[i]==False):
                         zpe += self.vector_meV_ori[i]
+                        nu *= 1.0 / (1.0 - math.exp(-self.vector_meV_ori[i] / kbT))
                 print 'Total ZPE contribution of frequencies in eV: {:.{width}f}'.format(zpe/2000, width=self.decimals)
+                print 'Vibrational partition function: {:.{width}f}'.format(nu, width=self.decimals)
                 print "\n"
             if(len(self.vector_meV_new) != 0):
                 print "---------------------------"
@@ -321,17 +345,38 @@ class Hessian:
                     print string
                 print "\n"
                 zpe = 0.0
+                nu = 1.0
                 for i in range(0,len(self.vector_meV_new)):
                     if(self.vector_imaginary_new[i]==False):
                         zpe += self.vector_meV_new[i]
+                        nu *= 1.0 / (1.0 - math.exp(-self.vector_meV_new[i] / kbT))
                 print 'Total ZPE contribution of frequencies in eV: {:.{width}f}'.format(zpe/2000, width=self.decimals)
+                print 'Vibrational partition function: {:.{width}f}'.format(nu, width=self.decimals)
                 print "\n"
-        elif(len(self.vector_meV_new) != 0):
+        elif(len(self.vector_meV_ori) != 0):
+            # print "-----------"
             zpe = 0.0
-            for i in range(0,len(self.vector_meV_new)):
-                if(self.vector_imaginary_new[i]==False):
-                    zpe += self.vector_meV_new[i]
-            print 'Total ZPE contribution of new frequencies in eV: {:.{width}f}'.format(zpe/2000, width=self.decimals)
+            nu = 1.0
+            for i in range(0,len(self.vector_meV_ori)):
+                if(self.vector_imaginary_ori[i]==False):
+                    zpe += self.vector_meV_ori[i]
+                    nu *= 1.0 / (1.0 - math.exp(-self.vector_meV_ori[i] / kbT))
+            print 'Total ZPE contribution of frequencies in eV: {:.{width}f}'.format(zpe/2000, width=self.decimals)
+            print 'Vibrational partition function: {:.{width}f}'.format(nu, width=self.decimals)
+
+            if(len(self.vector_meV_new) != 0):
+                # print "---"
+                self.printChanges()
+                # print "---"
+                zpe = 0.0
+                nu = 1.0
+                for i in range(0,len(self.vector_meV_new)):
+                    if(self.vector_imaginary_new[i]==False):
+                        zpe += self.vector_meV_new[i]
+                        nu *= 1.0 / (1.0 - math.exp(-self.vector_meV_new[i] / kbT))
+                print 'Total ZPE contribution of new frequencies in eV: {:.{width}f}'.format(zpe/2000, width=self.decimals)
+                print 'New vibrational partition function: {:.{width}f}'.format(nu, width=self.decimals)
+            # print "-----------"
 
     def printMatrix(self, matrix_in):
         self.printAxis_X()

@@ -19,7 +19,7 @@ from castor.classes.class_hessian import Hessian
 #DEFINES
 def gethessian():
     hessian = Hessian()
-    hessian.read(os.path.dirname(os.path.realpath(__file__)) + "/source/getfreq/OUTCAR", os.path.dirname(os.path.realpath(__file__)) + "/source/getfreq/POSCAR")
+    hessian.read(os.path.dirname(os.path.realpath(__file__)) + "/source/getfreq/OUTCAR")
     hessian.mapMass("H", 2.0, None) # from numberlist, change all element masses to mass
     hessian.newMassMatrix()
     hessian.diagonalize()
@@ -38,7 +38,7 @@ def outputtest(output_in, file_in):
     with open(file_in, 'r') as inputfile:
         lines = inputfile.readlines()
     output = output_in.split('\n')
-    return all(x.rstrip() == y for x,y in zip(lines, output[5:]))
+    return all(x.rstrip() == y for x,y in zip(lines, output[4:]))
 
 def vectortest(vec, check):
     print [vec.x, vec.y, vec.z]

@@ -49,13 +49,11 @@ class Hessian:
         self.numberset = set()
         self.massmap = dict()
         self.outcar = None
-        self.poscar = None
         self.numbers = None
         self.element = None
         self.mass = None
-    def read(self, outcar_in, poscar_in):
+    def read(self, outcar_in):
         self.outcar = outcar_in
-        self.poscar = poscar_in
         with open(outcar_in, 'r') as inputfile:
             intlist_atoms = []
             charlist_axes = []
@@ -79,6 +77,13 @@ class Hessian:
                 match = re.search('^[ \t]*POMASS[ \t]+=[ \t]+([0-9.]+);.*$',line);
                 if(match):
                     floatlist_masses.append(float(match.group(1)))
+                match = re.search('^[ \t]*ions per type =([0-9 \t]+)[ \t]*$',line);
+                if(match):
+                    stringlist_values = match.group(1).split()
+                    intlist_values = []
+                    for i in range(0,len(stringlist_values)):
+                        intlist_values.append(int(stringlist_values[i]))
+                    self.vector_elnr = np.array(intlist_values)
             matrix_tot = np.matrix(floatlist_list_rows)
             matrix_size = len(matrix_tot)/3
             self.matrix_nonsym = matrix_tot[0 : matrix_size]
@@ -88,24 +93,14 @@ class Hessian:
             self.vector_axes = charlist_axes[0:matrix_size]
             self.vector_elements = stringlist_elements
             self.vector_masses = floatlist_masses
-
-        with open(poscar_in, 'r') as inputfile:
-            lines = inputfile.readlines()
-            match = re.search('^[ \t]*([0-9 \t]+)[ \t]*$',lines[5]);
-            if(match):
-                stringlist_values = match.group(1).split()
-                intlist_values = []
-                for i in range(0,len(stringlist_values)):
-                    intlist_values.append(int(stringlist_values[i]))
-                self.vector_elnr = np.array(intlist_values)
-            else:
-                print "Could not get number of each element from " + poscar_in
-                sys.exit()
         if(self.matrix_sym == None or len(self.matrix_sym) == 0 or self.matrix_sym[0].size == 0):
             print "Reading from " + outcar_in + " failed! Could not find hessian matrix."
             sys.exit()
         if(self.matrix_mass_ori == None or len(self.matrix_mass_ori) == 0 or self.matrix_mass_ori[0].size == 0):
             print "Reading from " + outcar_in + " failed! Could not find hessian matrix."
+            sys.exit()
+        if(self.vector_elnr == None):
+            print "Reading from " + outcar_in + " failed! Could not find number of elements."
             sys.exit()
 
     def mapMass(self, element_in = None, mass_in = None, numbers_in = None):
@@ -252,9 +247,8 @@ class Hessian:
             print "---------------------------"
             print "-        Settings:        -"
             print "---------------------------"
-            print "Outcar to be used= " + str(self.outcar)
-            print "Poscar to be used= " + str(self.poscar)
-            print "Element to set new mass= " + str(self.element)
+            print "Outcar used = " + str(self.outcar)
+            print "Element to set new mass = " + str(self.element)
             if(self.numbers == None):
                 print "Atom numbers of element to set new mass = all"
             else:

@@ -22,7 +22,6 @@ class Arguments:
     """Defines a set of arguments"""
     def __init__(self):
         self.outcar = "OUTCAR"
-        self.poscar = "POSCAR"
         self.numbers = None
         self.element = "H"
         self.mass = 2.0
@@ -32,10 +31,6 @@ class Arguments:
         for i in range(1,len(arg_in)):
             if(readmode=="outcar"):
                 self.outcar = arg_in[i]
-                readmode = None
-                continue
-            if(readmode=="poscar"):
-                self.poscar = arg_in[i]
                 readmode = None
                 continue
             if(readmode=="numbers"):
@@ -65,9 +60,6 @@ class Arguments:
             elif(sys.argv[i] == "-o"):
                 readmode = "outcar"
                 continue
-            elif(sys.argv[i] == "-p"):
-                readmode = "poscar"
-                continue
             elif(sys.argv[i] == "-n"):
                 readmode = "numbers"
                 continue
@@ -92,8 +84,6 @@ class Arguments:
                 sys.exit()
     def getOutcar(self):
         return self.outcar
-    def getPoscar(self):
-        return self.poscar
     def getNumbers(self):
         return self.numbers
     def getElement(self):
@@ -106,7 +96,6 @@ class Arguments:
         print "Use: getfreq.py <options>"
         print "Options:"
         print "-o <outcar name>      | Example: $getfreq.py -o out (Default = OUTCAR)"
-        print "-p <poscar name>      | Example: $getfreq.py -p pos (Default = POSCAR)"
         print "-n <numbers>          | Example: $getfreq.py -n 34,36,38-40 (Default = all)"
         print "-e <element>          | Example: $getfreq.py -e C (Default = H)"
         print "-m <mass>             | Example: $getfreq.py -m 13.0 (Default = 2.0)"
@@ -119,7 +108,7 @@ def main(arg_in):
     arguments = Arguments()
     arguments.setup(arg_in)
     hessian = Hessian()
-    hessian.read(arguments.getOutcar(), arguments.getPoscar())
+    hessian.read(arguments.getOutcar())
     # hessian.mapMass() # do not changes masses
     # hessian.mapMass("H", 2.0) # change hydrogen mass to 2.0 (deuterium)
     hessian.mapMass(arguments.getElement(), arguments.getMass(), arguments.getNumbers()) # from numberlist, change all element masses to mass

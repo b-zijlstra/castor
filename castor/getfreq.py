@@ -110,13 +110,14 @@ def main(arg_in):
     arguments.setup(arg_in)
     hessian = Hessian()
     hessian.read(arguments.getOutcar())
-    hessian.diagonalize_ori()
-    hessian.calcFreqs_ori()
+    hessian.matrix.mass2diag()
+    hessian.matrix.diag2freq()
     hessian.mapMass(arguments.getElement(), arguments.getMass(), arguments.getNumbers()) # from numberlist, change all element masses to mass
     if(hessian.changes == True):
-        hessian.newMassMatrix()
-        hessian.diagonalize_new()
-        hessian.calcFreqs_new()
+        hessian.addmatrix()
+        hessian.newmatrices[0].sym2mass(hessian.massmap)
+        hessian.newmatrices[0].mass2diag()
+        hessian.newmatrices[0].diag2freq()
     hessian.write(arguments.getPrintmode())
 
 #EXECUTION

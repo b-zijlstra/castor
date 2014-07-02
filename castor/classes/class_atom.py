@@ -37,6 +37,6 @@ class Atom:
     def write(self, decimals_in = 6, spaces_in = 3):
         self.decimals = decimals_in
         self.spaces = spaces_in
-        string = '{:^{width}}'.format(self.el, width=2)
+        string = '{0:^{width}}'.format(self.el, width=2)
         string += self.vec.getString(self.decimals, self.spaces)
         print string

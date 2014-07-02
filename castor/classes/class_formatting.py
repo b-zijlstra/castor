@@ -24,16 +24,16 @@ class Formatting:
     def floats(self, floatlist):
         string = ""
         for number in floatlist:
-            temp = '{:.{width}f}'.format(number, width=self.decimals)
-            string += '{:>{width}}'.format(temp, width=self.decimals+self.spaces+2)
+            temp = '{0:.{width}f}'.format(number, width=self.decimals)
+            string += '{0:>{width}}'.format(temp, width=self.decimals+self.spaces+2)
         string += "\n"
         return string
     def ints(self, intlist):
         firstnum = 1
         string = ""
         for number in intlist:
-            temp = '{:.{width}f}'.format(number, width=self.decimals)
-            string += '{:>{width}}'.format(temp, width=self.decimals+self.spaces+2)
+            temp = '{0:.{width}f}'.format(number, width=self.decimals)
+            string += '{0:>{width}}'.format(temp, width=self.decimals+self.spaces+2)
             if(firstnum==1):
                 string = str(number)
                 firstnum = 0

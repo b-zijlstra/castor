@@ -60,12 +60,12 @@ class Vector:
         self.decimals = decimals_in
         self.spaces = spaces_in
         string = ""
-        xcor = '{:.{width}f}'.format(self.x, width=self.decimals)
-        ycor = '{:.{width}f}'.format(self.y, width=self.decimals)
-        zcor = '{:.{width}f}'.format(self.z, width=self.decimals)
-        string += '{:>{width}}'.format(xcor, width=self.decimals+self.spaces+3)
-        string += '{:>{width}}'.format(ycor, width=self.decimals+self.spaces+3)
-        string += '{:>{width}}'.format(zcor, width=self.decimals+self.spaces+3)
+        xcor = '{0:.{width}f}'.format(self.x, width=self.decimals)
+        ycor = '{0:.{width}f}'.format(self.y, width=self.decimals)
+        zcor = '{0:.{width}f}'.format(self.z, width=self.decimals)
+        string += '{0:>{width}}'.format(xcor, width=self.decimals+self.spaces+3)
+        string += '{0:>{width}}'.format(ycor, width=self.decimals+self.spaces+3)
+        string += '{0:>{width}}'.format(zcor, width=self.decimals+self.spaces+3)
         return string
     def write(self, decimals_in = 6, spaces_in = 3):
         self.decimals = decimals_in

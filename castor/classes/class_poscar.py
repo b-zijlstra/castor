@@ -88,8 +88,8 @@ class Poscar:
         self.spaces = spaces_in
         if(rewrite==True):
             print self.name
-            temp = '{:.{width}f}'.format(self.unitcell.lc, width=self.decimals)
-            print '{:>{width}}'.format(temp, width=self.decimals+self.spaces+2)
+            temp = '{0:.{width}f}'.format(self.unitcell.lc, width=self.decimals)
+            print '{0:>{width}}'.format(temp, width=self.decimals+self.spaces+2)
             print self.unitcell.vec_1.write(self.decimals,self.spaces)
             print self.unitcell.vec_2.write(self.decimals,self.spaces)
             print self.unitcell.vec_3.write(self.decimals,self.spaces)

@@ -33,14 +33,14 @@ class Frequency:
             string += "f  ="
         elif(self.imaginary==True):
             string += "f/i="
-        data = '{:.{width}f} THz'.format(self.THz, width=self.decimals)
-        string += '{:>{width}}'.format(data, width=self.decimals+self.spaces+6)
-        data = '{:.{width}f} 2PiTHz'.format(self.THz2Pi, width=self.decimals)
-        string += '{:>{width}}'.format(data, width=self.decimals+self.spaces+12)
-        data = '{:.{width}f} cm-1'.format(self.cm1, width=self.decimals)
-        string += '{:>{width}}'.format(data, width=self.decimals+self.spaces+11)
-        data = '{:.{width}f} meV'.format(self.meV, width=self.decimals)
-        string += '{:>{width}}'.format(data, width=self.decimals+self.spaces+9)
+        data = '{0:.{width}f} THz'.format(self.THz, width=self.decimals)
+        string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+6)
+        data = '{0:.{width}f} 2PiTHz'.format(self.THz2Pi, width=self.decimals)
+        string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+12)
+        data = '{0:.{width}f} cm-1'.format(self.cm1, width=self.decimals)
+        string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+11)
+        data = '{0:.{width}f} meV'.format(self.meV, width=self.decimals)
+        string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+9)
         return string
     def write(self, decimals_in = 6, spaces_in = 3):
         print self.getString(decimals_in, spaces_in)

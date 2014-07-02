@@ -105,26 +105,26 @@ class Rdf:
         for i in range(0,len(self.bins)):
             string = ""
 
-            x = '{:.{width}f}'.format(self.bins[i], width=self.decimals)
+            x = '{0:.{width}f}'.format(self.bins[i], width=self.decimals)
 
             if(rdfnum_in==None):
                 y = 0
                 for j in range(0,len(self.distribution)):
                     y += self.distribution[j][i]
                 y /= len(self.distribution)
-                y = '{:.{width}f}'.format(y, width=self.decimals)
+                y = '{0:.{width}f}'.format(y, width=self.decimals)
             else:
-                y = '{:.{width}f}'.format(self.distribution[rdfnum_in][i], width=self.decimals)
+                y = '{0:.{width}f}'.format(self.distribution[rdfnum_in][i], width=self.decimals)
             
-            string += '{:>{width}}'.format(x, width=self.decimals+self.spaces+3)
-            string += '{:>{width}}'.format(y, width=self.decimals+self.spaces+3)
+            string += '{0:>{width}}'.format(x, width=self.decimals+self.spaces+3)
+            string += '{0:>{width}}'.format(y, width=self.decimals+self.spaces+3)
             print string
 
         if(self.printmode != "less"):
             print ""
             print "COORDINATION NUMBERS"
             for i in range(0,17):
-                string = '{:>{width}}'.format(i, width=3)
+                string = '{0:>{width}}'.format(i, width=3)
                 if(rdfnum_in==None):
                     count = 0.0
                     for j in range(0,len(self.coordination)):
@@ -132,13 +132,13 @@ class Rdf:
                             if(self.coordination[j][k] == i):
                                 count += 1
                     count /= len(self.coordination)
-                    string += '{:>{width}}'.format(count, width=self.spaces+5)
+                    string += '{0:>{width}}'.format(count, width=self.spaces+5)
                 else:
                     count = 0
                     for k in range(0,len(self.coordination[rdfnum_in])):
                         if(self.coordination[rdfnum_in][k] == i):
                             count += 1
-                    string += '{:>{width}}'.format(count, width=self.spaces+5)
+                    string += '{0:>{width}}'.format(count, width=self.spaces+5)
                 print string
 
 
@@ -153,13 +153,13 @@ class Rdf:
         for i in range(0,len(self.bins)):
             string = ""
 
-            x = '{:.{width}f}'.format(self.bins[i], width=self.decimals)
-            string += '{:>{width}}'.format(x, width=self.decimals+self.spaces+3)
+            x = '{0:.{width}f}'.format(self.bins[i], width=self.decimals)
+            string += '{0:>{width}}'.format(x, width=self.decimals+self.spaces+3)
 
             for j in range(0,len(self.distribution)):
                 y = self.distribution[j][i]
-                y = '{:.{width}f}'.format(y, width=self.decimals)
-                string += '{:>{width}}'.format(y, width=self.decimals+self.spaces+3)
+                y = '{0:.{width}f}'.format(y, width=self.decimals)
+                string += '{0:>{width}}'.format(y, width=self.decimals+self.spaces+3)
             print string
 
 
@@ -167,11 +167,11 @@ class Rdf:
             print ""
             print "COORDINATION NUMBERS"
             for i in range(0,17):
-                string = '{:>{width}}'.format(i, width=3)
+                string = '{0:>{width}}'.format(i, width=3)
                 for j in range(0,len(self.coordination)):
                     count = 0
                     for k in range(0,len(self.coordination[j])):
                         if(self.coordination[j][k] == i):
                             count += 1
-                    string += '{:>{width}}'.format(count, width=self.spaces+5)
+                    string += '{0:>{width}}'.format(count, width=self.spaces+5)
                 print string

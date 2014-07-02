@@ -70,21 +70,21 @@ class Matrix:
     def printFreq(self):
         for freq, count in zip(self.frequencies, range(1,len(self.frequencies)+1)):
             string = ""
-            string += '{:>{width}} '.format(count, width=self.spaces+1)
+            string += '{0:>{width}} '.format(count, width=self.spaces+1)
             string += freq.getString()
             print string
     def printMatrix(self, matrix_in):
         self.printAxis_X()
         for row, atom_row, axes_row in zip(matrix_in, self.atoms, self.axes):
             name = str(atom_row)+axes_row
-            string = '{:^{width}}'.format(name, width=self.spaces+2)
+            string = '{0:^{width}}'.format(name, width=self.spaces+2)
             for column in row:
-                data = '{:.{width}f}'.format(column, width=self.decimals)
-                string += '{:>{width}}'.format(data, width=self.decimals+self.spaces+3)
+                data = '{0:.{width}f}'.format(column, width=self.decimals)
+                string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+3)
             print string
     def printAxis_X(self):
-        string = '{:^{width}}'.format("", width=self.spaces+2)
+        string = '{0:^{width}}'.format("", width=self.spaces+2)
         for atom, axis in zip(self.atoms, self.axes):
             name = str(atom)+axis
-            string += '{:>{width}}'.format(name, width=self.decimals+self.spaces+3)
+            string += '{0:>{width}}'.format(name, width=self.decimals+self.spaces+3)
         print string

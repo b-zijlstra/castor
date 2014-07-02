@@ -60,8 +60,8 @@ class Vec3_float:
     def write(self, decimals_in, spaces_in):
         string = ""
         for number in [self.x, self.y, self.z]:
-            temp = '{:.{width}f}'.format(number, width=decimals_in)
-            string += '{:>{width}}'.format(temp, width=decimals_in+spaces_in+2)
+            temp = '{0:.{width}f}'.format(number, width=decimals_in)
+            string += '{0:>{width}}'.format(temp, width=decimals_in+spaces_in+2)
         return string
     def scale(self, xx, yy = None, zz = None):
         if((yy == None and zz != None) or (yy != None and zz == None)):

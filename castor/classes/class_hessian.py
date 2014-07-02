@@ -200,8 +200,8 @@ class Hessian:
                 print "\n"
                 zpe = self.calcZPE(self.matrix.frequencies)
                 nu = self.calcPartition(self.matrix.frequencies)
-                print 'Total ZPE contribution of frequencies in eV: {:.{width}f}'.format(zpe, width=self.decimals)
-                print 'Vibrational partition function: {:.{width}f}'.format(nu, width=self.decimals)
+                print 'Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
+                print 'Vibrational partition function: {0:.{width}f}'.format(nu, width=self.decimals)
                 print "\n"
             for newmatrix in self.newmatrices:
                 print "---------------------------"
@@ -211,21 +211,21 @@ class Hessian:
                 print "\n"
                 zpe = self.calcZPE(newmatrix.frequencies)
                 nu = self.calcPartition(newmatrix.frequencies)
-                print 'Total ZPE contribution of frequencies in eV: {:.{width}f}'.format(zpe, width=self.decimals)
-                print 'Vibrational partition function: {:.{width}f}'.format(nu, width=self.decimals)
+                print 'Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
+                print 'Vibrational partition function: {0:.{width}f}'.format(nu, width=self.decimals)
                 print "\n"
         elif(self.matrix != None):
             zpe = self.calcZPE(self.matrix.frequencies)
             nu = self.calcPartition(self.matrix.frequencies)
-            print 'Total ZPE contribution of frequencies in eV: {:.{width}f}'.format(zpe, width=self.decimals)
-            print 'Vibrational partition function: {:.{width}f}'.format(nu, width=self.decimals)
+            print 'Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
+            print 'Vibrational partition function: {0:.{width}f}'.format(nu, width=self.decimals)
 
             for newmatrix in self.newmatrices:
                 self.printChanges()
                 zpe = self.calcZPE(newmatrix.frequencies)
                 nu = self.calcPartition(newmatrix.frequencies)
-                print 'Total ZPE contribution of new frequencies in eV: {:.{width}f}'.format(zpe, width=self.decimals)
-                print 'New vibrational partition function: {:.{width}f}'.format(nu, width=self.decimals)
+                print 'Total ZPE contribution of new frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
+                print 'New vibrational partition function: {0:.{width}f}'.format(nu, width=self.decimals)
     def printChanges(self):
         if(len(self.numberset)==0):
             print "None"

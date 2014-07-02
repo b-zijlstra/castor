@@ -13,13 +13,11 @@
 import sys
 import math
 import numpy as np
-from copy import deepcopy as copy
-
 
 #MY PATHS
 
 #MY CLASSES
-from classes.hessian.subclass_frequency import Frequency
+from subclass_frequency import Frequency
 
 class Matrix:
     """Defines the matrices of a Hessian"""
@@ -38,18 +36,21 @@ class Matrix:
         "nonsym2sym is not yet implemented"
         sys.exit()
     def sym2mass(self, map_in):
-        self.mass = copy(self.sym)
-        for row, atom_row in zip(mass, self.atoms):
-            mass_row = self.massmap[atom_row]
+        self.mass = []
+        for row, atom_row in zip(self.sym, self.atoms):
+            mass_row = map_in[atom_row]
+            rowlist = []
             for column, atom_col in zip(row, self.atoms):
                 mass_col = map_in[atom_col]
-                column /= math.sqrt(mass_row*mass_col)
+                rowlist.append(column / math.sqrt(mass_row*mass_col))
+            self.mass.append(rowlist)
     def mass2diag(self):
-        if(self.mass == None or len(self.mass) == 0 or self.mass[0].size == 0):
+        if(self.mass == None or len(self.mass) == 0 or len(self.mass[0]) == 0):
             print "Can not diagonalize mass matrix because it does not exist!"
             sys.exit()
         else:
-            self.diag = np.linalg.eigh(self.mass)
+            numpymat = np.matrix(self.mass)
+            self.diag = np.linalg.eigh(numpymat)
     def diag2freq(self):
         for eigenval in self.diag[0]:
             if(eigenval < 0):
@@ -77,9 +78,7 @@ class Matrix:
         for row, atom_row, axes_row in zip(matrix_in, self.atoms, self.axes):
             name = str(atom_row)+axes_row
             string = '{:^{width}}'.format(name, width=self.spaces+2)
-            print row
             for column in row:
-                print column
                 data = '{:.{width}f}'.format(column, width=self.decimals)
                 string += '{:>{width}}'.format(data, width=self.decimals+self.spaces+3)
             print string

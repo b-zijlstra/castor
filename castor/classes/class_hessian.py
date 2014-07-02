@@ -18,7 +18,7 @@ import numpy as np
 #MY PATHS
 
 #MY CLASSES
-from classes.hessian.subclass_matrix import Matrix
+from hessian.subclass_matrix import Matrix
 
 class Hessian:
     """Defines a Hessian"""
@@ -69,10 +69,9 @@ class Hessian:
                     for i in range(0,len(stringlist_values)):
                         intlist_values.append(int(stringlist_values[i]))
                     self.vector_elnr = np.array(intlist_values)
-            matrix_tot = np.matrix(floatlist_list_rows)
-            matrix_size = len(matrix_tot)/3
+            matrix_size = len(floatlist_list_rows)/3
             self.matrix = Matrix(intlist_atoms[0:matrix_size], charlist_axes[0:matrix_size])
-            self.matrix.setup(matrix_tot[0 : matrix_size], matrix_tot[matrix_size : matrix_size*2], matrix_tot[matrix_size*2 : matrix_size*3], None)
+            self.matrix.setup(floatlist_list_rows[0 : matrix_size], floatlist_list_rows[matrix_size : matrix_size*2], floatlist_list_rows[matrix_size*2 : matrix_size*3], None)
             self.vector_elements = stringlist_elements
             self.vector_masses = floatlist_masses
         if(self.matrix.sym == None or len(self.matrix.sym) == 0 or len(self.matrix.sym[0]) == 0):
@@ -84,14 +83,14 @@ class Hessian:
         if(self.vector_elnr == None):
             print "Reading from " + outcar_in + " failed! Could not find number of elements."
             sys.exit()
-    def addMatrix(self):
+    def addmatrix(self):
         new = Matrix(self.matrix.atoms, self.matrix.axes)
         new.setup(self.matrix.nonsym, self.matrix.sym, None, None)
         self.newmatrices.append(new)
     def mapMass(self, element_in = None, mass_in = None, numbers_in = None):
-        self.numbers = numbers_in
         self.element = element_in
         self.mass = mass_in
+        self.numbers = numbers_in
 
         self.numberset = self.string2numberset(numbers_in, element_in)
         
@@ -148,7 +147,7 @@ class Hessian:
         for number, mass in zip(self.vector_elnr, self.vector_masses):
             atomsum += number
             if(number_in <= atomsum):
-                return self.mass
+                return mass
         print "Could not get element mass"
         sys.exit()
     def calcZPE(self, freqs_in):
@@ -162,7 +161,6 @@ class Hessian:
         nu = 1.0
         for freq in freqs_in:
             if(freq.imaginary==False):
-                zpe += freq.meV
                 nu *= 1.0 / (1.0 - math.exp(-freq.meV / kbT))
         return nu
     def write(self, printmode):
@@ -223,14 +221,11 @@ class Hessian:
             print 'Vibrational partition function: {:.{width}f}'.format(nu, width=self.decimals)
 
             for newmatrix in self.newmatrices:
-                # print "---"
                 self.printChanges()
-                # print "---"
                 zpe = self.calcZPE(newmatrix.frequencies)
                 nu = self.calcPartition(newmatrix.frequencies)
                 print 'Total ZPE contribution of new frequencies in eV: {:.{width}f}'.format(zpe, width=self.decimals)
                 print 'New vibrational partition function: {:.{width}f}'.format(nu, width=self.decimals)
-            # print "-----------"
     def printChanges(self):
         if(len(self.numberset)==0):
             print "None"

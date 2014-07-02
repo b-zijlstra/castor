@@ -20,10 +20,13 @@ from castor.classes.class_hessian import Hessian
 def gethessian(file_in):
     hessian = Hessian()
     hessian.read(file_in)
+    hessian.matrix.mass2diag()
+    hessian.matrix.diag2freq()
     hessian.mapMass("H", 2.0, None) # from numberlist, change all element masses to mass
-    hessian.newMassMatrix()
-    hessian.diagonalize()
-    hessian.calcFreqs()
+    hessian.addmatrix()
+    hessian.newmatrices[0].sym2mass(hessian.massmap)
+    hessian.newmatrices[0].mass2diag()
+    hessian.newmatrices[0].diag2freq()
     return hessian
 
 def getfreq(hessian_in, writemode_in = "all"):
@@ -49,7 +52,7 @@ def vectortest(vec, check):
 def test_hessian1():
     hessian = gethessian(os.path.dirname(os.path.realpath(__file__)) + "/source/getfreq/OUTCAR")
     freq = getfreq(hessian)
-    outputtest(freq, os.path.dirname(os.path.realpath(__file__)) + "/source/getfreq/freq", 4)
+    outputtest(freq, os.path.dirname(os.path.realpath(__file__)) + "/source/getfreq/freq")
 
 def test_hessian2():
     hessian = gethessian(os.path.dirname(os.path.realpath(__file__)) + "/source/getfreq/OUTCAR2")

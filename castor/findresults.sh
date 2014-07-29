@@ -14,8 +14,21 @@ RUNDIR=$(pwd)
 if [ -z "$1" ] ; then
 	REGEX="^.*/?OUTCAR$"
 	CHECKNEB="NO"
+	GETFREQ="NO"
+	GETD2="NO"
 elif [ "$1" == "NEB" ] ; then
 	CHECKNEB="YES"
+	GETFREQ="NO"
+	GETD2="NO"
+	if [ -z "$2" ] ; then
+		REGEX="^.*/?OUTCAR$"
+	else
+		REGEX="$2"
+	fi
+elif [ "$1" == "FREQ" ] ; then
+	CHECKNEB="NO"
+	GETFREQ="YES"
+	GETD2="NO"
 	if [ -z "$2" ] ; then
 		REGEX="^.*/?OUTCAR$"
 	else
@@ -24,22 +37,17 @@ elif [ "$1" == "NEB" ] ; then
 elif [ "$1" == "D2" ] ; then
 	CHECKNEB="NO"
 	GETFREQ="YES"
+	GETD2="YES"
 	if [ -z "$2" ] ; then
 		REGEX="^.*/?OUTCAR$"
 	else
 		REGEX="$2"
 	fi
-elif [ "$1" == "NEB-D2" -o "$1" == "D2-NEB" ] ; then
-	CHECKNEB="YES"
-	GETFREQ="YES"
-	if [ -z "$2" ] ; then
-		REGEX="^.*/?OUTCAR$"
-	else
-		REGEX="$2"
-	fi
+
 else
 	CHECKNEB="NO"
 	GETFREQ="NO"
+	GETD2="NO"
 	REGEX="$1"
 fi
 
@@ -55,11 +63,11 @@ do
 		continue
 	fi
 
-	if [ $CHECKNEB == "NO" ] ; then
-		NEB=$(grep NEB: "$i")
-		if [[ $NEB != "" ]] ; then
-			continue
-		fi
+	NEB=$(grep NEB: "$i")
+	if [[ $CHECKNEB == "NO" && $NEB != "" ]] ; then
+		continue
+	elif [[ $CHECKNEB == "YES" && $NEB == "" ]] ; then
+		continue
 	fi
 
 	FREQ=$(grep "using selective dynamics as specified on POSCAR" "$i")
@@ -72,8 +80,19 @@ do
 	echo `printf "%0.s-" $(seq 1 $length)`
 
 	if [[ $FREQ != "" ]] ; then
+		FREQCOUNT=$(grep meV "$i" | wc -l)
+		IMAGS=$(awk -v a=$FREQCOUNT 'BEGIN{} /THz/{ num++; if($10=="meV") { if(num<=a/2) print num " f/i= "$9" meV"; } } END{}' < "$i")
+		echo $(echo "$IMAGS" | wc -l)" imaginary frequencies found"
+		if [[ $IMAGS != "" ]] ; then
+			echo "$IMAGS"
+		fi
+
 		if [[ $GETFREQ == "YES" ]] ; then
-			echo "$(getfreq.py --less -e H -m 2.0 -o "$i")"
+			if [[ $GETD2 == "YES" ]] ; then
+				echo "$(getfreq.py --less -e H -m 2.0 -o "$i")"
+			else
+			echo "$(getfreq.py --less -e NOTHING -m 2.0 -o "$i")"
+			fi
 		else
 			calcfreq "$i"
 		fi

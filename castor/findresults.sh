@@ -21,8 +21,25 @@ elif [ "$1" == "NEB" ] ; then
 	else
 		REGEX="$2"
 	fi
+elif [ "$1" == "D2" ] ; then
+	CHECKNEB="NO"
+	GETFREQ="YES"
+	if [ -z "$2" ] ; then
+		REGEX="^.*/?OUTCAR$"
+	else
+		REGEX="$2"
+	fi
+elif [ "$1" == "NEB-D2" -o "$1" == "D2-NEB" ] ; then
+	CHECKNEB="YES"
+	GETFREQ="YES"
+	if [ -z "$2" ] ; then
+		REGEX="^.*/?OUTCAR$"
+	else
+		REGEX="$2"
+	fi
 else
 	CHECKNEB="NO"
+	GETFREQ="NO"
 	REGEX="$1"
 fi
 
@@ -55,7 +72,12 @@ do
 	echo `printf "%0.s-" $(seq 1 $length)`
 
 	if [[ $FREQ != "" ]] ; then
-		echo "$(getfreq.py --less -e H -m 2.0 -o "$i")"
+		if [[ $GETFREQ == "YES" ]] ; then
+			echo "$(getfreq.py --less -e H -m 2.0 -o "$i")"
+		else
+			calcfreq "$i"
+		fi
+
 	else
 		((count=0))
 		for j in $ENERGY

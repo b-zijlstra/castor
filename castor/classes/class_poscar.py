@@ -124,7 +124,7 @@ class Poscar:
             atom.x = vec.x
             atom.y = vec.y
             atom.z = vec.z
-    def mirror(self, mode_in = ["all", "top"], symmetry = ["mirror", "mirror"], zplane_in = 0.5 , zrange_in = 0.01):
+    def mirror(self, mode_in = ["all", "top"], symmetry = ["mirror", "mirror"], zplane_in = 0.5 , zrange_in = 0.01, offset_in = None):
         self.unitcell.invertMatrix()
         z_direct = self.unitcell.cartesian2direct(Vector(0,0,zrange_in)).z
         z_plane = zplane_in
@@ -141,7 +141,10 @@ class Poscar:
         # cell_center = self.getCellCenter()
         # cell_center.write()
         cell_center = Vector(0.5, 0.5, 0.5)
-        offset = Vector(0.0, 0.0, 0.0)
+        if(offset_in == None):
+            offset = Vector(0.0, 0.0, 0.0)
+        else:
+            offset = Vector(offset_in[0], offset_in[1], offset_in[2])
 
         if(symmetry[0] == "atom_center" or symmetry[1] == "atom_center"):
             metal = []
@@ -179,30 +182,36 @@ class Poscar:
 
         if(symmetry[0] == "mirror"):
             sym_x = None
-            offset.x = 0.0
+            if(offset_in == None):
+                offset.x = 0.0
         elif(symmetry[0] == "cell_center"):
             sym_x = cell_center.x
-            offset.x = 0.0
+            if(offset_in == None):
+                offset.x = 0.0
         elif(symmetry[0] == "atom_center"):
             sym_x = atom_center.x
-            offset.x = 0.0
+            if(offset_in == None):
+                offset.x = 0.0
         elif(symmetry[0] == "offset"):
             sym_x = cell_center.x
 
         if(symmetry[1] == "mirror"):
             sym_y = None
-            offset.x = 0.0
+            if(offset_in == None):
+                offset.y = 0.0
         elif(symmetry[1] == "cell_center"):
             sym_y = cell_center.y
-            offset.x = 0.0
+            if(offset_in == None):
+                offset.y = 0.0
         elif(symmetry[1] == "atom_center"):
             sym_y = atom_center.y
-            offset.x = 0.0
+            if(offset_in == None):
+                offset.y = 0.0
         elif(symmetry[1] == "offset"):
             sym_y = cell_center.y
 
         sym_z = z_plane
-        # print >> sys.stderr, str(offset.x) + " " + str(offset.y) + " " + str(offset.z)
+        print >> sys.stderr, "Offset = " + str(offset.x) + ":" + str(offset.y) + ":" + str(offset.z)
 
         newatoms = []
         newelnr = []

@@ -82,9 +82,16 @@ do
 	if [[ $FREQ != "" ]] ; then
 		FREQCOUNT=$(grep meV "$i" | wc -l)
 		IMAGS=$(awk -v a=$FREQCOUNT 'BEGIN{} /THz/{ num++; if($10=="meV") { if(num<=a/2) print num " f/i= "$9" meV"; } } END{}' < "$i")
-		echo $(echo "$IMAGS" | wc -l)" imaginary frequencies found"
 		if [[ $IMAGS != "" ]] ; then
+			IMAGCOUNT=$(echo "$IMAGS" | wc -l)
+			if [[ $IMAGCOUNT == "1" ]] ; then
+				echo "1 imaginary frequency found:"
+			else
+				echo $IMAGCOUNT" imaginary frequencies found:"
+			fi
 			echo "$IMAGS"
+		else
+			echo "No imaginary frequencies found"
 		fi
 
 		if [[ $GETFREQ == "YES" ]] ; then

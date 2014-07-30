@@ -19,7 +19,7 @@ do
 		FIRSTDIR="false"
 		DIRSTRING="Directory-> "
 	fi
-	DIRSTRING=$DIRSTRING" "$i" "$i
+	DIRSTRING=$DIRSTRING" "$i
 	paste "$i" | awk '{print $4}' > temptext.txt
 	paste {dydt.txt,temptext.txt} > temptext2.txt
 	mv temptext2.txt dydt.txt

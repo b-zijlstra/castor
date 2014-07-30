@@ -19,14 +19,23 @@ H2STICK=$5
 CODES=$6
 H2DES=$7
 PRESSURE=$8
-
 if [ -z "$9" ] ; then
     INPUT="source.mkm"
+    DIRNAME="H2ratio"$H2RATIO"_COsite"$COSITE"_H2site"$H2SITE"_COstick"$COSTICK"_H2stick"$H2STICK"_COdes"$CODES"_H2des"$H2DES"_pressure"$PRESSURE
 else
     INPUT="$9"
+    if [ -z "${10}" ] ; then
+    	DIRNAME="H2ratio"$H2RATIO"_COsite"$COSITE"_H2site"$H2SITE"_COstick"$COSTICK"_H2stick"$H2STICK"_COdes"$CODES"_H2des"$H2DES"_pressure"$PRESSURE
+    else
+        DIRNAME="${10}"
+    fi
 fi
 
-DIRNAME="H2ratio"$H2RATIO"_COsite"$COSITE"_H2site"$H2SITE"_COstick"$COSTICK"_H2stick"$H2STICK"_COdes"$CODES"_H2des"$H2DES"_pressure"$PRESSURE
+while [ -d "$DIRNAME" ];
+do
+	DIRNAME=$DIRNAME"new"
+done
+
 mkdir $DIRNAME
 cp $INPUT "$DIRNAME/input.mkm"
 sed -i 's/@H2ratio@/'$H2RATIO'/g' "$DIRNAME/input.mkm"

@@ -76,9 +76,17 @@ class Arguments:
 def makemkm(parfile_in, sourcefile_in):
     with open(parfile_in, 'r') as par:
         lines = par.readlines()
+        dircount = 0
         for line in lines[1:]:
             line = line.split()
-            subprocess.call(["mkmmod.sh", str(line[0]), str(line[1]), str(line[2]), str(line[3]), str(line[4]), str(line[5]), str(line[6]), str(line[7]), sourcefile_in])
+            dirname = str(line[0])
+            if(dirname=="Default"):
+                subprocess.call(["mkmmod.sh", str(line[1]), str(line[2]), str(line[3]), str(line[4]), str(line[5]), str(line[6]), str(line[7]), str(line[8]), sourcefile_in])
+            elif(dirname=="Count"):
+                subprocess.call(["mkmmod.sh", str(line[1]), str(line[2]), str(line[3]), str(line[4]), str(line[5]), str(line[6]), str(line[7]), str(line[8]), sourcefile_in, "0"+str(dircount)])
+            else:
+                subprocess.call(["mkmmod.sh", str(line[1]), str(line[2]), str(line[3]), str(line[4]), str(line[5]), str(line[6]), str(line[7]), str(line[8]), sourcefile_in, dirname])
+            dircount += 1
 
 def main(arg_in):
     arguments = Arguments()

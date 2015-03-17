@@ -58,6 +58,27 @@ echo $DATE
 
 while IFS= read -d $'\0' -r i;
 do
+	vasp="$(head -n 1 $i | awk '{print $1;}')"
+	mode=0
+	if [ $vasp == "vasp.4.6.31" ] ; then
+	  mode=4
+	fi
+	if [ $vasp == "vasp.4.6.38" ] ; then
+	  mode=4
+	fi
+	if [ $vasp == "vasp.5.2" ] ; then
+	  mode=5
+	fi
+	if [ $vasp == "vasp.5.3.3" ] ; then
+	  mode=5
+	fi
+	if [ $vasp == "vasp.5.3.5" ] ; then
+	  mode=5
+	fi
+	if [ $mode == 0 ] ; then
+	  echo "WARNING: vasp version (" $vasp ") not recognized!"
+	fi
+
 	ENERGY=$(grep "y  w" "$i")
 	if [[ $ENERGY == "" ]] ; then
 		continue
@@ -81,7 +102,12 @@ do
 
 	if [[ $FREQ != "" ]] ; then
 		FREQCOUNT=$(grep meV "$i" | wc -l)
-		IMAGS=$(awk -v a=$FREQCOUNT 'BEGIN{} /THz/{ num++; if($10=="meV") { if(num<=a/2) print num " f/i= "$9" meV"; } } END{}' < "$i")
+		if [[ $mode == 4 ]] ; then
+			IMAGS=$(awk -v a=$FREQCOUNT 'BEGIN{} /THz/{ num++; if($10=="meV") { if(num<=a/2) print num " f/i= "$9" meV"; } } END{}' < "$i")
+		fi
+		if [[ $mode == 5 ]] ; then
+			IMAGS=$(awk 'BEGIN{} /THz/{ num++; if($10=="meV") { print num " f/i= "$9" meV"; } } END{}' < "$i")
+		fi
 		if [[ $IMAGS != "" ]] ; then
 			IMAGCOUNT=$(echo "$IMAGS" | wc -l)
 			if [[ $IMAGCOUNT == "1" ]] ; then

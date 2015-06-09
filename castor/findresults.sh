@@ -58,25 +58,17 @@ echo $DATE
 
 while IFS= read -d $'\0' -r i;
 do
-	vasp="$(head -n 1 $i | awk '{print $1;}')"
+	vaspfull="$(head -n 1 $i | awk '{print $1;}')"
+	vaspnum="$(head -n 1 $i | tr "." " " | awk '{print $2;}')"
 	mode=0
-	if [ $vasp == "vasp.4.6.31" ] ; then
+	if [ $vaspnum == "4" ] ; then
 	  mode=4
 	fi
-	if [ $vasp == "vasp.4.6.38" ] ; then
-	  mode=4
-	fi
-	if [ $vasp == "vasp.5.2" ] ; then
-	  mode=5
-	fi
-	if [ $vasp == "vasp.5.3.3" ] ; then
-	  mode=5
-	fi
-	if [ $vasp == "vasp.5.3.5" ] ; then
+	if [ $vaspnum == "5" ] ; then
 	  mode=5
 	fi
 	if [ $mode == 0 ] ; then
-	  echo "WARNING: vasp version (" $vasp ") not recognized!"
+	  echo "WARNING: vasp version (" $vaspfull ") not recognized!"
 	fi
 
 	ENERGY=$(grep "y  w" "$i")

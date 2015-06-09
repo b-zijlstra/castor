@@ -60,9 +60,14 @@ class Poscar:
                     self.unitcell.vec_3 = Vector(float(match.group(1)), float(match.group(2)), float(match.group(3)))
                     self.beforeatoms.append(line.rstrip())
                 elif(linecount==6):
-                    for word in line.split():
-                        self.elnr.append(int(word))
-                    self.beforeatoms.append(line.rstrip())
+                    if re.search('[a-zA-Z]', line):
+                        self.beforeatoms.append(line.rstrip())
+                        linecount -= 1
+                        continue
+                    else:
+                        for word in line.split():
+                            self.elnr.append(int(word))
+                        self.beforeatoms.append(line.rstrip())
                 elif(linecount==7):
                     if(re.search('^\s*[Dd].*$',line)):
                         direct = True

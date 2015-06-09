@@ -44,42 +44,67 @@ class Hessian:
             charlist_axes = []
             stringlist_elements = []
             floatlist_masses = []
-            floatlist_list_rows = []
+            floatlist_list_rows_nonsym = []
+            floatlist_list_rows_sym = []
+            floatlist_list_rows_mass = []
             lines = inputfile.readlines()
+            matrixtype=None
             for line in lines:
-                match = re.search('^[ \t]*([0-9]+)([XYZ])[ \t]*(.*[0-9])[ \t]*$',line);
-                if(match):
-                    intlist_atoms.append(int(match.group(1)))
-                    charlist_axes.append(match.group(2))
-                    stringlist_row = match.group(3).split()
-                    floatlist_values = []
-                    for i in range(0,len(stringlist_row)):
-                        floatlist_values.append(float(stringlist_row[i]))
-                    floatlist_list_rows.append(floatlist_values)
-                match = re.search('^[ \t]*TITEL[ \t]+=[ \t]+[A-Z_]+ ([A-Za-z]+) [0-9A-Za-z]+[ \t]*$',line);
+                #search for atom properties
+                match = re.search('^[ \t]*TITEL[ \t]+=[ \t]+[A-Z_]+ ([A-Za-z]+) [0-9A-Za-z]+[ \t]*$',line)
                 if(match):
                     stringlist_elements.append(match.group(1))
-                match = re.search('^[ \t]*POMASS[ \t]+=[ \t]+([0-9.]+);.*$',line);
+                match = re.search('^[ \t]*POMASS[ \t]+=[ \t]+([0-9.]+);.*$',line)
                 if(match):
                     floatlist_masses.append(float(match.group(1)))
-                match = re.search('^[ \t]*ions per type =([0-9 \t]+)[ \t]*$',line);
+                match = re.search('^[ \t]*ions per type =([0-9 \t]+)[ \t]*$',line)
                 if(match):
                     stringlist_values = match.group(1).split()
                     intlist_values = []
                     for i in range(0,len(stringlist_values)):
                         intlist_values.append(int(stringlist_values[i]))
                     self.vector_elnr = np.array(intlist_values)
-            matrix_size = len(floatlist_list_rows)/3
-            self.matrix = Matrix(intlist_atoms[0:matrix_size], charlist_axes[0:matrix_size])
-            self.matrix.setup(floatlist_list_rows[0 : matrix_size], floatlist_list_rows[matrix_size : matrix_size*2], floatlist_list_rows[matrix_size*2 : matrix_size*3], None)
+
+                #make sure we are reading the correct matrix
+                if(re.search('^[ \t]*SECOND DERIVATIVES \(NOT SYMMETRIZED\)[ \t]*$',line)):
+                    matrixtype = "nonsym"
+                if(re.search('^[ \t]*SECOND DERIVATIVES \(SYMMETRYZED\)[ \t]*$',line)):
+                    matrixtype = "sym"
+                if(re.search('^[ \t]*MASS-WEIGHTED SECOND DERIVATIVES[ \t]*$',line)):
+                    matrixtype = "mass"
+
+                #filling the matrix
+                match = re.search('^[ \t]*([0-9]+)([XYZ])[ \t]*(.*[0-9])[ \t]*$',line)
+                if(match):
+                    if matrixtype == "nonsym":
+                        intlist_atoms.append(int(match.group(1)))
+                        charlist_axes.append(match.group(2))
+                    stringlist_row = match.group(3).split()
+                    floatlist_values = []
+                    for i in range(0,len(stringlist_row)):
+                        floatlist_values.append(float(stringlist_row[i]))
+                    if matrixtype == "nonsym":
+                        floatlist_list_rows_nonsym.append(floatlist_values)
+                    elif matrixtype == "sym":
+                        floatlist_list_rows_sym.append(floatlist_values)
+                    elif matrixtype == "mass":
+                        floatlist_list_rows_mass.append(floatlist_values)
+
+
+            matrix_size = len(floatlist_list_rows_nonsym)
+            self.matrix = Matrix(intlist_atoms, charlist_axes)
+            self.matrix.setup(floatlist_list_rows_nonsym, floatlist_list_rows_sym, floatlist_list_rows_mass, None)
             self.vector_elements = stringlist_elements
             self.vector_masses = floatlist_masses
         if(self.matrix.sym == None or len(self.matrix.sym) == 0 or len(self.matrix.sym[0]) == 0):
-            print "Reading from " + outcar_in + " failed! Could not find symmetry matrix."
-            sys.exit()
+            self.matrix.nonsym2sym()
+            # print "Reading from " + outcar_in + " failed! Could not find symmetry matrix."
+            # sys.exit()
         if(self.matrix.mass == None or len(self.matrix.mass) == 0 or len(self.matrix.mass[0]) == 0):
-            print "Reading from " + outcar_in + " failed! Could not find mass matrix."
-            sys.exit()
+            self.mapMass()
+            self.matrix.sym2mass(self.massmap)
+            # print "Reading from " + outcar_in + " failed! Could not find mass matrix."
+            # sys.exit()
         if(self.vector_elnr == None):
             print "Reading from " + outcar_in + " failed! Could not find number of elements."
             sys.exit()

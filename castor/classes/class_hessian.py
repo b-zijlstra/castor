@@ -85,10 +85,10 @@ class Hessian:
                         floatlist_values.append(float(stringlist_row[i]))
                     if matrixtype == "nonsym":
                         floatlist_list_rows_nonsym.append(floatlist_values)
-                    elif matrixtype == "sym":
-                        floatlist_list_rows_sym.append(floatlist_values)
-                    elif matrixtype == "mass":
-                        floatlist_list_rows_mass.append(floatlist_values)
+                    # elif matrixtype == "sym":
+                    #     floatlist_list_rows_sym.append(floatlist_values)
+                    # elif matrixtype == "mass":
+                    #     floatlist_list_rows_mass.append(floatlist_values)
 
 
             matrix_size = len(floatlist_list_rows_nonsym)
@@ -201,6 +201,14 @@ class Hessian:
             print "New mass = " + str(self.mass)
             print "\n"
             if(self.matrix != None):
+                # print "---------------------------"
+                # print "-  Original nonsym matrix:  -"
+                # print "---------------------------"
+                # self.matrix.printNonsym()
+                # print "---------------------------"
+                # print "-  Original sym matrix:  -"
+                # print "---------------------------"
+                # self.matrix.printSym()
                 print "---------------------------"
                 print "-  Original mass matrix:  -"
                 print "---------------------------"

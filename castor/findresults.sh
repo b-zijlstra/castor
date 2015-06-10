@@ -120,6 +120,7 @@ do
 			fi
 		else
 			calcfreq "$i"
+			echo "Vibrational partition function: "$(calcnu "$i")
 		fi
 
 	else

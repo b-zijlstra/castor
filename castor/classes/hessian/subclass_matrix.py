@@ -33,17 +33,32 @@ class Matrix:
         self.mass = mass_in
         self.diag = diag_in
     def nonsym2sym(self):
-        "nonsym2sym is not yet implemented"
-        sys.exit()
+        if(self.nonsym == None or len(self.nonsym) == 0 or len(self.nonsym[0]) == 0):
+            print "Can not symmetrize matrix because not symmetrized matrix does not exist!"
+            sys.exit()
+        else:
+            self.sym = []
+            for i in range(0,len(self.nonsym)):
+                row = []
+                for j in range(0,len(self.nonsym)):
+                    if i == j:
+                        row.append(self.nonsym[i][j])
+                    else:
+                        row.append(0.5*(self.nonsym[i][j]+self.nonsym[j][i]))
+                self.sym.append(row)
     def sym2mass(self, map_in):
-        self.mass = []
-        for row, atom_row in zip(self.sym, self.atoms):
-            mass_row = map_in[atom_row]
-            rowlist = []
-            for column, atom_col in zip(row, self.atoms):
-                mass_col = map_in[atom_col]
-                rowlist.append(column / math.sqrt(mass_row*mass_col))
-            self.mass.append(rowlist)
+        if(self.sym == None or len(self.sym) == 0 or len(self.sym[0]) == 0):
+            print "Can not make mass matrix because symmetrized matrix does not exist!"
+            sys.exit()
+        else:
+            self.mass = []
+            for row, atom_row in zip(self.sym, self.atoms):
+                mass_row = map_in[atom_row]
+                rowlist = []
+                for column, atom_col in zip(row, self.atoms):
+                    mass_col = map_in[atom_col]
+                    rowlist.append(column / math.sqrt(mass_row*mass_col))
+                self.mass.append(rowlist)
     def mass2diag(self):
         if(self.mass == None or len(self.mass) == 0 or len(self.mass[0]) == 0):
             print "Can not diagonalize mass matrix because it does not exist!"

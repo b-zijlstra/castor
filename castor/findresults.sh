@@ -14,15 +14,40 @@ RUNDIR=$(pwd)
 if [ -z "$1" ] ; then
 	REGEX="^.*/?OUTCAR$"
 	CHECKNEB="NO"
+	GETFREQ="NO"
+	GETD2="NO"
 elif [ "$1" == "NEB" ] ; then
 	CHECKNEB="YES"
+	GETFREQ="NO"
+	GETD2="NO"
 	if [ -z "$2" ] ; then
 		REGEX="^.*/?OUTCAR$"
 	else
 		REGEX="$2"
 	fi
+elif [ "$1" == "FREQ" ] ; then
+	CHECKNEB="NO"
+	GETFREQ="YES"
+	GETD2="NO"
+	if [ -z "$2" ] ; then
+		REGEX="^.*/?OUTCAR$"
+	else
+		REGEX="$2"
+	fi
+elif [ "$1" == "D2" ] ; then
+	CHECKNEB="NO"
+	GETFREQ="YES"
+	GETD2="YES"
+	if [ -z "$2" ] ; then
+		REGEX="^.*/?OUTCAR$"
+	else
+		REGEX="$2"
+	fi
+
 else
 	CHECKNEB="NO"
+	GETFREQ="NO"
+	GETD2="NO"
 	REGEX="$1"
 fi
 
@@ -33,16 +58,29 @@ echo $DATE
 
 while IFS= read -d $'\0' -r i;
 do
+	vaspfull="$(head -n 1 $i | awk '{print $1;}')"
+	vaspnum="$(head -n 1 $i | tr "." " " | awk '{print $2;}')"
+	mode=0
+	if [ $vaspnum == "4" ] ; then
+	  mode=4
+	fi
+	if [ $vaspnum == "5" ] ; then
+	  mode=5
+	fi
+	if [ $mode == 0 ] ; then
+	  echo "WARNING: vasp version (" $vaspfull ") not recognized!"
+	fi
+
 	ENERGY=$(grep "y  w" "$i")
 	if [[ $ENERGY == "" ]] ; then
 		continue
 	fi
 
-	if [ $CHECKNEB == "NO" ] ; then
-		NEB=$(grep NEB: "$i")
-		if [[ $NEB != "" ]] ; then
-			continue
-		fi
+	NEB=$(grep NEB: "$i")
+	if [[ $CHECKNEB == "NO" && $NEB != "" ]] ; then
+		continue
+	elif [[ $CHECKNEB == "YES" && $NEB == "" ]] ; then
+		continue
 	fi
 
 	FREQ=$(grep "using selective dynamics as specified on POSCAR" "$i")
@@ -55,7 +93,36 @@ do
 	echo `printf "%0.s-" $(seq 1 $length)`
 
 	if [[ $FREQ != "" ]] ; then
-		echo "$(getfreq.py --less -e H -m 2.0 -o "$i")"
+		FREQCOUNT=$(grep meV "$i" | wc -l)
+		if [[ $mode == 4 ]] ; then
+			IMAGS=$(awk -v a=$FREQCOUNT 'BEGIN{} /THz/{ num++; if($10=="meV") { if(num<=a/2) print num " f/i= "$9" meV"; } } END{}' < "$i")
+		fi
+		if [[ $mode == 5 ]] ; then
+			IMAGS=$(awk 'BEGIN{} /THz/{ num++; if($10=="meV") { print num " f/i= "$9" meV"; } } END{}' < "$i")
+		fi
+		if [[ $IMAGS != "" ]] ; then
+			IMAGCOUNT=$(echo "$IMAGS" | wc -l)
+			if [[ $IMAGCOUNT == "1" ]] ; then
+				echo "1 imaginary frequency found:"
+			else
+				echo $IMAGCOUNT" imaginary frequencies found:"
+			fi
+			echo "$IMAGS"
+		else
+			echo "No imaginary frequencies found"
+		fi
+
+		if [[ $GETFREQ == "YES" ]] ; then
+			if [[ $GETD2 == "YES" ]] ; then
+				echo "$(getfreq.py --less -e H -m 2.0 -o "$i")"
+			else
+			echo "$(getfreq.py --less -e NOTHING -m 2.0 -o "$i")"
+			fi
+		else
+			calcfreq "$i"
+			echo "Vibrational partition function: "$(calcnu "$i")
+		fi
+
 	else
 		((count=0))
 		for j in $ENERGY

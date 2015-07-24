@@ -83,7 +83,7 @@ do
 		continue
 	fi
 
-	FREQ=$(grep "using selective dynamics as specified on POSCAR" "$i")
+	FREQ=$(grep "IBRION =      5" "$i")
 	DRIFT=$(grep drift "$i")
 
 	echo

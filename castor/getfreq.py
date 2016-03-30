@@ -26,6 +26,7 @@ class Arguments:
         self.element = "H"
         self.mass = 2.0
         self.printmode = "all"
+        self.skip = False
     def setup(self, arg_in):
         readmode = None
         for i in range(1,len(arg_in)):
@@ -53,7 +54,9 @@ class Arguments:
                         sys.exit()
                 readmode = None
                 continue
-
+            if(sys.argv[i] == "-s" or sys.argv[i] == "--skip"):
+                self.skip = True
+                continue
             if(sys.argv[i] == "-h" or sys.argv[i] == "--help"):
                 self.help()
                 sys.exit()
@@ -99,6 +102,7 @@ class Arguments:
         print "-n or --numbers <numbers>     | Example: $getfreq.py -n 34,36,38-40 (Default = all)"
         print "-e or --element <element>     | Example: $getfreq.py -e C (Default = H)"
         print "-m or --mass <mass>           | Example: $getfreq.py -m 13.0 (Default = 2.0)"
+        print "-s or --skip                  | Removes matrix elements for -n. Example: $getfreq.py -s -n 38-40"
         print "-l or --less                  | Set printmode to 'less' (Default = all)"
         print ""
         print "-h or --help                  | displays this help message"
@@ -112,10 +116,15 @@ def main(arg_in):
     hessian.read(arguments.getOutcar())
     hessian.matrix.mass2diag()
     hessian.matrix.diag2freq()
-    hessian.mapMass(arguments.getElement(), arguments.getMass(), arguments.getNumbers()) # from numberlist, change all element masses to mass
+    if(arguments.skip == False):
+        hessian.mapMass(arguments.getElement(), arguments.getMass(), arguments.getNumbers()) # from numberlist, change all element masses to mass
+        hessian.setSkip(None)
+    elif (arguments.skip == True):
+        hessian.mapMass(None, None, None)
+        hessian.setSkip(arguments.getNumbers()) # from numberlist, change all matrix elements to zero
     if(hessian.changes == True):
         hessian.addmatrix()
-        hessian.newmatrices[0].sym2mass(hessian.massmap)
+        hessian.newmatrices[0].sym2mass(hessian.massmap,hessian.skipset)
         hessian.newmatrices[0].mass2diag()
         hessian.newmatrices[0].diag2freq()
     hessian.write(arguments.getPrintmode())

@@ -33,6 +33,7 @@ class Hessian:
         self.kb = 8.617332478e-2 # Botzmann constant in meV/K
         self.numberset = set()
         self.massmap = dict()
+        self.skipset = set()
         self.numbers = None
         self.element = None
         self.mass = None
@@ -102,7 +103,7 @@ class Hessian:
             # sys.exit()
         if(self.matrix.mass == None or len(self.matrix.mass) == 0 or len(self.matrix.mass[0]) == 0):
             self.mapMass()
-            self.matrix.sym2mass(self.massmap)
+            self.matrix.sym2mass(self.massmap,self.skipset)
             # print "Reading from " + outcar_in + " failed! Could not find mass matrix."
             # sys.exit()
         if(self.vector_elnr == None):
@@ -128,6 +129,10 @@ class Hessian:
                     self.massmap[atom] = mass_in
                 else:
                     self.massmap[atom] = self.getMass(atom)
+    def setSkip(self, numbers_in = None):
+        self.skipset = self.string2numberset(numbers_in, "all")
+        if (len(self.skipset) > 0):
+            self.changes = True
     def string2numberset(self, string_in, element_in):
         numberset = set()
         if(string_in == None or string_in == "all"):
@@ -156,7 +161,7 @@ class Hessian:
                             print "Could not set numbers setting"
                             sys.exit()
                 for y in x:
-                    if(self.getElement(y)==element_in):
+                    if(element_in == "all" or self.getElement(y)==element_in):
                         numberset.add(y)
             return numberset
     def getElement(self, number_in):

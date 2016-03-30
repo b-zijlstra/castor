@@ -27,6 +27,7 @@ class Matrix:
         self.atoms = atoms_in
         self.axes = axes_in
         self.frequencies = []
+        self.skipset = set()
     def setup(self, nonsym_in = None, sym_in = None, mass_in = None, diag_in = None):
         self.nonsym = nonsym_in
         self.sym = sym_in
@@ -46,7 +47,8 @@ class Matrix:
                     else:
                         row.append(0.5*(self.nonsym[i][j]+self.nonsym[j][i]))
                 self.sym.append(row)
-    def sym2mass(self, map_in):
+    def sym2mass(self, map_in,set_in):
+        self.skipset = set_in
         if(self.sym == None or len(self.sym) == 0 or len(self.sym[0]) == 0):
             print "Can not make mass matrix because symmetrized matrix does not exist!"
             sys.exit()
@@ -55,9 +57,15 @@ class Matrix:
             for row, atom_row in zip(self.sym, self.atoms):
                 mass_row = map_in[atom_row]
                 rowlist = []
+                if(atom_row in set_in):
+                    redefineAxes = True
+                    continue
                 for column, atom_col in zip(row, self.atoms):
                     mass_col = map_in[atom_col]
-                    rowlist.append(column / math.sqrt(mass_row*mass_col))
+                    if(atom_col in set_in):
+                        redefineAxes = True
+                    else:
+                        rowlist.append(column / math.sqrt(mass_row*mass_col))
                 self.mass.append(rowlist)
     def mass2diag(self):
         if(self.mass == None or len(self.mass) == 0 or len(self.mass[0]) == 0):
@@ -71,7 +79,7 @@ class Matrix:
             if(eigenval < 0):
                 eigenroot = math.sqrt(abs(eigenval))
                 self.frequencies.append(Frequency(eigenroot,False))
-            else:
+            elif(eigenval > 0):
                 eigenroot = math.sqrt(abs(eigenval))
                 self.frequencies.append(Frequency(eigenroot,True))
     def printNonsym(self):
@@ -89,17 +97,33 @@ class Matrix:
             string += freq.getString()
             print string
     def printMatrix(self, matrix_in):
-        self.printAxis_X()
-        for row, atom_row, axes_row in zip(matrix_in, self.atoms, self.axes):
+        if(len(matrix_in) < len(self.atoms)):
+            self.printAxis_X(True)
+            atomlist = []
+            axeslist = []
+            for atom, axis in zip(self.atoms, self.axes):
+                if (atom in self.skipset):
+                    pass
+                else:
+                    atomlist.append(atom)
+                    axeslist.append(axis)
+        else:
+            self.printAxis_X(False)
+            atomlist = self.atoms
+            axeslist = self.axes
+        for row, atom_row, axes_row in zip(matrix_in, atomlist, axeslist):
             name = str(atom_row)+axes_row
             string = '{0:^{width}}'.format(name, width=self.spaces+2)
             for column in row:
                 data = '{0:.{width}f}'.format(column, width=self.decimals)
                 string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+3)
             print string
-    def printAxis_X(self):
+    def printAxis_X(self,skip_bool = False):
         string = '{0:^{width}}'.format("", width=self.spaces+2)
         for atom, axis in zip(self.atoms, self.axes):
-            name = str(atom)+axis
-            string += '{0:>{width}}'.format(name, width=self.decimals+self.spaces+3)
+            if (skip_bool == True and atom in self.skipset):
+                pass
+            else:
+                name = str(atom)+axis
+                string += '{0:>{width}}'.format(name, width=self.decimals+self.spaces+3)
         print string

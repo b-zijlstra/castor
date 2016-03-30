@@ -93,6 +93,7 @@ do
 	echo `printf "%0.s-" $(seq 1 $length)`
 
 	if [[ $FREQ != "" ]] ; then
+		echo "Highest frequency found: "$(grep "meV" $i | head -n 1 | awk '{print $8}')" cm-1"
 		FREQCOUNT=$(grep meV "$i" | wc -l)
 		if [[ $mode == 4 ]] ; then
 			IMAGS=$(awk -v a=$FREQCOUNT 'BEGIN{} /THz/{ num++; if($10=="meV") { if(num<=a/2) print num " f/i= "$9" meV"; } } END{}' < "$i")

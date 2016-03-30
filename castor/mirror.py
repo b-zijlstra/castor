@@ -105,7 +105,7 @@ class Arguments:
                 self.readmode = None
                 continue
             elif(sys.argv[i] == "-t" or sys.argv[i] == "--top"):
-                self.mode = "top"
+                self.mode[1] = "top"
                 self.readmode = None
                 continue
             elif(sys.argv[i] == "-g" or sys.argv[i] == "--getOffset"):

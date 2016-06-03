@@ -36,6 +36,7 @@ class Dipols:
             self.frequencies = []
             self.degrees_freedom = []
             vaspversion=None
+            dipol_correction=None
             self.dipol_store=None
             self.dipol_ref=None
             for line in inputfile:
@@ -50,20 +51,34 @@ class Dipols:
                         readmode += 1
                         continue
                 elif(readmode == 1):
+                    #which LDIPOL tag has been set
+                    match = re.search('^[ \t]*LDIPOL[ \t]*=[ \t]*([FT])[ \t]*.*$',line)
+                    if(match): # LDIPOL tag found
+                        if(match.group(1)=="T"):
+                            dipol_correction = True
+                        elif(match.group(1)=="F"):
+                            dipol_correction = False
+                        else:
+                            print "Error: Unknown LDIPOL tag: " + line
+                            sys.exit()
+                        readmode += 1
+                        continue
+                elif(readmode == 2):
                     #read dipole moments
                     match = re.search('^[ \t]*dipolmoment[ \t]*([0-9.-]+)[ \t]*([0-9.-]+)[ \t]*([0-9.-]+)[ \t]*electrons.*$',line)
                     # " dipolmoment          -0.000002     -0.051875     -0.352631 electrons x Angstroem"
                     if(match): # dipol moment found
                         self.dipol_store = [float(match.group(1)), float(match.group(2)), float(match.group(3))]
-                        if(vaspversion == 4 and self.dipol_ref==None):
-                            self.dipol_ref = [float(match.group(1)), float(match.group(2)), float(match.group(3))]
-                        elif(vaspversion == 4):
-                            dipol = [float(match.group(1)), float(match.group(2)), float(match.group(3))]
-                            self.dipol_diff.append(dipol)
+                        if(dipol_correction == False):
+                            if(self.dipol_ref==None):
+                                self.dipol_ref = [float(match.group(1)), float(match.group(2)), float(match.group(3))]
+                            else:
+                                dipol = [float(match.group(1)), float(match.group(2)), float(match.group(3))]
+                                self.dipol_diff.append(dipol)
                         continue
 
-                    #for vasp5, dipols are found for every electronic step, so only use the converged step
-                    if(vaspversion == 5):
+                    #for LDIPOL = T, dipols are found for every electronic step, so only use the converged step
+                    if(dipol_correction == True):
                         match = re.search('^.*aborting loop because EDIFF is reached.*$',line)
                         # "------------------------ aborting loop because EDIFF is reached ----------------------------------------"
                         if(match): # electronic convergence
@@ -82,14 +97,14 @@ class Dipols:
                         self.degrees_freedom = match.group(0).split()
                         readmode += 1
                         continue
-                elif(readmode == 2 or readmode == 3):
+                elif(readmode == 3 or readmode == 4):
                     #make sure we are reading the correct dynamical matrix
                     if(re.search('^[ \t]*Eigenvectors and eigenvalues of the dynamical matrix[ \t]*$',line)):
                         readmode += 1
                         if(vaspversion == 5):
                             readmode += 1
                         continue
-                elif(readmode == 4):
+                elif(readmode == 5):
                     match = re.search('^[ \t]*[0-9]+ f  =[ \t]*([0-9.]+) THz[ \t]*([0-9.]+) 2PiTHz[ \t]*([0-9.]+) cm-1[ \t]*([0-9.]+) meV[ \t]*$',line)
                     # "6 f  =    2.865417 THz    18.003946 2PiTHz   95.580018 cm-1    11.850416 meV"
                     if(match): # real freq found
@@ -110,16 +125,18 @@ class Dipols:
                             self.finitdiff = float(match.group(1))
                             readmode += 1 # making sure no more freqs are read
                             continue
-                elif(readmode == 5):
+                elif(readmode == 6):
                     break
 
         if(readmode == 0):
             print "Error: Could not find Vasp version"
         elif(readmode ==1):
+            print "Error: Could not find LDIPOL tag"
+        elif(readmode ==2):
             print "Error: Could not find dipol moments"
-        elif(readmode ==2 or readmode == 3):
+        elif(readmode ==3 or readmode == 4):
             print "Error: Could not find dynamical matrix"
-        elif(readmode ==4):
+        elif(readmode ==5):
             print "Error: Could not find all frequencies"
 
     def getMatrix(self):

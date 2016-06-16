@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 # 
-# subclass_intensity.py
+# subclass_frequency.py
 # 
 # Author: Bart Zijlstra
 # 

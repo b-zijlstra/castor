@@ -91,7 +91,7 @@ class Dipols:
                             continue
                 
                     #read the degrees of freedom
-                    "              11X         11Y         11Z         12X         12Y         12Z"
+                    # "              11X         11Y         11Z         12X         12Y         12Z"
                     match = re.search('^([ \t]+[0-9]+[XYZ])+[ \t]*$',line)
                     if(match):
                         self.degrees_freedom = match.group(0).split()

@@ -20,7 +20,7 @@ import numpy as np
 #MY CLASSES
 from hessian.subclass_matrix import Matrix
 from hessian.subclass_matrix import Dipols
-from hessian.subclass_frequency import DipolFrequency
+from hessian.subclass_frequency import Frequency
 
 class Hessian:
     """Defines a Hessian"""
@@ -32,7 +32,7 @@ class Hessian:
         self.elements    = []               # List of element names.
         self.masses      = []               # List of element masses.
         self.temp        = temp_in          # Temperature in Kelvin - Used for the vibrational partition function
-        self.kb          = 8.617332478e-2   # Botzmann constant in meV/K
+        self.kb          = 8.617332478e-2   # Boltzmann constant in meV/K
         self.skipset     = set()            # Set of atoms that should be skipped.
 
         # Storage for Hessian matrix
@@ -52,6 +52,7 @@ class Hessian:
         self.finitdiff   = None             # Finite difference used.
         self.dipol_diff  = []               # List of dipol differences.
         self.frequencies = []               # List of dipol frequencies.
+        self.skipfreq    = []               # Reduced list of dipol frequencies without skipped atoms.
         self.freedom     = []               # List of degrees of freedom.
         self.dipol_ref   = None             # Storage for the dipol moment of the initial system.
 
@@ -61,18 +62,17 @@ class Hessian:
         readmode = 0
         with open(outcar_in, 'r') as inputfile:
             # OUTCAR info
-            vaspversion       = None   # Which Vasp version has been used.
+            vaspversion = None   # Which Vasp version has been used.
+            nwrite      = None   # Which nwrite has been used.
             self.idipol = None   # Which IDIPOL has been used.
-            self.ldipol  = None   # Whether dipol corrections are included in the potential.
+            self.ldipol = None   # Whether dipol corrections are included in the potential.
 
             # Temporary storage for Hessian matrix information
-            intlist_atoms              = []     # List of atom numbers.
-            charlist_axes              = []     # List of axis directions.
             floatlist_masses           = []     # List of atom masses.
             floatlist_list_rows_nonsym = []     # List of nonsym matrix rows.
             floatlist_list_rows_sym    = []     # List of sym matrix rows.
             floatlist_list_rows_mass   = []     # List of mass matrix rows.
-            matrixtype                 = None   # Type of matrix to be reading.
+            scale_diff                 = False  # Whether displacements should be corrected for mass.
             
             # Temporary storage for Dipol matrix
             dipol_store     = None # Storage for the last found dipol moment.
@@ -93,10 +93,12 @@ class Hessian:
                     match = re.search('^[ \t]*TITEL[ \t]+=[ \t]+[A-Z_]+ ([A-Za-z]+) [0-9A-Za-z]+[ \t]*$',line)
                     if(match):
                         self.elements.append(match.group(1))
+                        continue
                     # What element mass?
                     match = re.search('^[ \t]*POMASS[ \t]+=[ \t]+([0-9.]+);.*$',line)
                     if(match):
                         self.masses.append(float(match.group(1)))
+                        continue
                     # How many atoms per type of element?
                     match = re.search('^[ \t]*ions per type =([0-9 \t]+)[ \t]*$',line)
                     if(match):
@@ -105,12 +107,17 @@ class Hessian:
                         for i in range(0,len(stringlist_values)):
                             intlist_values.append(int(stringlist_values[i]))
                         self.elnr = np.array(intlist_values)
+                        continue
+                    # Which NWRITE is used?
+                    match = re.search('^[ \t]*NWRITE[ \t]*=[ \t]*([0-4])[ \t]+.*$',line)
+                    if(match):
+                        nwrite = int(match.group(1))
                         readmode += 1
                         continue
                 elif(readmode == 2): # Read the DIPOL tags.
                     # Which IDIPOL tag has been set
                     if(self.idipol == None):
-                        match = re.search('^[ \t]*IDIPOL[ \t]*=[ \t]*([0-4])[ \t]*.*$',line)
+                        match = re.search('^[ \t]*IDIPOL[ \t]*=[ \t]*([0-4])[ \t]+.*$',line)
                         if(match): # LDIPOL tag found
                             if(int(match.group(1)) >= 0 and int(match.group(1)) <= 4):
                                 self.idipol = int(match.group(1))
@@ -122,7 +129,7 @@ class Hessian:
                                 continue
                     # Which LDIPOL tag has been set
                     if(self.ldipol == None):
-                        match = re.search('^[ \t]*LDIPOL[ \t]*=[ \t]*([FT])[ \t]*.*$',line)
+                        match = re.search('^[ \t]*LDIPOL[ \t]*=[ \t]*([FT])[ \t]+.*$',line)
                         if(match): # LDIPOL tag found
                             if(match.group(1)=="T"):
                                 self.ldipol = True
@@ -176,24 +183,27 @@ class Hessian:
                         continue
                 elif(readmode == 5): # Read not symmetrized hessian matrix.
                     # Filling the matrix
-                    ### IMPROVE THIS PART ###
                     match = re.search('^[ \t]*([0-9]+)([XYZ])[ \t]*(.*[0-9])[ \t]*$',line)
                     if(match):
-                        freedom_count += 1
-                        intlist_atoms.append(int(match.group(1)))
-                        charlist_axes.append(match.group(2))
+                        atom = int(self.freedom[freedom_count][:-1])
+                        direction = self.freedom[freedom_count][-1]
+                        if(atom != int(match.group(1)) or direction != match.group(2)):
+                            print "Error: Degrees of freedom do not match: " + self.freedom[freedom_count] + " != " + match.group(1) + match.group(2)
+                            sys.exit()
                         stringlist_row = match.group(3).split()
                         floatlist_values = []
                         for i in range(0,len(stringlist_row)):
                             floatlist_values.append(float(stringlist_row[i]))
                         floatlist_list_rows_nonsym.append(floatlist_values)
+                        freedom_count += 1
                     if(freedom_count == len(self.freedom)):
                         matrix_size = len(floatlist_list_rows_nonsym)
-                        self.matrix = Matrix(intlist_atoms, charlist_axes)
+                        self.matrix = Matrix(self.freedom)
                         # self.matrix.setup(rows_nonsym, rows_sym, rows_mass, diag)
                         self.matrix.setup(floatlist_list_rows_nonsym, None, None, None)
                         self.matrix.nonsym2sym()
                         self.mapMass()
+                        # self.skipset is always an empty set here
                         self.matrix.sym2mass(self.massmap,self.skipset)
                         readmode += 1
                         continue
@@ -201,23 +211,33 @@ class Hessian:
                     # Make sure we are reading the correct dynamical matrix
                     if(re.search('^[ \t]*Eigenvectors and eigenvalues of the dynamical matrix[ \t]*$',line)):
                         readmode += 1
-                        if(vaspversion == 5):
+                        if(vaspversion == 5 and nwrite < 3):
+                            scale_diff = True
                             readmode += 1
                         continue
                 elif(readmode == 8):
                     match = re.search('^[ \t]*[0-9]+ f  =[ \t]*([0-9.]+) THz[ \t]*([0-9.]+) 2PiTHz[ \t]*([0-9.]+) cm-1[ \t]*([0-9.]+) meV[ \t]*$',line)
                     # "6 f  =    2.865417 THz    18.003946 2PiTHz   95.580018 cm-1    11.850416 meV"
                     if(match): # real freq found
-                        self.frequencies.append(DipolFrequency(float(match.group(1)), float(match.group(2)), float(match.group(3)), float(match.group(4)),False))
+                        atnum = 0
+                        self.frequencies.append(Frequency(float(match.group(1)), float(match.group(2)), float(match.group(3)), float(match.group(4)),False))
                         continue
                     match = re.search('^[ \t]*[0-9]+ f/i=[ \t]*([0-9.]+) THz[ \t]*([0-9.]+) 2PiTHz[ \t]*([0-9.]+) cm-1[ \t]*([0-9.]+) meV[ \t]*$',line)
                     if(match): # imag freq found
-                        self.frequencies.append(DipolFrequency(float(match.group(1)), float(match.group(2)), float(match.group(3)), float(match.group(4)),True))
+                        atnum = 0
+                        self.frequencies.append(Frequency(float(match.group(1)), float(match.group(2)), float(match.group(3)), float(match.group(4)),True))
                         continue
                     if(len(self.frequencies)>0):
                         match = re.search('^[ \t]*([0-9.-]+)[ \t]*([0-9.-]+)[ \t]*([0-9.-]+)[ \t]*([0-9.-]+)[ \t]*([0-9.-]+)[ \t]*([0-9.-]+)[ \t]*$',line)
                         if(match): # reading atomic displacement line
-                            self.frequencies[-1].atdiff.append([float(match.group(4)), float(match.group(5)), float(match.group(6))])
+                            atnum += 1
+                            diff = [float(match.group(4)), float(match.group(5)), float(match.group(6))]
+                            if(scale_diff == True):
+                                mass = self.getMass(atnum)
+                                diff[0] /= math.sqrt(mass)
+                                diff[1] /= math.sqrt(mass)
+                                diff[2] /= math.sqrt(mass)
+                            self.frequencies[-1].atdiff[atnum] = diff
                             continue
                         match = re.search('^[ \t]*Finite differences POTIM=[ \t]*([0-9.E-]+)[ \t]*$',line)
                         # "Finite differences POTIM=  2.00000000000000004E-002"
@@ -245,7 +265,7 @@ class Hessian:
             print "Error: Could not find all frequencies"
     
     def addmatrix(self):
-        new = Matrix(self.matrix.atoms, self.matrix.axes)
+        new = Matrix(self.matrix.freedom)
         new.setup(self.matrix.nonsym, self.matrix.sym, None, None)
         self.newmatrices.append(new)
     def mapMass(self, element_in = None, mass_in = None, numbers_in = None):
@@ -256,7 +276,8 @@ class Hessian:
         self.numberset = self.string2numberset(numbers_in, element_in)
         
         self.massmap.clear()
-        for atom in self.matrix.atoms:
+        for degree in self.matrix.freedom:
+            atom = int(degree[:-1])
             if(atom not in self.massmap):
                 if(atom in self.numberset and mass_in != None):
                     if(self.changes == False and mass_in != self.getMass(atom)):
@@ -271,11 +292,17 @@ class Hessian:
     def string2numberset(self, string_in, element_in):
         numberset = set()
         if(string_in == None or string_in == "all"):
-            for atom in self.matrix.atoms:
+            for degree in self.matrix.freedom:
+                atom = int(degree[:-1])
                 if(self.getElement(atom)==element_in):
                     numberset.add(atom)
             return numberset
         else:
+            maxatom = 0
+            for degree in self.matrix.freedom:
+                atom = int(degree[:-1])
+                if(atom>maxatom):
+                    maxatom = atom
             templist = string_in.split(',')
             templist = [x.strip() for x in templist]
             for x in templist:
@@ -288,7 +315,7 @@ class Hessian:
                     except ValueError:
                         try:
                             if(x[1].strip()==":"):
-                                x = range(int(x[0]),np.max(self.matrix.atoms)+1)
+                                x = range(int(x[0]),maxatom+1)
                             else:
                                 print "Could not set numbers setting"
                                 sys.exit()
@@ -369,7 +396,11 @@ class Hessian:
                 print "---------------------------"
                 print "-  Original frequencies:  -"
                 print "---------------------------"
-                self.matrix.printFreq()
+                # self.matrix.printFreq()
+                count = 0
+                for freq in self.matrix.frequencies:
+                    count += 1
+                    freq.write(prefix=count, printmode=printmode)
                 print "\n"
                 zpe = self.calcZPE(self.matrix.frequencies)
                 nu = self.calcPartition(self.matrix.frequencies)
@@ -380,7 +411,11 @@ class Hessian:
                 print "---------------------------"
                 print "-    New frequencies:     -"
                 print "---------------------------"
-                newmatrix.printFreq()
+                # newmatrix.printFreq()
+                count = 0
+                for freq in newmatrix.frequencies:
+                    count += 1
+                    freq.write(prefix=count, printmode=printmode)
                 print "\n"
                 zpe = self.calcZPE(newmatrix.frequencies)
                 nu = self.calcPartition(newmatrix.frequencies)
@@ -400,9 +435,7 @@ class Hessian:
                 print 'Total ZPE contribution of new frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
                 print 'New vibrational partition function: {0:.{width}f}'.format(nu, width=self.decimals)
     def printChanges(self):
-        if(len(self.numberset)==0):
-            print "None"
-        else:
+        if(len(self.numberset)>0):
             for i in self.numberset:
                 string = "El: "
                 string += self.getElement(i)
@@ -413,10 +446,23 @@ class Hessian:
                 string += " -> "
                 string += str(self.massmap[i])
                 print string
-    def getDipols(self):
+        elif(len(self.skipset)>0):
+            for i in self.skipset:
+                string = "Skip atom nr: "
+                string += str(i)
+                print string
+        else:
+            print "None"
+    def getDipols(self, frequencies_in = None):
         self.dipols = Dipols()
         self.dipols.setup(self.dipol_diff,self.freedom,self.finitdiff)
         self.dipols.setIntensities(self.frequencies)
+        self.getIntens(self.matrix.frequencies)
+    def getIntens(self,frequencies_in):
+        self.dipols.setIntensities(frequencies_in)
+    def getNewIntens(self):
+        for newmat in self.newmatrices:
+            self.getIntens(newmat.frequencies)
     def writeList3(self, list3, decimals_in = 6, spaces_in = 3):
         self.decimals = decimals_in
         self.spaces = spaces_in

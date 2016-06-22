@@ -115,21 +115,23 @@ def main(arg_in):
     hessian = Hessian()
     hessian.read(arguments.outcar)
     hessian.matrix.mass2diag()
-    hessian.matrix.diag2freq()
+    hessian.matrix.diag2freq(hessian.massmap)
     if(hessian.idipol > 0):
         hessian.getDipols()
         hessian.writeDipols()
     if(arguments.skip == False):
         hessian.mapMass(arguments.element, arguments.mass, arguments.numbers) # from numberlist, change all element masses to mass
         hessian.setSkip(None)
-    elif (arguments.skip == True):
+    elif(arguments.skip == True):
         hessian.mapMass(None, None, None)
         hessian.setSkip(arguments.numbers) # from numberlist, change all matrix elements to zero
     if(hessian.changes == True):
         hessian.addmatrix()
         hessian.newmatrices[0].sym2mass(hessian.massmap,hessian.skipset)
         hessian.newmatrices[0].mass2diag()
-        hessian.newmatrices[0].diag2freq()
+        hessian.newmatrices[0].diag2freq(hessian.massmap)
+        if(hessian.idipol > 0):
+            hessian.getNewIntens()
     hessian.write(arguments.printmode)
 
 #EXECUTION

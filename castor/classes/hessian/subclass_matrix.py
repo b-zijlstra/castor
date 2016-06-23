@@ -96,9 +96,9 @@ class Matrix:
 
         for degree,diffvec in zip(freedom_reduced,self.diag[1].tolist()):
             for atdiff, diff in zip(fulldiff,diffvec):
-                atom = int(degree[:-1])
+                atom      = int(degree[:-1])
                 direction = degree[-1]
-                mass = map_in[atom]
+                mass      = map_in[atom]
                 if(direction == "X"):
                     atdiff[atom][0] = diff/math.sqrt(mass)
                 elif(direction == "Y"):
@@ -163,17 +163,17 @@ class Dipols:
     """Defines the dipol matrix from a Hessian"""
     def __init__(self):
         self.decimals = 6
-        self.spaces = 3
-        self.dipols = []
+        self.spaces   = 3
+        self.dipols   = []
     def setup(self, dipol_diff, degrees_freedom, diff):
         #check if the amount of dipols match the degrees of freedom
         if(len(dipol_diff)!= 2*len(degrees_freedom)):
             print "Error, amounts of dipols and degrees of freedom do not match!"
             sys.exit()
 
-        atom = 0
+        atom      = 0
         direction = 0
-        dipcount = 0
+        dipcount  = 0
         for degree in degrees_freedom:
             atom = int(degree[:-1])
             direction = degree[-1]
@@ -185,9 +185,9 @@ class Dipols:
             dipcount += 2
     def setIntensities(self,frequencies):
         for freq in frequencies:
-            sumx=0
-            sumy=0
-            sumz=0
+            sumx = 0
+            sumy = 0
+            sumz = 0
             for dictionary in freq.atdiff:
                 atom = dictionary
                 diff = freq.atdiff[dictionary]
@@ -205,7 +205,7 @@ class Dipols:
                             sumx+=dip[2]* diff[2]
                             sumy+=dip[3]* diff[2]
                             sumz+=dip[4]* diff[2]
-            totaldipol = sumx**2 + sumy**2 + sumz**2
+            totaldipol     = sumx**2 + sumy**2 + sumz**2
             freq.intensity = [sumx**2,sumy**2,sumz**2,totaldipol]
 
     def printMatrix(self):
@@ -219,9 +219,9 @@ class Dipols:
             string = ""
             string += '{0:>{width}}'.format(dipol[0], width=self.spaces)
             string += '{0:>{width}}'.format(dipol[1], width=self.spaces)
-            xcor = '{0:.{width}f}'.format(dipol[2], width=self.decimals)
-            ycor = '{0:.{width}f}'.format(dipol[3], width=self.decimals)
-            zcor = '{0:.{width}f}'.format(dipol[4], width=self.decimals)
+            xcor   = '{0:.{width}f}'.format(dipol[2], width=self.decimals)
+            ycor   = '{0:.{width}f}'.format(dipol[3], width=self.decimals)
+            zcor   = '{0:.{width}f}'.format(dipol[4], width=self.decimals)
             string += '{0:>{width}}'.format(xcor, width=self.decimals+self.spaces+4)
             string += '{0:>{width}}'.format(ycor, width=self.decimals+self.spaces+4)
             string += '{0:>{width}}'.format(zcor, width=self.decimals+self.spaces+4)

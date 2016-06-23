@@ -21,7 +21,7 @@ from classes.class_dipol import Dipols
 class Arguments:
     """Defines a set of arguments"""
     def __init__(self):
-        self.outcar = "OUTCAR"
+        self.outcar    = "OUTCAR"
         self.printmode = "intensity"
     def setup(self, arg_in):
         readmode = None

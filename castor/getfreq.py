@@ -21,12 +21,12 @@ from classes.class_hessian import Hessian
 class Arguments:
     """Defines a set of arguments"""
     def __init__(self):
-        self.outcar = "OUTCAR"
-        self.numbers = None
-        self.element = "H"
-        self.mass = 2.0
+        self.outcar    = "OUTCAR"
+        self.numbers   = None
+        self.element   = "H"
+        self.mass      = 2.0
         self.printmode = "all"
-        self.skip = False
+        self.skip      = False
     def setup(self, arg_in):
         readmode = None
         for i in range(1,len(arg_in)):

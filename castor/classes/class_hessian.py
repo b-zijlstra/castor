@@ -103,7 +103,7 @@ class Hessian:
                     match = re.search('^[ \t]*ions per type =([0-9 \t]+)[ \t]*$',line)
                     if(match):
                         stringlist_values = match.group(1).split()
-                        intlist_values = []
+                        intlist_values    = []
                         for i in range(0,len(stringlist_values)):
                             intlist_values.append(int(stringlist_values[i]))
                         self.elnr = np.array(intlist_values)
@@ -111,7 +111,7 @@ class Hessian:
                     # Which NWRITE is used?
                     match = re.search('^[ \t]*NWRITE[ \t]*=[ \t]*([0-4])[ \t]+.*$',line)
                     if(match):
-                        nwrite = int(match.group(1))
+                        nwrite   = int(match.group(1))
                         readmode += 1
                         continue
                 elif(readmode == 2): # Read the DIPOL tags.
@@ -163,7 +163,7 @@ class Hessian:
                             if(match): # electronic convergence
                                 if(self.dipol_ref==None):
                                     self.dipol_ref = dipol_store
-                                    dipol_store = None
+                                    dipol_store    = None
                                 else:
                                     self.dipol_diff.append(dipol_store)
                                     dipol_store = None
@@ -179,7 +179,7 @@ class Hessian:
                     if(match):
                         self.freedom = match.group(0).split()
                         freedom_count = 0
-                        readmode += 1
+                        readmode      += 1
                         continue
                 elif(readmode == 5): # Read not symmetrized hessian matrix.
                     # Filling the matrix
@@ -213,7 +213,7 @@ class Hessian:
                         readmode += 1
                         if(vaspversion == 5 and nwrite < 3):
                             scale_diff = True
-                            readmode += 1
+                            readmode   += 1
                         continue
                 elif(readmode == 8):
                     match = re.search('^[ \t]*[0-9]+ f  =[ \t]*([0-9.]+) THz[ \t]*([0-9.]+) 2PiTHz[ \t]*([0-9.]+) cm-1[ \t]*([0-9.]+) meV[ \t]*$',line)
@@ -233,7 +233,7 @@ class Hessian:
                             atnum += 1
                             diff = [float(match.group(4)), float(match.group(5)), float(match.group(6))]
                             if(scale_diff == True):
-                                mass = self.getMass(atnum)
+                                mass    = self.getMass(atnum)
                                 diff[0] /= math.sqrt(mass)
                                 diff[1] /= math.sqrt(mass)
                                 diff[2] /= math.sqrt(mass)
@@ -269,10 +269,9 @@ class Hessian:
         new.setup(self.matrix.nonsym, self.matrix.sym, None, None)
         self.newmatrices.append(new)
     def mapMass(self, element_in = None, mass_in = None, numbers_in = None):
-        self.element = element_in
-        self.mass = mass_in
-        self.numbers = numbers_in
-
+        self.element   = element_in
+        self.mass      = mass_in
+        self.numbers   = numbers_in
         self.numberset = self.string2numberset(numbers_in, element_in)
         
         self.massmap.clear()
@@ -350,7 +349,7 @@ class Hessian:
         return 0.0005 * zpe
     def calcPartition(self, freqs_in):
         kbT = self.temp * self.kb
-        nu = 1.0
+        nu  = 1.0
         for freq in freqs_in:
             if(freq.imaginary==False):
                 nu *= 1.0 / (1.0 - math.exp(-freq.meV / kbT))
@@ -465,14 +464,14 @@ class Hessian:
             self.getIntens(newmat.frequencies)
     def writeList3(self, list3, decimals_in = 6, spaces_in = 3):
         self.decimals = decimals_in
-        self.spaces = spaces_in
-        string = ""
-        xcor = '{0:.{width}f}'.format(list3[0], width=self.decimals)
-        ycor = '{0:.{width}f}'.format(list3[1], width=self.decimals)
-        zcor = '{0:.{width}f}'.format(list3[2], width=self.decimals)
-        string += '{0:>{width}}'.format(xcor, width=self.decimals+self.spaces+4)
-        string += '{0:>{width}}'.format(ycor, width=self.decimals+self.spaces+4)
-        string += '{0:>{width}}'.format(zcor, width=self.decimals+self.spaces+4)
+        self.spaces   = spaces_in
+        string        = ""
+        xcor          = '{0:.{width}f}'.format(list3[0], width=self.decimals)
+        ycor          = '{0:.{width}f}'.format(list3[1], width=self.decimals)
+        zcor          = '{0:.{width}f}'.format(list3[2], width=self.decimals)
+        string        += '{0:>{width}}'.format(xcor, width=self.decimals+self.spaces+4)
+        string        += '{0:>{width}}'.format(ycor, width=self.decimals+self.spaces+4)
+        string        += '{0:>{width}}'.format(zcor, width=self.decimals+self.spaces+4)
         return string
     def writeDipols(self,printmode = "all"):
         if(printmode=="all"):

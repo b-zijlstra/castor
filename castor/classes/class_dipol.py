@@ -24,26 +24,26 @@ from dipols.subclass_frequency import Frequency
 class Dipols:
     """Holds the dipols from calculating the Hessian"""
     def __init__(self):
-        self.decimals = 6
-        self.spaces = 3
-        self.matrix = None
+        self.decimals  = 6
+        self.spaces    = 3
+        self.matrix    = None
         self.finitdiff = None
-        self.elnr        = np.dtype(int)    # Vector of element numbers.
-        self.elements    = []               # List of element names.
-        self.masses      = []               # List of element masses.
+        self.elnr      = np.dtype(int)    # Vector of element numbers.
+        self.elements  = []               # List of element names.
+        self.masses    = []               # List of element masses.
     def read(self, outcar_in):
         readmode = 0
         with open(outcar_in, 'r') as inputfile:
-            self.nions = None
-            self.dipol_diff = []
-            self.frequencies = []
+            self.nions           = None
+            self.dipol_diff      = []
+            self.frequencies     = []
             self.degrees_freedom = []
-            vaspversion=None
-            nwrite      = None   # Which nwrite has been used.
-            dipol_correction=None
-            self.dipol_store=None
-            self.dipol_ref=None
-            scale_diff                 = False  # Whether displacements should be corrected for mass.
+            vaspversion          = None
+            nwrite               = None   # Which nwrite has been used.
+            dipol_correction     = None
+            self.dipol_store     = None
+            self.dipol_ref       = None
+            scale_diff           = False  # Whether displacements should be corrected for mass.
             for line in inputfile:
                 if(readmode == 0):
                     #which version of vasp has been used?
@@ -78,7 +78,7 @@ class Dipols:
                     # Which NWRITE is used?
                     match = re.search('^[ \t]*NWRITE[ \t]*=[ \t]*([0-4])[ \t]+.*$',line)
                     if(match):
-                        nwrite = int(match.group(1))
+                        nwrite   = int(match.group(1))
                         readmode += 1
                         continue
                 elif(readmode == 2):
@@ -114,7 +114,7 @@ class Dipols:
                         # "------------------------ aborting loop because EDIFF is reached ----------------------------------------"
                         if(match): # electronic convergence
                             if(self.dipol_ref==None):
-                                self.dipol_ref = self.dipol_store
+                                self.dipol_ref   = self.dipol_store
                                 self.dipol_store = None
                             else:
                                 self.dipol_diff.append(self.dipol_store)
@@ -134,7 +134,7 @@ class Dipols:
                         readmode += 1
                         if(vaspversion == 5 and nwrite < 3):
                             scale_diff = True
-                            readmode += 1
+                            readmode   += 1
                         continue
                 elif(readmode == 6):
                     match = re.search('^[ \t]*[0-9]+ f  =[ \t]*([0-9.]+) THz[ \t]*([0-9.]+) 2PiTHz[ \t]*([0-9.]+) cm-1[ \t]*([0-9.]+) meV[ \t]*$',line)
@@ -154,7 +154,7 @@ class Dipols:
                             atnum += 1
                             diff = [float(match.group(4)), float(match.group(5)), float(match.group(6))]
                             if(scale_diff == True):
-                                mass = self.getMass(atnum)
+                                mass    = self.getMass(atnum)
                                 diff[0] /= math.sqrt(mass)
                                 diff[1] /= math.sqrt(mass)
                                 diff[2] /= math.sqrt(mass)
@@ -195,14 +195,14 @@ class Dipols:
         self.matrix.setIntensities(self.frequencies)
     def writeList3(self, list3, decimals_in = 6, spaces_in = 3):
         self.decimals = decimals_in
-        self.spaces = spaces_in
-        string = ""
-        xcor = '{0:.{width}f}'.format(list3[0], width=self.decimals)
-        ycor = '{0:.{width}f}'.format(list3[1], width=self.decimals)
-        zcor = '{0:.{width}f}'.format(list3[2], width=self.decimals)
-        string += '{0:>{width}}'.format(xcor, width=self.decimals+self.spaces+4)
-        string += '{0:>{width}}'.format(ycor, width=self.decimals+self.spaces+4)
-        string += '{0:>{width}}'.format(zcor, width=self.decimals+self.spaces+4)
+        self.spaces   = spaces_in
+        string        = ""
+        xcor          = '{0:.{width}f}'.format(list3[0], width=self.decimals)
+        ycor          = '{0:.{width}f}'.format(list3[1], width=self.decimals)
+        zcor          = '{0:.{width}f}'.format(list3[2], width=self.decimals)
+        string        += '{0:>{width}}'.format(xcor, width=self.decimals+self.spaces+4)
+        string        += '{0:>{width}}'.format(ycor, width=self.decimals+self.spaces+4)
+        string        += '{0:>{width}}'.format(zcor, width=self.decimals+self.spaces+4)
         return string
     def write(self,printmode = "all"):
         if(printmode=="all"):

@@ -35,9 +35,9 @@ class Frequency:
         self.atdiff    = atdiff_in
         self.imaginary = imag_in
     def getString(self, decimals_in = 6, spaces_in = 3, prefix = None, printmode = "all"):
-        self.decimals = decimals_in
-        self.spaces   = spaces_in
-        string        = ""
+        self.decimals  = decimals_in
+        self.spaces    = spaces_in
+        string         = ""
         if(prefix!=None):
             string += '{0:>{width}}'.format(prefix, width=self.spaces)
             string += " "

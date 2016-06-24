@@ -23,10 +23,10 @@ class Arguments:
     def __init__(self):
         self.outcar    = "OUTCAR"
         self.numbers   = None
-        self.element   = "H"
+        self.element   = None
         self.mass      = 2.0
         self.printmode = "all"
-        self.skip      = False
+        self.skip      = None
     def setup(self, arg_in):
         readmode = None
         for i in range(1,len(arg_in)):
@@ -54,8 +54,9 @@ class Arguments:
                         sys.exit()
                 readmode = None
                 continue
-            if(sys.argv[i] == "-s" or sys.argv[i] == "--skip"):
-                self.skip = True
+            if(readmode=="skip"):
+                self.skip = arg_in[i]
+                readmode = None
                 continue
             if(sys.argv[i] == "-h" or sys.argv[i] == "--help"):
                 self.help()
@@ -72,6 +73,9 @@ class Arguments:
             elif(sys.argv[i] == "-m" or sys.argv[i] == "--mass"):
                 readmode = "mass"
                 continue
+            elif(sys.argv[i] == "-s" or sys.argv[i] == "--skip"):
+                readmode = "skip"
+                continue
             elif(sys.argv[i] == "-l" or sys.argv[i] == "--less"):
                 self.printmode = "less"
                 continue
@@ -85,24 +89,14 @@ class Arguments:
                 print "Unexpected argument: " + sys.argv[i]
                 self.help()
                 sys.exit()
-    def getOutcar(self):
-        return self.outcar
-    def getNumbers(self):
-        return self.numbers
-    def getElement(self):
-        return self.element
-    def getMass(self):
-        return self.mass
-    def getPrintmode(self):
-        return self.printmode
     def help(self):
         print "Use: getfreq.py <options>"
         print "Options:"
-        print "-o or --outcar <outcar name>  | Example: $getfreq.py -o out (Default = OUTCAR)"
-        print "-n or --numbers <numbers>     | Example: $getfreq.py -n 34,36,38-40 (Default = all)"
-        print "-e or --element <element>     | Example: $getfreq.py -e C (Default = H)"
-        print "-m or --mass <mass>           | Example: $getfreq.py -m 13.0 (Default = 2.0)"
-        print "-s or --skip                  | Removes matrix elements for -n. Example: $getfreq.py -s -n 38-40"
+        print "-o or --outcar <outcar name>  | OUTCAR name to read. Example: $getfreq.py -o out (Default = OUTCAR)"
+        print "-e or --element <element>     | Element type to change mass. Example: $getfreq.py -e H (Default = None)"
+        print "-n or --numbers <numbers>     | Atom numbers of type. Example: $getfreq.py -n 34,36,38-40 (Default = all)"
+        print "-m or --mass <mass>           | Mass to set for selected atoms. Example: $getfreq.py -m 13.0 (Default = 2.0)"
+        print "-s or --skip <numbers>        | Removes matrix elements for <numbers>. Example: $getfreq.py -s 38-40"
         print "-l or --less                  | Set printmode to 'less' (Default = all)"
         print ""
         print "-h or --help                  | displays this help message"
@@ -118,13 +112,13 @@ def main(arg_in):
     hessian.matrix.diag2freq(hessian.massmap)
     if(hessian.idipol > 0):
         hessian.getDipols()
-        hessian.writeDipols()
-    if(arguments.skip == False):
+        # hessian.writeDipols()
+    if(arguments.skip == None):
         hessian.mapMass(arguments.element, arguments.mass, arguments.numbers) # from numberlist, change all element masses to mass
         hessian.setSkip(None)
-    elif(arguments.skip == True):
+    elif(arguments.skip != None):
         hessian.mapMass(None, None, None)
-        hessian.setSkip(arguments.numbers) # from numberlist, change all matrix elements to zero
+        hessian.setSkip(arguments.skip) # from numberlist, change all matrix elements to zero
     if(hessian.changes == True):
         hessian.addmatrix()
         hessian.newmatrices[0].sym2mass(hessian.massmap,hessian.skipset)

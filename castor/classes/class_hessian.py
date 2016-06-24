@@ -359,13 +359,24 @@ class Hessian:
             print "---------------------------"
             print "-        Settings:        -"
             print "---------------------------"
-            print "Element to set new mass = " + str(self.element)
-            if(self.numbers == None):
-                print "Atom numbers of element to set new mass = all"
+            if(self.element == None):
+                print "No elements selected to set new mass."
             else:
-                print "Atom numbers of element to set new mass = " + str(self.numbers)
-            print "New mass = " + str(self.mass)
+                print "Element to set new mass = " + str(self.element)
+                if(self.numbers == None):
+                    print "Atom numbers of element to set new mass = all"
+                else:
+                    print "Atom numbers of element to set new mass = " + str(self.numbers)
+                print "New mass = " + str(self.mass)
             print "\n"
+            if(self.idipol > 0):
+                print "---------------------------"
+                print "-   Dipole information:   -"
+                print "---------------------------"
+                print "IDIPOL = " + str(self.idipol)
+                print "Initial dipole moment: " + self.writeList3(self.dipol_ref)
+                self.dipols.printMatrix()
+                print "\n"
             if(self.matrix != None):
                 # print "---------------------------"
                 # print "-  Original nonsym matrix:  -"
@@ -426,6 +437,42 @@ class Hessian:
             nu = self.calcPartition(self.matrix.frequencies)
             print 'Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
             print 'Vibrational partition function: {0:.{width}f}'.format(nu, width=self.decimals)
+            if(self.idipol > 0):
+                count    = 0
+                highfreq = None
+                highint  = None
+                for freq in self.matrix.frequencies:
+                    count += 1
+                    if(count == 1):
+                        highfreq = freq
+                        highint  = freq
+                        freqcount = count
+                        intcount = count
+                    else:
+                        if(freq.cm1 > highint.cm1):
+                            highfreq = freq
+                            freqcount = count
+                        if(freq.intensity[3] > highint.intensity[3]):
+                            highint = freq
+                            intcount = count
+                hf_f = highfreq.cm1
+                hf_i = highfreq.intensity[3]
+                hi_f = highint.cm1
+                hi_i = highint.intensity[3]
+                hf_str = '{0:>{width}}'.format(freqcount, width=self.spaces)
+                hf_str += " "
+                if(highfreq.imaginary==False):
+                    hf_str += "f  ="
+                elif(highfreq.imaginary==True):
+                    hf_str += "f/i="
+                hi_str = '{0:>{width}}'.format(intcount, width=self.spaces)
+                hi_str += " "
+                if(highint.imaginary==False):
+                    hi_str += "f  ="
+                elif(highint.imaginary==True):
+                    hi_str += "f/i="
+                print 'Highest frequency: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hf_str, hf_f,hf_i, width=self.decimals)
+                print 'Highest intensity: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hi_str, hi_f,hi_i, width=self.decimals)
 
             for newmatrix in self.newmatrices:
                 self.printChanges()
@@ -433,6 +480,42 @@ class Hessian:
                 nu = self.calcPartition(newmatrix.frequencies)
                 print 'Total ZPE contribution of new frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
                 print 'New vibrational partition function: {0:.{width}f}'.format(nu, width=self.decimals)
+                if(self.idipol > 0):
+                    count    = 0
+                    highfreq = None
+                    highint  = None
+                    for freq in newmatrix.frequencies:
+                        count += 1
+                        if(count == 1):
+                            highfreq = freq
+                            highint  = freq
+                            freqcount = count
+                            intcount = count
+                        else:
+                            if(freq.cm1 > highint.cm1):
+                                highfreq = freq
+                                freqcount = count
+                            if(freq.intensity[3] > highint.intensity[3]):
+                                highint = freq
+                                intcount = count
+                    hf_f = highfreq.cm1
+                    hf_i = highfreq.intensity[3]
+                    hi_f = highint.cm1
+                    hi_i = highint.intensity[3]
+                    hf_str = '{0:>{width}}'.format(freqcount, width=self.spaces)
+                    hf_str += " "
+                    if(highfreq.imaginary==False):
+                        hf_str += "f  ="
+                    elif(highfreq.imaginary==True):
+                        hf_str += "f/i="
+                    hi_str = '{0:>{width}}'.format(intcount, width=self.spaces)
+                    hi_str += " "
+                    if(highint.imaginary==False):
+                        hi_str += "f  ="
+                    elif(highint.imaginary==True):
+                        hi_str += "f/i="
+                    print 'Highest frequency: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hf_str, hf_f,hf_i, width=self.decimals)
+                    print 'Highest intensity: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hi_str, hi_f,hi_i, width=self.decimals)
     def printChanges(self):
         if(len(self.numberset)>0):
             for i in self.numberset:

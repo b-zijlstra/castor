@@ -23,19 +23,19 @@ class Matrix:
     """Defines the dipol matrix from a Hessian"""
     def __init__(self):
         self.decimals = 6
-        self.spaces = 3
-        self.dipols = []
+        self.spaces   = 3
+        self.dipols   = []
     def setup(self, dipol_diff, degrees_freedom, diff):
         #check if the amount of dipols match the degrees of freedom
         if(len(dipol_diff)!= 2*len(degrees_freedom)):
             print "Error, amounts of dipols and degrees of freedom do not match!"
             sys.exit()
 
-        atom = 0
+        atom      = 0
         direction = 0
-        dipcount = 0
+        dipcount  = 0
         for degree in degrees_freedom:
-            atom = int(degree[:-1])
+            atom      = int(degree[:-1])
             direction = degree[-1]
             #first dipol_diff is +diff, second dipol_diff is -diff
             mux = (dipol_diff[dipcount][0]-dipol_diff[dipcount+1][0])/(2*diff)
@@ -45,9 +45,9 @@ class Matrix:
             dipcount += 2
     def setIntensities(self,frequencies):
         for freq in frequencies:
-            sumx=0
-            sumy=0
-            sumz=0
+            sumx    = 0
+            sumy    = 0
+            sumz    = 0
             atcount = 0
             for atom in freq.atdiff:
                 atcount += 1
@@ -79,9 +79,9 @@ class Matrix:
             string = ""
             string += '{0:>{width}}'.format(dipol[0], width=self.spaces)
             string += '{0:>{width}}'.format(dipol[1], width=self.spaces)
-            xcor = '{0:.{width}f}'.format(dipol[2], width=self.decimals)
-            ycor = '{0:.{width}f}'.format(dipol[3], width=self.decimals)
-            zcor = '{0:.{width}f}'.format(dipol[4], width=self.decimals)
+            xcor   = '{0:.{width}f}'.format(dipol[2], width=self.decimals)
+            ycor   = '{0:.{width}f}'.format(dipol[3], width=self.decimals)
+            zcor   = '{0:.{width}f}'.format(dipol[4], width=self.decimals)
             string += '{0:>{width}}'.format(xcor, width=self.decimals+self.spaces+4)
             string += '{0:>{width}}'.format(ycor, width=self.decimals+self.spaces+4)
             string += '{0:>{width}}'.format(zcor, width=self.decimals+self.spaces+4)

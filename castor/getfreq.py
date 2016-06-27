@@ -113,12 +113,8 @@ def main(arg_in):
     if(hessian.idipol > 0):
         hessian.getDipols()
         # hessian.writeDipols()
-    if(arguments.skip == None):
-        hessian.mapMass(arguments.element, arguments.mass, arguments.numbers) # from numberlist, change all element masses to mass
-        hessian.setSkip(None)
-    elif(arguments.skip != None):
-        hessian.mapMass(None, None, None)
-        hessian.setSkip(arguments.skip) # from numberlist, change all matrix elements to zero
+    hessian.mapMass(arguments.element, arguments.mass, arguments.numbers) # from numberlist, change all element masses to mass
+    hessian.setSkip(arguments.skip) # from skiplist, change all matrix elements to zero
     if(hessian.changes == True):
         hessian.addmatrix()
         hessian.newmatrices[0].sym2mass(hessian.massmap,hessian.skipset)

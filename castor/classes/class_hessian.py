@@ -290,40 +290,43 @@ class Hessian:
             self.changes = True
     def string2numberset(self, string_in, element_in):
         numberset = set()
-        if(string_in == None or string_in == "all"):
-            for degree in self.matrix.freedom:
-                atom = int(degree[:-1])
-                if(self.getElement(atom)==element_in):
-                    numberset.add(atom)
-            return numberset
-        else:
-            maxatom = 0
-            for degree in self.matrix.freedom:
-                atom = int(degree[:-1])
-                if(atom>maxatom):
-                    maxatom = atom
-            templist = string_in.split(',')
-            templist = [x.strip() for x in templist]
-            for x in templist:
-                try:
-                    x = [int(x)]
-                except ValueError:
-                    x = x.split('-')
+        if(element_in != None):
+            if(string_in == None or string_in == "all"):
+                for degree in self.matrix.freedom:
+                    atom = int(degree[:-1])
+                    if(self.getElement(atom)==element_in):
+                        numberset.add(atom)
+                return numberset
+            else:
+                maxatom = 0
+                for degree in self.matrix.freedom:
+                    atom = int(degree[:-1])
+                    if(atom>maxatom):
+                        maxatom = atom
+                templist = string_in.split(',')
+                templist = [x.strip() for x in templist]
+                for x in templist:
                     try:
-                        x = range(int(x[0]),int(x[1])+1)
+                        x = [int(x)]
                     except ValueError:
+                        x = x.split('-')
                         try:
-                            if(x[1].strip()==":"):
-                                x = range(int(x[0]),maxatom+1)
-                            else:
+                            x = range(int(x[0]),int(x[1])+1)
+                        except ValueError:
+                            try:
+                                if(x[1].strip()==":"):
+                                    x = range(int(x[0]),maxatom+1)
+                                else:
+                                    print "Could not set numbers setting"
+                                    sys.exit()
+                            except ValueError:
                                 print "Could not set numbers setting"
                                 sys.exit()
-                        except ValueError:
-                            print "Could not set numbers setting"
-                            sys.exit()
-                for y in x:
-                    if(element_in == "all" or self.getElement(y)==element_in):
-                        numberset.add(y)
+                    for y in x:
+                        if(element_in == "all" or self.getElement(y)==element_in):
+                            numberset.add(y)
+                return numberset
+        else:
             return numberset
     def getElement(self, number_in):
         atomsum = 0
@@ -528,12 +531,12 @@ class Hessian:
                 string += " -> "
                 string += str(self.massmap[i])
                 print string
-        elif(len(self.skipset)>0):
+        if(len(self.skipset)>0):
             for i in self.skipset:
                 string = "Skip atom nr: "
                 string += str(i)
                 print string
-        else:
+        if(len(self.numberset)==0 and len(self.skipset)==0):
             print "None"
     def getDipols(self, frequencies_in = None):
         self.dipols = Dipols()

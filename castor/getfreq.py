@@ -25,8 +25,9 @@ class Arguments:
         self.numbers   = None
         self.element   = None
         self.mass      = 2.0
-        self.printmode = "all"
+        self.printmode = "normal"
         self.skip      = None
+        self.first     = None
     def setup(self, arg_in):
         readmode = None
         for i in range(1,len(arg_in)):
@@ -58,6 +59,16 @@ class Arguments:
                 self.skip = arg_in[i]
                 readmode = None
                 continue
+            if(readmode=="first"):
+                while True:
+                    try:
+                        self.first = int(arg_in[i])
+                        break
+                    except ValueError:
+                        print "-f " + arg_in[i] + " must be an integer!"
+                        sys.exit()
+                readmode = None
+                continue
             if(sys.argv[i] == "-h" or sys.argv[i] == "--help"):
                 self.help()
                 sys.exit()
@@ -76,8 +87,14 @@ class Arguments:
             elif(sys.argv[i] == "-s" or sys.argv[i] == "--skip"):
                 readmode = "skip"
                 continue
+            elif(sys.argv[i] == "-f" or sys.argv[i] == "--first"):
+                readmode = "first"
+                continue
             elif(sys.argv[i] == "-l" or sys.argv[i] == "--less"):
                 self.printmode = "less"
+                continue
+            elif(sys.argv[i] == "-a" or sys.argv[i] == "--all"):
+                self.printmode = "all"
                 continue
             elif(sys.argv[i] == "--bever"):
                 print "                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'"
@@ -97,7 +114,9 @@ class Arguments:
         print "-n or --numbers <numbers>     | Atom numbers of type. Example: $getfreq.py -n 34,36,38-40 (Default = all)"
         print "-m or --mass <mass>           | Mass to set for selected atoms. Example: $getfreq.py -m 13.0 (Default = 2.0)"
         print "-s or --skip <numbers>        | Removes matrix elements for <numbers>. Example: $getfreq.py -s 38-40"
-        print "-l or --less                  | Set printmode to 'less' (Default = all)"
+        print "-f or --first <number>        | Only print the first <number> of frequencies (Default = all)"
+        print "-l or --less                  | Set printmode to 'less' (Default = normal)"
+        print "-a or --all                   | Set printmode to 'all' to also print displacements (Default = normal)"
         print ""
         print "-h or --help                  | displays this help message"
 
@@ -122,7 +141,7 @@ def main(arg_in):
         hessian.newmatrices[0].diag2freq(hessian.massmap)
         if(hessian.idipol > 0):
             hessian.getNewIntens()
-    hessian.write(arguments.printmode)
+    hessian.write(arguments.printmode,arguments.first)
 
 #EXECUTION
 main(sys.argv)

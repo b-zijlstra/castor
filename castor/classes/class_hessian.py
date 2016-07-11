@@ -357,8 +357,8 @@ class Hessian:
             if(freq.imaginary==False):
                 nu *= 1.0 / (1.0 - math.exp(-freq.meV / kbT))
         return nu
-    def write(self, printmode):
-        if(printmode == "all"):
+    def write(self, printmode,first=None):
+        if(printmode == "normal" or printmode == "all"):
             print "---------------------------"
             print "-        Settings:        -"
             print "---------------------------"
@@ -380,7 +380,7 @@ class Hessian:
                 print "Initial dipole moment: " + self.writeList3(self.dipol_ref)
                 self.dipols.printMatrix()
                 print "\n"
-            if(self.matrix != None):
+            if(printmode == "all" and self.matrix != None):
                 # print "---------------------------"
                 # print "-  Original nonsym matrix:  -"
                 # print "---------------------------"
@@ -400,11 +400,12 @@ class Hessian:
                 print "---------------------------"
                 self.printChanges()
                 print "\n"
-                print "---------------------------"
-                print "-    New mass matrix:     -"
-                print "---------------------------"
-                newmatrix.printMass()
-                print "\n"
+                if(printmode == "all"):
+                    print "---------------------------"
+                    print "-    New mass matrix:     -"
+                    print "---------------------------"
+                    newmatrix.printMass()
+                    print "\n"
             if(self.matrix != None):
                 print "---------------------------"
                 print "-  Original frequencies:  -"
@@ -413,7 +414,11 @@ class Hessian:
                 count = 0
                 for freq in self.matrix.frequencies:
                     count += 1
+                    if(first != None and count > first):
+                        break
                     freq.write(prefix=count, printmode=printmode)
+                    if(printmode=="all"):
+                        freq.writeDiff()
                 print "\n"
                 zpe = self.calcZPE(self.matrix.frequencies)
                 nu = self.calcPartition(self.matrix.frequencies)
@@ -428,7 +433,11 @@ class Hessian:
                 count = 0
                 for freq in newmatrix.frequencies:
                     count += 1
+                    if(first != None and count > first):
+                        break
                     freq.write(prefix=count, printmode=printmode)
+                    if(printmode=="all"):
+                        freq.writeDiff()
                 print "\n"
                 zpe = self.calcZPE(newmatrix.frequencies)
                 nu = self.calcPartition(newmatrix.frequencies)
@@ -560,7 +569,7 @@ class Hessian:
         string        += '{0:>{width}}'.format(zcor, width=self.decimals+self.spaces+4)
         return string
     def writeDipols(self,printmode = "all"):
-        if(printmode=="all"):
+        if(printmode == "normal" or printmode=="all"):
             print "IDIPOL = " + str(self.idipol)
             print "Initial dipole moment: " + self.writeList3(self.dipol_ref)
             self.dipols.printMatrix()

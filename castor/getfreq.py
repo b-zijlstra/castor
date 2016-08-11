@@ -25,6 +25,7 @@ class Arguments:
         self.numbers   = None
         self.element   = None
         self.mass      = 2.0
+        self.hessian   = "read"
         self.printmode = "normal"
         self.skip      = None
         self.first     = None
@@ -90,6 +91,9 @@ class Arguments:
             elif(sys.argv[i] == "-f" or sys.argv[i] == "--first"):
                 readmode = "first"
                 continue
+            elif(sys.argv[i] == "-c" or sys.argv[i] == "--calc"):
+                self.hessian = "calc"
+                continue
             elif(sys.argv[i] == "-l" or sys.argv[i] == "--less"):
                 self.printmode = "less"
                 continue
@@ -115,6 +119,7 @@ class Arguments:
         print "-m or --mass <mass>           | Mass to set for selected atoms. Example: $getfreq.py -m 13.0 (Default = 2.0)"
         print "-s or --skip <numbers>        | Removes matrix elements for <numbers>. Example: $getfreq.py -s 38-40"
         print "-f or --first <number>        | Only print the first <number> of frequencies (Default = all)"
+        print "-c or --calc                  | Calculate Hessian from forces. (Default = read Hessian from OUTCAR)"
         print "-l or --less                  | Set printmode to 'less' (Default = normal)"
         print "-a or --all                   | Set printmode to 'all' to also print displacements (Default = normal)"
         print ""
@@ -126,7 +131,7 @@ def main(arg_in):
     arguments = Arguments()
     arguments.setup(arg_in)
     hessian = Hessian()
-    hessian.read(arguments.outcar)
+    hessian.read(arguments.outcar,arguments.hessian)
     hessian.matrix.mass2diag()
     hessian.matrix.diag2freq(hessian.massmap)
     if(hessian.idipol > 0):

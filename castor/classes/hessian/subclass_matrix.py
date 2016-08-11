@@ -32,6 +32,58 @@ class Matrix:
         self.sym    = sym_in
         self.mass   = mass_in
         self.diag   = diag_in
+    def getnonsym(self, degrees_freedom, diff, forces_in, epsilon, volume, dipol_in = []):
+        #check if the amount of forces/dipols match the degrees of freedom
+        if(len(forces_in)!= 2*len(degrees_freedom)):
+            print "Error, amounts of forces and degrees of freedom do not match!"
+            sys.exit()
+        if(dipol_in != [] and len(forces_in)!= 2*len(degrees_freedom)):
+            print "Error, amounts of dipols and degrees of freedom do not match!"
+            sys.exit()
+        self.nonsym   = []
+        forces        = forces_in
+        dipol_diff    = dipol_in
+        atom_row      = 0
+        direction_row = 0
+        count_row     = 0
+        epsilon_0     = 0.00552634941 #epsilon_0 in e/AV
+        for degree_row in degrees_freedom:
+            row = []
+            atom_row      = int(degree_row[:-1])
+            direction_row = degree_row[-1]
+            count_col     = 0
+            for degree_col in degrees_freedom:
+                value = 0
+                atom_col      = int(degree_col[:-1])
+                direction_col = degree_col[-1]
+                if(direction_row == "X"):
+                    force_m = forces[count_col+1][atom_row-1][0]
+                    force_p = forces[count_col][atom_row-1][0]
+                elif(direction_row == "Y"):
+                    force_m = forces[count_col+1][atom_row-1][1]
+                    force_p = forces[count_col][atom_row-1][1]
+                elif(direction_row == "Z"):
+                    force_m = forces[count_col+1][atom_row-1][2]
+                    force_p = forces[count_col][atom_row-1][2]
+                if(dipol_diff != []):
+                    #first is +diff, second is -diff
+                    mux = (dipol_diff[count_row][0]-dipol_diff[count_row+1][0])/(2.0*diff)
+                    muy = (dipol_diff[count_row][1]-dipol_diff[count_row+1][1])/(2.0*diff)
+                    muz = (dipol_diff[count_row][2]-dipol_diff[count_row+1][2])/(2.0*diff)
+                    if(direction_row == "X"):
+                        force_m -= 1.0 * epsilon/epsilon_0*dipol_diff[count_col+1][0]/volume*mux
+                        force_p -= 1.0 * epsilon/epsilon_0*dipol_diff[count_col][0]/volume*mux
+                    elif(direction_row == "Y"):
+                        force_m -= 1.0 * epsilon/epsilon_0*dipol_diff[count_col+1][1]/volume*muy
+                        force_p -= 1.0 * epsilon/epsilon_0*dipol_diff[count_col][1]/volume*muy
+                    elif(direction_row == "Z"):
+                        force_m -= 1.0 * epsilon/epsilon_0*dipol_diff[count_col+1][2]/volume*muz
+                        force_p -= 1.0 * epsilon/epsilon_0*dipol_diff[count_col][2]/volume*muz
+                value = (force_p - force_m) / (2.0 * diff)
+                row.append(value)
+                count_col += 2
+            self.nonsym.append(row)
+            count_row += 2
     def nonsym2sym(self):
         if(self.nonsym == None or len(self.nonsym) == 0 or len(self.nonsym[0]) == 0):
             print "Can not symmetrize matrix because not symmetrized matrix does not exist!"
@@ -178,9 +230,9 @@ class Dipols:
             atom = int(degree[:-1])
             direction = degree[-1]
             #first dipol_diff is +diff, second dipol_diff is -diff
-            mux = (dipol_diff[dipcount][0]-dipol_diff[dipcount+1][0])/(2*diff)
-            muy = (dipol_diff[dipcount][1]-dipol_diff[dipcount+1][1])/(2*diff)
-            muz = (dipol_diff[dipcount][2]-dipol_diff[dipcount+1][2])/(2*diff)
+            mux = (dipol_diff[dipcount][0]-dipol_diff[dipcount+1][0])/(2.0*diff)
+            muy = (dipol_diff[dipcount][1]-dipol_diff[dipcount+1][1])/(2.0*diff)
+            muz = (dipol_diff[dipcount][2]-dipol_diff[dipcount+1][2])/(2.0*diff)
             self.dipols.append([atom,direction,mux, muy, muz])
             dipcount += 2
     def setIntensities(self,frequencies):

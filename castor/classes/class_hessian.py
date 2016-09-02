@@ -387,27 +387,41 @@ class Hessian:
                         maxatom = atom
                 templist = string_in.split(',')
                 templist = [x.strip() for x in templist]
+                skiporallow = "skip"
                 for x in templist:
-                    try:
-                        x = [int(x)]
-                    except ValueError:
-                        x = x.split('-')
+                    if(x == "a"):
+                        skiporallow = "allow"
+                    else:
                         try:
-                            x = range(int(x[0]),int(x[1])+1)
+                            x = [int(x)]
                         except ValueError:
+                            x = x.split('-')
                             try:
-                                if(x[1].strip()==":"):
-                                    x = range(int(x[0]),maxatom+1)
-                                else:
+                                x = range(int(x[0]),int(x[1])+1)
+                            except ValueError:
+                                try:
+                                    if(x[1].strip()==":"):
+                                        x = range(int(x[0]),maxatom+1)
+                                    else:
+                                        print "Could not set numbers setting"
+                                        sys.exit()
+                                except ValueError:
                                     print "Could not set numbers setting"
                                     sys.exit()
-                            except ValueError:
-                                print "Could not set numbers setting"
-                                sys.exit()
-                    for y in x:
-                        if(element_in == "all" or self.getElement(y)==element_in):
-                            numberset.add(y)
-                return numberset
+                        for y in x:
+                            if(element_in == "all" or self.getElement(y)==element_in):
+                                numberset.add(y)
+                if(skiporallow == "skip"):
+                    return numberset
+                else:
+                    skipset = set()
+                    for degree in self.matrix.freedom:
+                        atom = int(degree[:-1])
+                        if(atom in numberset):
+                            pass
+                        else:
+                            skipset.add(atom)
+                    return skipset
         else:
             return numberset
     def getElement(self, number_in):

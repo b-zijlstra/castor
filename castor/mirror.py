@@ -156,7 +156,7 @@ def main(arg_in):
     poscar_out.mirror(arguments.mode, arguments.symmetry, arguments.zplane, arguments.zrange, arguments.setOffset)
     poscar_out.move2unitcell()
     poscar_out.relabel(poscar_in,"metal")
-    poscar_out.write()
+    poscar_out.write(rewrite=True)
 
 #EXECUTION
 main(sys.argv)

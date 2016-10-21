@@ -62,6 +62,8 @@ class Poscar:
                     self.beforeatoms.append(line.rstrip())
                 elif(linecount==6):
                     if re.search('[a-zA-Z]', line):
+                        for word in line.split():
+                            self.elnames.append(word)
                         self.beforeatoms.append(line.rstrip())
                         linecount -= 1
                         continue

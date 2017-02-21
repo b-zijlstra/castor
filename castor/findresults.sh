@@ -121,7 +121,7 @@ do
 			fi
 		else
 			calcfreq "$i"
-			echo "Vibrational partition function: "$(calcnu "$i")
+			echo "Vibrational partition function: "$(calcnu.sh "$i")
 		fi
 
 	else

@@ -97,6 +97,9 @@ class Arguments:
             elif(sys.argv[i] == "-l" or sys.argv[i] == "--less"):
                 self.printmode = "less"
                 continue
+            elif(sys.argv[i] == "-ll" or sys.argv[i] == "--least"):
+                self.printmode = "least"
+                continue
             elif(sys.argv[i] == "-a" or sys.argv[i] == "--all"):
                 self.printmode = "all"
                 continue
@@ -121,6 +124,7 @@ class Arguments:
         print "-f or --first <number>        | Only print the first <number> of frequencies (Default = all)"
         print "-c or --calc                  | Calculate Hessian from forces. (Default = read Hessian from OUTCAR)"
         print "-l or --less                  | Set printmode to 'less' (Default = normal)"
+        print "-ll or --least                | Set printmode to 'least' (Default = normal)"
         print "-a or --all                   | Set printmode to 'all' to also print displacements (Default = normal)"
         print ""
         print "-h or --help                  | displays this help message"

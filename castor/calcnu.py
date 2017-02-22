@@ -35,7 +35,7 @@ def main(arg_in):
             if value != 0:
                 summation *= 1.0 / (1.0 - exp(-value / (kb * temp)))
         count += 1
-    print summation
+    print '{0:.{width}E}'.format(summation, width=6)
 
 #EXECUTION
 main(sys.argv)

@@ -9,6 +9,12 @@ if [ ! -r "$1" ] ; then
   exit 1
 fi
 
+if [ "$2" == "-l" ] ; then
+  writemode=0
+else
+  writemode=1
+fi
+
 vaspfull="$(head -n 1 $1 | awk '{print $1;}')"
 vaspnum="$(head -n 1 $1 | tr "." " " | awk '{print $2;}')"
 mode=0
@@ -22,7 +28,7 @@ if [ $mode == 0 ] ; then
   echo "WARNING: vasp version (" $vaspfull ") not recognized!"
 fi
 
-awk -v mode="$mode" '
+awk -v mode="$mode" -v writemode="$writemode" '
 
 BEGIN{
 }
@@ -45,8 +51,15 @@ if (mode == 5)
 {
   reportval=(tot/2)/1000;
 }
+if (writemode == 1)
+{
 printf("Total contribution of real frequencies in eV: %10.6f", reportval);
 print "";
+}
+if (writemode == 0)
+{
+printf("%0.6f", reportval);
+}
 }
 
 ' < "$1"

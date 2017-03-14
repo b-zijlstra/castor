@@ -126,7 +126,7 @@ class Arguments:
         print "Options:"
         print "-s or --sym or --symmetry <sym>          | Set symmetry mode. Example: $mirror.py -s 'cell-atom' (Default = mirror-mirror)"
         print "-z or --zp or --zplane <val>             | Direct middle of the z-axis of the structure. Example: $mirror.py -z 0.6 (Default = 0.5)"
-        print "-r or --zr or --zrange <range>           | Z-deviation tolerance in angstrom. Example: $mirror.py -r 1.0 (Default = 0.1)"
+        print "-r or --zr or --zrange <range>           | Z-deviation tolerance in angstrom. Example: $mirror.py -r 1.0 (Default = 0.01)"
         print "-p or --pos or --poscar <POSCAR name>    | Example: $mirror.py -p CONTCAR (Default = POSCAR)"
         print "-a or --ads or --adsorbate               | Mirror only the adsorbate (Default = all)"
         print "-b or --bottom                           | Mirror bottom atoms to top instead of top to bottom (Default = top)"

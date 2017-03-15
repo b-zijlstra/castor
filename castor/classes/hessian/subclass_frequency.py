@@ -45,7 +45,7 @@ class Frequency:
             string += "f  ="
         elif(self.imaginary==True):
             string += "f/i="
-        if(printmode=="all" or printmode=="freq" or self.intensity == None):
+        if(printmode == "normal" or printmode=="all" or printmode=="freq" or self.intensity == None):
             data   = '{0:.{width}f} THz'.format(self.THz, width=self.decimals)
             string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+6)
             data   = '{0:.{width}f} 2PiTHz'.format(self.THz2Pi, width=self.decimals)
@@ -54,8 +54,8 @@ class Frequency:
             string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+11)
             data   = '{0:.{width}f} meV'.format(self.meV, width=self.decimals)
             string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+9)
-        if(self.intensity != None and (printmode == "all" or printmode == "intensity")):
-            if(printmode == "all"):
+        if(self.intensity != None and (printmode == "normal" or printmode == "all" or printmode == "intensity")):
+            if(printmode == "normal" or printmode == "all"):
                 string += "\n"
                 data   = '{0:.{width}f} x2'.format(self.intensity[0], width=self.decimals)
                 string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+13)
@@ -77,6 +77,16 @@ class Frequency:
         return string
     def write(self, decimals_in = 6, spaces_in = 3, prefix = None, printmode = "all"):
         print self.getString(decimals_in, spaces_in, prefix, printmode)
-    def writeDiff(self):
-        for diff in self.atdiff:
-            print diff
+    def writeDiff(self, decimals_in = 6, spaces_in = 3):
+        print ""
+        print '{0:>{width1}} {1:>{width2}} {2:>{width3}}'.format("dx","dy","dz", width1=self.spaces+15,width2=self.spaces+9,width3=self.spaces+9)
+        for atom in sorted(self.atdiff):
+            dx      = '{0:.{width}f}'.format(self.atdiff[atom][0], width=self.decimals)
+            dy      = '{0:.{width}f}'.format(self.atdiff[atom][1], width=self.decimals)
+            dz      = '{0:.{width}f}'.format(self.atdiff[atom][2], width=self.decimals)
+            string  = '{0:>{width}}'.format(atom, width=self.spaces+2)
+            string += '{0:>{width}}'.format(dx, width=self.decimals+self.spaces+4)
+            string += '{0:>{width}}'.format(dy, width=self.decimals+self.spaces+4)
+            string += '{0:>{width}}'.format(dz, width=self.decimals+self.spaces+4)
+            print string
+        print ""

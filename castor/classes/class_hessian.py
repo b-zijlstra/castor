@@ -26,6 +26,7 @@ class Hessian:
     """Defines a Hessian"""
     def __init__(self, temp_in = 800):
         # General storage
+        self.ibrion      = None             # IBRION tag (should be 5).
         self.decimals    = 6                # Number of decimals to output.
         self.spaces      = 3                # Number of spaces to output.
         self.elnr        = np.dtype(int)    # Vector of element numbers.
@@ -36,6 +37,9 @@ class Hessian:
         self.skipset     = set()            # Set of atoms that should be skipped.
 
         # Storage for Hessian matrix
+        self.finitdiff   = None             # Finite difference used.
+        self.forces_ref  = None             # Storage for the forces of the initial system.
+        self.forces_diff = []               # List of forces for each displacement
         self.matrix      = None             # Hessian matrix container.
         self.numberset   = set()            # Set of atom numbers listed for modification.
         self.massmap     = dict()           # Map with masses corresponding to atoms.
@@ -46,10 +50,11 @@ class Hessian:
         self.newmatrices = []               # Generated matrices with new masses.
 
         # Storage for Dipol matrix
+        self.volume      = None             # Volume of the cell
         self.idipol      = None             # Which IDIPOL has been used.
         self.ldipol      = None             # Whether dipol corrections are included in the potential.
+        self.epsilon     = None             # Bulk dielectric constant.
         self.dipols      = None             # Dipol matrix container.
-        self.finitdiff   = None             # Finite difference used.
         self.dipol_diff  = []               # List of dipol differences.
         self.frequencies = []               # List of dipol frequencies.
         self.skipfreq    = []               # Reduced list of dipol frequencies without skipped atoms.
@@ -58,8 +63,15 @@ class Hessian:
 
 
 
-    def read(self, outcar_in):
+    def read(self, outcar_in, mode_in):
+        if(mode_in == "calc"):
+            recalc_hessian = True
+            recalc_cor = True
+        else:
+            recalc_hessian = False
+            recalc_cor = False
         readmode = 0
+        sublevel = None
         with open(outcar_in, 'r') as inputfile:
             # OUTCAR info
             vaspversion = None   # Which Vasp version has been used.
@@ -112,67 +124,116 @@ class Hessian:
                     match = re.search('^[ \t]*NWRITE[ \t]*=[ \t]*([0-4])[ \t]+.*$',line)
                     if(match):
                         nwrite   = int(match.group(1))
+                        continue
+                    # What IBRION was used?
+                    match = re.search('^[ \t]*IBRION[ \t]*=[ \t]*([0-9])[ \t]+.*$',line)
+                    if(match):
+                        self.ibrion = int(match.group(1))
+                        if(self.ibrion != 5):
+                            print "Error: IBRION != 5: " + line
+                            sys.exit()
+                        continue
+                    # What POTIM was used?
+                    match = re.search('^[ \t]*POTIM[ \t]*=[ \t]*([0-9.E-]+)[ \t]+.*$',line)
+                    if(match):
+                        self.finitdiff = float(match.group(1))
                         readmode += 1
                         continue
                 elif(readmode == 2): # Read the DIPOL tags.
                     # Which IDIPOL tag has been set
                     if(self.idipol == None):
                         match = re.search('^[ \t]*IDIPOL[ \t]*=[ \t]*([0-4])[ \t]+.*$',line)
-                        if(match): # LDIPOL tag found
+                        if(match): # IDIPOL tag found
                             if(int(match.group(1)) >= 0 and int(match.group(1)) <= 4):
                                 self.idipol = int(match.group(1))
+                                if(self.idipol==0):
+                                    recalc_cor = False
                             else:
                                 print "Error: Unknown IDIPOL tag: " + line
                                 sys.exit()
-                            if(self.ldipol != None):
-                                readmode += 1
-                                continue
+                            continue
                     # Which LDIPOL tag has been set
                     if(self.ldipol == None):
                         match = re.search('^[ \t]*LDIPOL[ \t]*=[ \t]*([FT])[ \t]+.*$',line)
                         if(match): # LDIPOL tag found
                             if(match.group(1)=="T"):
                                 self.ldipol = True
+                                recalc_cor = False
                             elif(match.group(1)=="F"):
                                 self.ldipol = False
                             else:
                                 print "Error: Unknown LDIPOL tag: " + line
                                 sys.exit()
-                            if(self.idipol != None):
-                                readmode += 1
-                                continue
-                elif(readmode == 3): # Read the dipolmoments if IDIPOL > 0
-                    if(self.idipol > 0):
-                        #read dipole moments
-                        match = re.search('^[ \t]*dipolmoment[ \t]*([0-9.-]+)[ \t]*([0-9.-]+)[ \t]*([0-9.-]+)[ \t]*electrons.*$',line)
-                        # " dipolmoment          -0.000002     -0.051875     -0.352631 electrons x Angstroem"
-                        if(match): # dipol moment found
-                            dipol_store = [float(match.group(1)), float(match.group(2)), float(match.group(3))]
-                            if(self.ldipol == False):
-                                if(self.dipol_ref==None):
-                                    self.dipol_ref = [float(match.group(1)), float(match.group(2)), float(match.group(3))]
-                                else:
-                                    dipol = [float(match.group(1)), float(match.group(2)), float(match.group(3))]
-                                    self.dipol_diff.append(dipol)
                             continue
-    
-                        #for LDIPOL = T, dipols are found for every electronic step, so only use the converged step
-                        if(self.ldipol == True):
-                            match = re.search('^.*aborting loop because EDIFF is reached.*$',line)
-                            # "------------------------ aborting loop because EDIFF is reached ----------------------------------------"
-                            if(match): # electronic convergence
-                                if(self.dipol_ref==None):
-                                    self.dipol_ref = dipol_store
-                                    dipol_store    = None
-                                else:
-                                    self.dipol_diff.append(dipol_store)
-                                    dipol_store = None
+                    # What EPSILON has been set
+                    if(self.epsilon == None):
+                        match = re.search('^[ \t]*EPSILON[ \t]*=[ \t]*([0-9.E]+)[ \t]+.*$',line)
+                        if(match): # EPSIOLON tag found
+                            self.epsilon = float(match.group(1))
+                            continue
+                    # What is the volume of the cell
+                    if(self.volume == None):
+                        match = re.search('^[ \t]*volume of cell[ \t]*:[ \t]*([0-9.]+)[ \t]*$',line)
+                        if(match): # volume found
+                            self.volume = float(match.group(1))
+                            if(self.epsilon == None):
+                                self.epsilon = 1.0
+                            readmode += 1
+                            continue
+                elif(readmode == 3): # Read the forces and read the dipolmoments if IDIPOL > 0
+                    if(sublevel == "forces"):
+                        match = re.search('^.*total drift:.*$',line)
+                        # "    total drift:                               -0.002172     -0.000568      0.002532"
+                        if(match): # all forces read
+                            sublevel = None
+                            if(self.forces_ref == None):
+                                self.forces_ref = forces
+                            else:
+                                self.forces_diff.append(forces)
+                            continue
+                        match = re.search('^[ \t]*([0-9.-]+)[ \t]+([0-9.-]+)[ \t]+([0-9.-]+)[ \t]+([0-9.-]+)[ \t]+([0-9.-]+)[ \t]+([0-9.-]+)[ \t]*$',line)
+                        # "      0.72358      1.25327      9.49588         0.001132      0.001590      0.000119"
+                        if(match): # force found
+                            forces.append([float(match.group(4)), float(match.group(5)), float(match.group(6))])
+                    else:
+                        #read forces
+                        match = re.search('^.*TOTAL-FORCE.*$',line)
+                        # " POSITION                                       TOTAL-FORCE (eV/Angst)"
+                        if(match): # forces found
+                            sublevel = "forces"
+                            forces   = []
+                            continue
+                        if(self.idipol > 0):
+                            #read dipole moments
+                            match = re.search('^[ \t]*dipolmoment[ \t]*([0-9.-]+)[ \t]*([0-9.-]+)[ \t]*([0-9.-]+)[ \t]*electrons.*$',line)
+                            # " dipolmoment          -0.000002     -0.051875     -0.352631 electrons x Angstroem"
+                            if(match): # dipol moment found
+                                dipol_store = [float(match.group(1)), float(match.group(2)), float(match.group(3))]
+                                if(self.ldipol == False):
+                                    if(self.dipol_ref==None):
+                                        self.dipol_ref = [float(match.group(1)), float(match.group(2)), float(match.group(3))]
+                                    else:
+                                        dipol = [float(match.group(1)), float(match.group(2)), float(match.group(3))]
+                                        self.dipol_diff.append(dipol)
                                 continue
-
-                    # Check for not symmetrized hessian matrix.
-                    if(re.search('^[ \t]*SECOND DERIVATIVES \(NOT SYMMETRIZED\)[ \t]*$',line)):
-                        readmode += 1
-                        continue
+        
+                            #for LDIPOL = T, dipols are found for every electronic step, so only use the converged step
+                            if(self.ldipol == True):
+                                match = re.search('^.*aborting loop because EDIFF is reached.*$',line)
+                                # "------------------------ aborting loop because EDIFF is reached ----------------------------------------"
+                                if(match): # electronic convergence
+                                    if(self.dipol_ref==None):
+                                        self.dipol_ref = dipol_store
+                                        dipol_store    = None
+                                    else:
+                                        self.dipol_diff.append(dipol_store)
+                                        dipol_store = None
+                                    continue
+    
+                        # Check for not symmetrized hessian matrix.
+                        if(re.search('^[ \t]*SECOND DERIVATIVES \(NOT SYMMETRIZED\)[ \t]*$',line)):
+                            readmode += 1
+                            continue
                 elif(readmode == 4): # Read the degrees of freedom
                     # "              11X         11Y         11Z         12X         12Y         12Z"
                     match = re.search('^([ \t]+[0-9]+[XYZ])+[ \t]*$',line)
@@ -182,25 +243,39 @@ class Hessian:
                         readmode      += 1
                         continue
                 elif(readmode == 5): # Read not symmetrized hessian matrix.
-                    # Filling the matrix
-                    match = re.search('^[ \t]*([0-9]+)([XYZ])[ \t]*(.*[0-9])[ \t]*$',line)
-                    if(match):
-                        atom = int(self.freedom[freedom_count][:-1])
-                        direction = self.freedom[freedom_count][-1]
-                        if(atom != int(match.group(1)) or direction != match.group(2)):
-                            print "Error: Degrees of freedom do not match: " + self.freedom[freedom_count] + " != " + match.group(1) + match.group(2)
-                            sys.exit()
-                        stringlist_row = match.group(3).split()
-                        floatlist_values = []
-                        for i in range(0,len(stringlist_row)):
-                            floatlist_values.append(float(stringlist_row[i]))
-                        floatlist_list_rows_nonsym.append(floatlist_values)
-                        freedom_count += 1
-                    if(freedom_count == len(self.freedom)):
-                        matrix_size = len(floatlist_list_rows_nonsym)
+                    if(recalc_hessian == False):
+                        # Filling the matrix
+                        match = re.search('^[ \t]*([0-9]+)([XYZ])[ \t]*(.*[0-9])[ \t]*$',line)
+                        if(match):
+                            atom = int(self.freedom[freedom_count][:-1])
+                            direction = self.freedom[freedom_count][-1]
+                            if(atom != int(match.group(1)) or direction != match.group(2)):
+                                print "Error: Degrees of freedom do not match: " + self.freedom[freedom_count] + " != " + match.group(1) + match.group(2)
+                                sys.exit()
+                            stringlist_row = match.group(3).split()
+                            floatlist_values = []
+                            for i in range(0,len(stringlist_row)):
+                                floatlist_values.append(float(stringlist_row[i]))
+                            floatlist_list_rows_nonsym.append(floatlist_values)
+                            freedom_count += 1
+                        if(freedom_count == len(self.freedom)):
+                            matrix_size = len(floatlist_list_rows_nonsym)
+                            self.matrix = Matrix(self.freedom)
+                            # self.matrix.setup(rows_nonsym, rows_sym, rows_mass, diag)
+                            self.matrix.setup(floatlist_list_rows_nonsym, None, None, None)
+                            self.matrix.nonsym2sym()
+                            self.mapMass()
+                            # self.skipset is always an empty set here
+                            self.matrix.sym2mass(self.massmap,self.skipset)
+                            readmode += 1
+                            continue
+                    elif(recalc_hessian == True):
                         self.matrix = Matrix(self.freedom)
-                        # self.matrix.setup(rows_nonsym, rows_sym, rows_mass, diag)
-                        self.matrix.setup(floatlist_list_rows_nonsym, None, None, None)
+                        self.matrix.setup(None, None, None, None)
+                        if(recalc_cor == True):
+                            self.matrix.getnonsym(self.freedom, self.finitdiff, self.forces_diff, self.epsilon, self.volume, self.dipol_diff)
+                        else:
+                            self.matrix.getnonsym(self.freedom, self.finitdiff, self.forces_diff, self.epsilon, self.volume, [])
                         self.matrix.nonsym2sym()
                         self.mapMass()
                         # self.skipset is always an empty set here
@@ -239,13 +314,20 @@ class Hessian:
                                 diff[2] /= math.sqrt(mass)
                             self.frequencies[-1].atdiff[atnum] = diff
                             continue
-                        match = re.search('^[ \t]*Finite differences POTIM=[ \t]*([0-9.E-]+)[ \t]*$',line)
+                        match = re.search('^[ \t]*Finite differences POTIM=[ \t]*[0-9.E-]+[ \t]*$',line)
                         # "Finite differences POTIM=  2.00000000000000004E-002"
-                        if(match): # reading POTIM and ending frequency reading
-                            self.finitdiff = float(match.group(1))
+                        if(match): # ending frequency reading
                             readmode += 1 # making sure no more freqs are read
                             continue
                 elif(readmode == 9):
+                    # print "self.forces_ref"
+                    # for force in self.forces_ref:
+                    #     print force
+                    # print "self.forces_diff"
+                    # for diff in self.forces_diff:
+                    #     print "---"
+                    #     for force in diff:
+                    #         print force
                     break
         if(readmode == 0):
             print "Error: Could not find Vasp version"
@@ -290,40 +372,57 @@ class Hessian:
             self.changes = True
     def string2numberset(self, string_in, element_in):
         numberset = set()
-        if(string_in == None or string_in == "all"):
-            for degree in self.matrix.freedom:
-                atom = int(degree[:-1])
-                if(self.getElement(atom)==element_in):
-                    numberset.add(atom)
-            return numberset
-        else:
-            maxatom = 0
-            for degree in self.matrix.freedom:
-                atom = int(degree[:-1])
-                if(atom>maxatom):
-                    maxatom = atom
-            templist = string_in.split(',')
-            templist = [x.strip() for x in templist]
-            for x in templist:
-                try:
-                    x = [int(x)]
-                except ValueError:
-                    x = x.split('-')
-                    try:
-                        x = range(int(x[0]),int(x[1])+1)
-                    except ValueError:
+        if(element_in != None):
+            if(string_in == None or string_in == "all"):
+                for degree in self.matrix.freedom:
+                    atom = int(degree[:-1])
+                    if(self.getElement(atom)==element_in):
+                        numberset.add(atom)
+                return numberset
+            else:
+                maxatom = 0
+                for degree in self.matrix.freedom:
+                    atom = int(degree[:-1])
+                    if(atom>maxatom):
+                        maxatom = atom
+                templist = string_in.split(',')
+                templist = [x.strip() for x in templist]
+                skiporallow = "skip"
+                for x in templist:
+                    if(x == "a"):
+                        skiporallow = "allow"
+                    else:
                         try:
-                            if(x[1].strip()==":"):
-                                x = range(int(x[0]),maxatom+1)
-                            else:
-                                print "Could not set numbers setting"
-                                sys.exit()
+                            x = [int(x)]
                         except ValueError:
-                            print "Could not set numbers setting"
-                            sys.exit()
-                for y in x:
-                    if(element_in == "all" or self.getElement(y)==element_in):
-                        numberset.add(y)
+                            x = x.split('-')
+                            try:
+                                x = range(int(x[0]),int(x[1])+1)
+                            except ValueError:
+                                try:
+                                    if(x[1].strip()==":"):
+                                        x = range(int(x[0]),maxatom+1)
+                                    else:
+                                        print "Could not set numbers setting"
+                                        sys.exit()
+                                except ValueError:
+                                    print "Could not set numbers setting"
+                                    sys.exit()
+                        for y in x:
+                            if(element_in == "all" or self.getElement(y)==element_in):
+                                numberset.add(y)
+                if(skiporallow == "skip"):
+                    return numberset
+                else:
+                    skipset = set()
+                    for degree in self.matrix.freedom:
+                        atom = int(degree[:-1])
+                        if(atom in numberset):
+                            pass
+                        else:
+                            skipset.add(atom)
+                    return skipset
+        else:
             return numberset
     def getElement(self, number_in):
         atomsum = 0
@@ -354,8 +453,8 @@ class Hessian:
             if(freq.imaginary==False):
                 nu *= 1.0 / (1.0 - math.exp(-freq.meV / kbT))
         return nu
-    def write(self, printmode):
-        if(printmode == "all"):
+    def write(self, printmode,first=None):
+        if(printmode == "normal" or printmode == "all"):
             print "---------------------------"
             print "-        Settings:        -"
             print "---------------------------"
@@ -377,7 +476,7 @@ class Hessian:
                 print "Initial dipole moment: " + self.writeList3(self.dipol_ref)
                 self.dipols.printMatrix()
                 print "\n"
-            if(self.matrix != None):
+            if(printmode == "all" and self.matrix != None):
                 # print "---------------------------"
                 # print "-  Original nonsym matrix:  -"
                 # print "---------------------------"
@@ -397,11 +496,12 @@ class Hessian:
                 print "---------------------------"
                 self.printChanges()
                 print "\n"
-                print "---------------------------"
-                print "-    New mass matrix:     -"
-                print "---------------------------"
-                newmatrix.printMass()
-                print "\n"
+                if(printmode == "all"):
+                    print "---------------------------"
+                    print "-    New mass matrix:     -"
+                    print "---------------------------"
+                    newmatrix.printMass()
+                    print "\n"
             if(self.matrix != None):
                 print "---------------------------"
                 print "-  Original frequencies:  -"
@@ -410,12 +510,16 @@ class Hessian:
                 count = 0
                 for freq in self.matrix.frequencies:
                     count += 1
+                    if(first != None and count > first):
+                        break
                     freq.write(prefix=count, printmode=printmode)
+                    if(printmode=="all"):
+                        freq.writeDiff()
                 print "\n"
                 zpe = self.calcZPE(self.matrix.frequencies)
                 nu = self.calcPartition(self.matrix.frequencies)
                 print 'Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
-                print 'Vibrational partition function: {0:.{width}f}'.format(nu, width=self.decimals)
+                print 'Vibrational partition function: {0:.{width}E}'.format(nu, width=self.decimals)
                 print "\n"
             for newmatrix in self.newmatrices:
                 print "---------------------------"
@@ -425,66 +529,31 @@ class Hessian:
                 count = 0
                 for freq in newmatrix.frequencies:
                     count += 1
+                    if(first != None and count > first):
+                        break
                     freq.write(prefix=count, printmode=printmode)
+                    if(printmode=="all"):
+                        freq.writeDiff()
                 print "\n"
                 zpe = self.calcZPE(newmatrix.frequencies)
                 nu = self.calcPartition(newmatrix.frequencies)
                 print 'Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
-                print 'Vibrational partition function: {0:.{width}f}'.format(nu, width=self.decimals)
+                print 'Vibrational partition function: {0:.{width}E}'.format(nu, width=self.decimals)
                 print "\n"
         elif(self.matrix != None):
             zpe = self.calcZPE(self.matrix.frequencies)
             nu = self.calcPartition(self.matrix.frequencies)
-            print 'Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
-            print 'Vibrational partition function: {0:.{width}f}'.format(nu, width=self.decimals)
-            if(self.idipol > 0):
-                count    = 0
-                highfreq = None
-                highint  = None
-                for freq in self.matrix.frequencies:
-                    count += 1
-                    if(count == 1):
-                        highfreq = freq
-                        highint  = freq
-                        freqcount = count
-                        intcount = count
-                    else:
-                        if(freq.cm1 > highint.cm1):
-                            highfreq = freq
-                            freqcount = count
-                        if(freq.intensity[3] > highint.intensity[3]):
-                            highint = freq
-                            intcount = count
-                hf_f = highfreq.cm1
-                hf_i = highfreq.intensity[3]
-                hi_f = highint.cm1
-                hi_i = highint.intensity[3]
-                hf_str = '{0:>{width}}'.format(freqcount, width=self.spaces)
-                hf_str += " "
-                if(highfreq.imaginary==False):
-                    hf_str += "f  ="
-                elif(highfreq.imaginary==True):
-                    hf_str += "f/i="
-                hi_str = '{0:>{width}}'.format(intcount, width=self.spaces)
-                hi_str += " "
-                if(highint.imaginary==False):
-                    hi_str += "f  ="
-                elif(highint.imaginary==True):
-                    hi_str += "f/i="
-                print 'Highest frequency: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hf_str, hf_f,hf_i, width=self.decimals)
-                print 'Highest intensity: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hi_str, hi_f,hi_i, width=self.decimals)
-
-            for newmatrix in self.newmatrices:
-                self.printChanges()
-                zpe = self.calcZPE(newmatrix.frequencies)
-                nu = self.calcPartition(newmatrix.frequencies)
-                print 'Total ZPE contribution of new frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
-                print 'New vibrational partition function: {0:.{width}f}'.format(nu, width=self.decimals)
+            if(printmode == "least"):
+                print '{0:.{width}f}'.format(zpe, width=self.decimals)
+                print '{0:.{width}E}'.format(nu, width=self.decimals)
+            else:
+                print 'Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
+                print 'Vibrational partition function: {0:.{width}E}'.format(nu, width=self.decimals)
                 if(self.idipol > 0):
                     count    = 0
                     highfreq = None
                     highint  = None
-                    for freq in newmatrix.frequencies:
+                    for freq in self.matrix.frequencies:
                         count += 1
                         if(count == 1):
                             highfreq = freq
@@ -516,6 +585,52 @@ class Hessian:
                         hi_str += "f/i="
                     print 'Highest frequency: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hf_str, hf_f,hf_i, width=self.decimals)
                     print 'Highest intensity: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hi_str, hi_f,hi_i, width=self.decimals)
+            for newmatrix in self.newmatrices:
+                zpe = self.calcZPE(newmatrix.frequencies)
+                nu = self.calcPartition(newmatrix.frequencies)
+                if(printmode == "least"):
+                    print '{0:.{width}f}'.format(zpe, width=self.decimals)
+                    print '{0:.{width}E}'.format(nu, width=self.decimals)
+                else:
+                    self.printChanges()
+                    print 'Total ZPE contribution of new frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
+                    print 'New vibrational partition function: {0:.{width}E}'.format(nu, width=self.decimals)
+                    if(self.idipol > 0):
+                        count    = 0
+                        highfreq = None
+                        highint  = None
+                        for freq in newmatrix.frequencies:
+                            count += 1
+                            if(count == 1):
+                                highfreq = freq
+                                highint  = freq
+                                freqcount = count
+                                intcount = count
+                            else:
+                                if(freq.cm1 > highint.cm1):
+                                    highfreq = freq
+                                    freqcount = count
+                                if(freq.intensity[3] > highint.intensity[3]):
+                                    highint = freq
+                                    intcount = count
+                        hf_f = highfreq.cm1
+                        hf_i = highfreq.intensity[3]
+                        hi_f = highint.cm1
+                        hi_i = highint.intensity[3]
+                        hf_str = '{0:>{width}}'.format(freqcount, width=self.spaces)
+                        hf_str += " "
+                        if(highfreq.imaginary==False):
+                            hf_str += "f  ="
+                        elif(highfreq.imaginary==True):
+                            hf_str += "f/i="
+                        hi_str = '{0:>{width}}'.format(intcount, width=self.spaces)
+                        hi_str += " "
+                        if(highint.imaginary==False):
+                            hi_str += "f  ="
+                        elif(highint.imaginary==True):
+                            hi_str += "f/i="
+                        print 'Highest frequency: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hf_str, hf_f,hf_i, width=self.decimals)
+                        print 'Highest intensity: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hi_str, hi_f,hi_i, width=self.decimals)
     def printChanges(self):
         if(len(self.numberset)>0):
             for i in self.numberset:
@@ -528,12 +643,12 @@ class Hessian:
                 string += " -> "
                 string += str(self.massmap[i])
                 print string
-        elif(len(self.skipset)>0):
+        if(len(self.skipset)>0):
             for i in self.skipset:
                 string = "Skip atom nr: "
                 string += str(i)
                 print string
-        else:
+        if(len(self.numberset)==0 and len(self.skipset)==0):
             print "None"
     def getDipols(self, frequencies_in = None):
         self.dipols = Dipols()
@@ -557,7 +672,7 @@ class Hessian:
         string        += '{0:>{width}}'.format(zcor, width=self.decimals+self.spaces+4)
         return string
     def writeDipols(self,printmode = "all"):
-        if(printmode=="all"):
+        if(printmode == "normal" or printmode=="all"):
             print "IDIPOL = " + str(self.idipol)
             print "Initial dipole moment: " + self.writeList3(self.dipol_ref)
             self.dipols.printMatrix()

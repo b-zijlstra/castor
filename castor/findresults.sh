@@ -120,8 +120,8 @@ do
 			echo "$(getfreq.py --less -e NOTHING -m 2.0 -o "$i")"
 			fi
 		else
-			calcfreq "$i"
-			echo "Vibrational partition function: "$(calcnu "$i")
+			calcfreq.sh "$i"
+			echo "Vibrational partition function: "$(calcnu.sh "$i")
 		fi
 
 	else

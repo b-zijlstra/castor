@@ -15,7 +15,6 @@ import sys,subprocess
 #MY PATHS
 
 #MY CLASSES
-from classes.class_hessian import Hessian
 
 #CLASSES
 class Arguments:

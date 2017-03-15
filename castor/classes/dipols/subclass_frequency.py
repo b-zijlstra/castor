@@ -5,7 +5,7 @@
 # 
 # Author: Bart Zijlstra
 # 
-# (C) Copyright 2014 Inorganic Materials Chemistry
+# (C) Copyright 2016 Inorganic Materials Chemistry
 # 
 # 
 
@@ -25,19 +25,12 @@ class Frequency:
         self.cm1       = cm1_in
         self.meV       = meV_in
         self.imaginary = imag_in
-        self.atdiff    = dict() # Filled by class_dipol.py during outcar read
-        self.intensity = None   # Set by subclass_matrix.py in setIntensities
-    def setEigen(self, eigenval_in = 0, atdiff_in = dict(), imag_in = False):
-        self.THz       = eigenval_in*15.633304592
-        self.THz2Pi    = eigenval_in*98.2269497148
-        self.cm1       = eigenval_in*521.47091
-        self.meV       = eigenval_in*64.6541499
-        self.atdiff    = atdiff_in
-        self.imaginary = imag_in
+        self.atdiff    = [] #filled by class_dipol.py during outcar read
+        self.intensity = None #set by subclass_matrix.py in setIntensities
     def getString(self, decimals_in = 6, spaces_in = 3, prefix = None, printmode = "all"):
         self.decimals  = decimals_in
         self.spaces    = spaces_in
-        string         = ""
+        string = ""
         if(prefix!=None):
             string += '{0:>{width}}'.format(prefix, width=self.spaces)
             string += " "
@@ -45,7 +38,7 @@ class Frequency:
             string += "f  ="
         elif(self.imaginary==True):
             string += "f/i="
-        if(printmode == "normal" or printmode=="all" or printmode=="freq" or self.intensity == None):
+        if(printmode=="all" or printmode=="freq" or self.intensity == None):
             data   = '{0:.{width}f} THz'.format(self.THz, width=self.decimals)
             string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+6)
             data   = '{0:.{width}f} 2PiTHz'.format(self.THz2Pi, width=self.decimals)
@@ -54,8 +47,8 @@ class Frequency:
             string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+11)
             data   = '{0:.{width}f} meV'.format(self.meV, width=self.decimals)
             string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+9)
-        if(self.intensity != None and (printmode == "normal" or printmode == "all" or printmode == "intensity")):
-            if(printmode == "normal" or printmode == "all"):
+        if(self.intensity != None and (printmode == "all" or printmode == "intensity")):
+            if(printmode == "all"):
                 string += "\n"
                 data   = '{0:.{width}f} x2'.format(self.intensity[0], width=self.decimals)
                 string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+13)
@@ -77,16 +70,6 @@ class Frequency:
         return string
     def write(self, decimals_in = 6, spaces_in = 3, prefix = None, printmode = "all"):
         print self.getString(decimals_in, spaces_in, prefix, printmode)
-    def writeDiff(self, decimals_in = 6, spaces_in = 3):
-        print ""
-        print '{0:>{width1}} {1:>{width2}} {2:>{width3}}'.format("dx","dy","dz", width1=self.spaces+15,width2=self.spaces+9,width3=self.spaces+9)
-        for atom in sorted(self.atdiff):
-            dx      = '{0:.{width}f}'.format(self.atdiff[atom][0], width=self.decimals)
-            dy      = '{0:.{width}f}'.format(self.atdiff[atom][1], width=self.decimals)
-            dz      = '{0:.{width}f}'.format(self.atdiff[atom][2], width=self.decimals)
-            string  = '{0:>{width}}'.format(atom, width=self.spaces+2)
-            string += '{0:>{width}}'.format(dx, width=self.decimals+self.spaces+4)
-            string += '{0:>{width}}'.format(dy, width=self.decimals+self.spaces+4)
-            string += '{0:>{width}}'.format(dz, width=self.decimals+self.spaces+4)
-            print string
-        print ""
+    def writeDiff(self):
+        for diff in self.atdiff:
+            print diff

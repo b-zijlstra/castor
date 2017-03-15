@@ -29,6 +29,7 @@ class Poscar:
         self.unitcell.periodic_1 = True
         self.unitcell.periodic_2 = True
         self.unitcell.periodic_3 = True
+        self.elnames = []
         self.elnr = []
         self.extra = []
         self.atoms = []
@@ -61,6 +62,8 @@ class Poscar:
                     self.beforeatoms.append(line.rstrip())
                 elif(linecount==6):
                     if re.search('[a-zA-Z]', line):
+                        for word in line.split():
+                            self.elnames.append(word)
                         self.beforeatoms.append(line.rstrip())
                         linecount -= 1
                         continue
@@ -95,9 +98,21 @@ class Poscar:
             print self.name
             temp = '{0:.{width}f}'.format(self.unitcell.lc, width=self.decimals)
             print '{0:>{width}}'.format(temp, width=self.decimals+self.spaces+2)
-            print self.unitcell.vec_1.write(self.decimals,self.spaces)
-            print self.unitcell.vec_2.write(self.decimals,self.spaces)
-            print self.unitcell.vec_3.write(self.decimals,self.spaces)
+            self.unitcell.vec_1.write(self.decimals,self.spaces)
+            self.unitcell.vec_2.write(self.decimals,self.spaces)
+            self.unitcell.vec_3.write(self.decimals,self.spaces)
+            if(len(self.elnames) > 0):
+                firstname = True
+                string = ""
+                for name in self.elnames:
+                    if(firstname==True):
+                        string = name
+                        firstname = False
+                    else:
+                        for i in range(0, self.spaces):
+                            string += " "
+                        string += name
+                print string
             firstnum = True
             string = ""
             for number in self.elnr:
@@ -337,3 +352,15 @@ class Poscar:
         for i in range(0, len(self.atoms)):
             tempatoms.append(self.atoms[dictionary2[i]])
         self.atoms = tempatoms
+
+    def direct2cartesian(self):
+        new_atoms = []
+        for atom in self.atoms:
+            new_atoms.append(self.unitcell.direct2cartesian(atom))
+        self.atoms = new_atoms
+
+    def cartesian2direct(self):
+        new_atoms = []
+        for atom in self.atoms:
+            new_atoms.append(self.unitcell.cartesian2direct(atom))
+        self.atoms = new_atoms

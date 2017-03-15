@@ -165,3 +165,40 @@ class Trajectory:
                 frame.write(comment, decimals_in, spaces_in)
         else:
             print str(len(self.frames)) + " frames read from " + self.xyz
+
+    def getLastElnames(self):
+        frame = self.frames[-1]
+        atomnamelist = []
+        atomname = None
+        for atom in frame.atoms:
+            if(atom.el == atomname):
+                pass
+            else:
+                atomnamelist.append(atom.el)
+                atomname = atom.el
+        return atomnamelist
+
+    def getLastElnr(self):
+        frame = self.frames[-1]
+        atomnrlist = []
+        atomname = None
+        atomcount = 0
+        for atom in frame.atoms:
+            if(atomname == None):
+                atomname = atom.el
+                atomcount = 1
+            elif(atom.el == atomname):
+                atomcount += 1
+            else:
+                atomnrlist.append(atomcount)
+                atomname = atom.el
+                atomcount = 1
+        atomnrlist.append(atomcount)
+        return atomnrlist
+
+    def getLastCoord(self):
+        frame = self.frames[-1]
+        atomvectors = []
+        for atom in frame.atoms:
+            atomvectors.append(atom.vec)
+        return atomvectors

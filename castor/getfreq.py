@@ -21,11 +21,14 @@ from classes.class_hessian import Hessian
 class Arguments:
     """Defines a set of arguments"""
     def __init__(self):
-        self.outcar = "OUTCAR"
-        self.numbers = None
-        self.element = "H"
-        self.mass = 2.0
-        self.printmode = "all"
+        self.outcar    = "OUTCAR"
+        self.numbers   = None
+        self.element   = None
+        self.mass      = 2.0
+        self.hessian   = "read"
+        self.printmode = "normal"
+        self.skip      = None
+        self.first     = None
     def setup(self, arg_in):
         readmode = None
         for i in range(1,len(arg_in)):
@@ -53,7 +56,20 @@ class Arguments:
                         sys.exit()
                 readmode = None
                 continue
-
+            if(readmode=="skip"):
+                self.skip = arg_in[i]
+                readmode = None
+                continue
+            if(readmode=="first"):
+                while True:
+                    try:
+                        self.first = int(arg_in[i])
+                        break
+                    except ValueError:
+                        print "-f " + arg_in[i] + " must be an integer!"
+                        sys.exit()
+                readmode = None
+                continue
             if(sys.argv[i] == "-h" or sys.argv[i] == "--help"):
                 self.help()
                 sys.exit()
@@ -69,8 +85,23 @@ class Arguments:
             elif(sys.argv[i] == "-m" or sys.argv[i] == "--mass"):
                 readmode = "mass"
                 continue
+            elif(sys.argv[i] == "-s" or sys.argv[i] == "--skip"):
+                readmode = "skip"
+                continue
+            elif(sys.argv[i] == "-f" or sys.argv[i] == "--first"):
+                readmode = "first"
+                continue
+            elif(sys.argv[i] == "-c" or sys.argv[i] == "--calc"):
+                self.hessian = "calc"
+                continue
             elif(sys.argv[i] == "-l" or sys.argv[i] == "--less"):
                 self.printmode = "less"
+                continue
+            elif(sys.argv[i] == "-ll" or sys.argv[i] == "--least"):
+                self.printmode = "least"
+                continue
+            elif(sys.argv[i] == "-a" or sys.argv[i] == "--all"):
+                self.printmode = "all"
                 continue
             elif(sys.argv[i] == "--bever"):
                 print "                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'"
@@ -82,24 +113,19 @@ class Arguments:
                 print "Unexpected argument: " + sys.argv[i]
                 self.help()
                 sys.exit()
-    def getOutcar(self):
-        return self.outcar
-    def getNumbers(self):
-        return self.numbers
-    def getElement(self):
-        return self.element
-    def getMass(self):
-        return self.mass
-    def getPrintmode(self):
-        return self.printmode
     def help(self):
         print "Use: getfreq.py <options>"
         print "Options:"
-        print "-o or --outcar <outcar name>  | Example: $getfreq.py -o out (Default = OUTCAR)"
-        print "-n or --numbers <numbers>     | Example: $getfreq.py -n 34,36,38-40 (Default = all)"
-        print "-e or --element <element>     | Example: $getfreq.py -e C (Default = H)"
-        print "-m or --mass <mass>           | Example: $getfreq.py -m 13.0 (Default = 2.0)"
-        print "-l or --less                  | Set printmode to 'less' (Default = all)"
+        print "-o or --outcar <outcar name>  | OUTCAR name to read. Example: $getfreq.py -o out (Default = OUTCAR)"
+        print "-e or --element <element>     | Element type to change mass. Example: $getfreq.py -e H (Default = None)"
+        print "-n or --numbers <numbers>     | Atom numbers of type. Example: $getfreq.py -n 34,36,38-40 (Default = all)"
+        print "-m or --mass <mass>           | Mass to set for selected atoms. Example: $getfreq.py -m 13.0 (Default = 2.0)"
+        print "-s or --skip <numbers>        | Removes matrix elements for <numbers>. Example: $getfreq.py -s 38-40"
+        print "-f or --first <number>        | Only print the first <number> of frequencies (Default = all)"
+        print "-c or --calc                  | Calculate Hessian from forces. (Default = read Hessian from OUTCAR)"
+        print "-l or --less                  | Set printmode to 'less' (Default = normal)"
+        print "-ll or --least                | Set printmode to 'least' (Default = normal)"
+        print "-a or --all                   | Set printmode to 'all' to also print displacements (Default = normal)"
         print ""
         print "-h or --help                  | displays this help message"
 
@@ -109,16 +135,22 @@ def main(arg_in):
     arguments = Arguments()
     arguments.setup(arg_in)
     hessian = Hessian()
-    hessian.read(arguments.getOutcar())
+    hessian.read(arguments.outcar,arguments.hessian)
     hessian.matrix.mass2diag()
-    hessian.matrix.diag2freq()
-    hessian.mapMass(arguments.getElement(), arguments.getMass(), arguments.getNumbers()) # from numberlist, change all element masses to mass
+    hessian.matrix.diag2freq(hessian.massmap)
+    if(hessian.idipol > 0):
+        hessian.getDipols()
+        # hessian.writeDipols()
+    hessian.mapMass(arguments.element, arguments.mass, arguments.numbers) # from numberlist, change all element masses to mass
+    hessian.setSkip(arguments.skip) # from skiplist, change all matrix elements to zero
     if(hessian.changes == True):
         hessian.addmatrix()
-        hessian.newmatrices[0].sym2mass(hessian.massmap)
+        hessian.newmatrices[0].sym2mass(hessian.massmap,hessian.skipset)
         hessian.newmatrices[0].mass2diag()
-        hessian.newmatrices[0].diag2freq()
-    hessian.write(arguments.getPrintmode())
+        hessian.newmatrices[0].diag2freq(hessian.massmap)
+        if(hessian.idipol > 0):
+            hessian.getNewIntens()
+    hessian.write(arguments.printmode,arguments.first)
 
 #EXECUTION
 main(sys.argv)

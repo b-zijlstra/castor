@@ -1,0 +1,47 @@
+# Chaingen_mwe
+&compounds
+A1;     0;  1
+B1;     0;  0
+@BEGIN;2;10
+A@;     0;  0
+B@;     0;  0
+@END
+A1*;    1;  0      ;1
+B1*;    1;  0      ;1
+@BEGIN;2;10
+A@*;     1;  0      ;1
+B@*;     1;  0      ;1
+@END
+*;      1;  1
+&reactions
+# Ads/Des
+HK; {A1}		+	{*}	=>	{A1*} 		;1e-20;   1;   1;   1;   1;   130e3;   1
+HK; {B1}		+	{*}	=>	{B1*} 		;1e-20;   1;   1;   1;   1;   130e3;   1
+@BEGIN;2;10
+HK; {A@}		+	{*}	=>	{A@*} 		;1e-20;   1;   1;   1;   1;   130e3;   1
+HK; {B@}		+	{*}	=>	{B@*} 		;1e-20;   1;   1;   1;   1;   130e3;   1
+@END
+###
+@BEGIN;1;9
+AR; {A1*}	+	{A@*}  	=>	{A@p1*} + {*};	1E+13;	 1E+13;	 100e3   ; 100e3   ;0
+@END
+@BEGIN;1;0
+AR; {A@*}  	=>	{B@*};						1E+13;	 1E+13;	 100e3   ; 100e3   ;0
+@END
+###
+@BEGIN;2;0
+AR; {B1*}	+	{B@m1*}  	=>	{B@*} + {*};	1E+13;	 1E+13;	 100e3   ; 100e3   ;0
+@END
+&settings
+PRESSURE = 20
+DRC = 0
+EACT = 0
+TYPE = SEQUENCERUN
+ORDERS = 0
+REAGENTS = {A1}
+KEYCOMPONENT = {A1}
+LICENSEFILE = D:\mkmcxx\license.dat
+&runs
+400;	1e6; 1e-9; 1e-9
+500;	1e6; 1e-9; 1e-9
+600;	1e6; 1e-9; 1e-9

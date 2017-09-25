@@ -94,7 +94,7 @@ def main(arg_in):
     arguments.setup(arg_in)
     outcar = Outcar()
     outcar.read(arguments.outcar)
-    outcar.getDistance(arguments.numbers[0],arguments.numbers[1],arguments.printmode)
+    outcar.getDistance(arguments.numbers[0],arguments.numbers[1],arguments.printmode,True)
 
 #EXECUTION
 main(sys.argv)

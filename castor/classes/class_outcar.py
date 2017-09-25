@@ -43,6 +43,7 @@ class Outcar:
         self.positions   = []               # List of positions for each frame.
         self.forces      = []               # List of forces for each frame.
         self.dipols      = []               # List of dipols for each frame.
+        self.cell        = []               # List of unitcell vectors for each frame.
 
     def read(self, outcar_in):
         readmode = 0
@@ -138,7 +139,18 @@ class Outcar:
                             readmode += 1
                             continue
                 elif(readmode == 3): # Read the positions and forces and read the dipolmoments if IDIPOL > 0
-                    if(sublevel == "forces"):
+                    if(sublevel == "cell"):
+                        match = re.search('^.*length of vectors.*$',line)
+                        # "  length of vectors"
+                        if(match): # all positions and forces read
+                            sublevel = None
+                            self.cell.append(cell_frame)
+                            continue
+                        match = re.search('^[ \t]*([0-9.-]+)[ \t]+([0-9.-]+)[ \t]+([0-9.-]+)[ \t]+([0-9.-]+)[ \t]+([0-9.-]+)[ \t]+([0-9.-]+)[ \t]*$',line)
+                        # "     7.687311615 -3.937386022  0.000000000     0.130084489  0.000000000  0.000000000"
+                        if(match): # position and force found
+                            cell_frame.append(np.array((float(match.group(1)), float(match.group(2)), float(match.group(3)))))
+                    elif(sublevel == "forces"):
                         match = re.search('^.*total drift:.*$',line)
                         # "    total drift:                               -0.002172     -0.000568      0.002532"
                         if(match): # all positions and forces read
@@ -153,6 +165,13 @@ class Outcar:
                             positions_frame.append(np.array((float(match.group(1)), float(match.group(2)), float(match.group(3)))))
                             forces_frame.append(np.array((float(match.group(4)), float(match.group(5)), float(match.group(6)))))
                     else:
+                        #read cell
+                        match = re.search('^.*VOLUME and BASIS-vectors are now.*$',line)
+                        #" VOLUME and BASIS-vectors are now :"
+                        if(match): # forces found
+                            sublevel = "cell"
+                            cell_frame   = []
+                            continue
                         #read forces
                         match = re.search('^.*TOTAL-FORCE.*$',line)
                         # " POSITION                                       TOTAL-FORCE (eV/Angst)"
@@ -211,17 +230,47 @@ class Outcar:
         print "Could not get element name"
         sys.exit()
 
-    def getDistance(self, atom1, atom2, printmode = "all"):
+    def getDistance(self, atom1, atom2, printmode = "all",pbc = False):
         if(printmode == "all"):
             for index in range(0,self.numframes):
                 cart1 = self.positions[index][atom1-1]
                 cart2 = self.positions[index][atom2-1]
-                print np.linalg.norm(cart2-cart1)
+                distances = np.dtype(float)
+                distance_values = []
+                distance_values.append(np.linalg.norm(cart2-cart1))
+                if(pbc == True):
+                    x = self.cell[index][0]
+                    y = self.cell[index][1]
+                    distance_values.append(np.linalg.norm(cart2-cart1+x))
+                    distance_values.append(np.linalg.norm(cart2-cart1-x))
+                    distance_values.append(np.linalg.norm(cart2-cart1+y))
+                    distance_values.append(np.linalg.norm(cart2-cart1-y))
+                    distance_values.append(np.linalg.norm(cart2-cart1+x+y))
+                    distance_values.append(np.linalg.norm(cart2-cart1+x-y))
+                    distance_values.append(np.linalg.norm(cart2-cart1-x+y))
+                    distance_values.append(np.linalg.norm(cart2-cart1-x-y))
+                distances = np.array(distance_values)
+                print distance.min()
 
         elif(printmode == "less"):
             cart1 = self.positions[-1][atom1-1]
             cart2 = self.positions[-1][atom2-1]
-            print np.linalg.norm(cart2-cart1)
+            distances = np.dtype(float)
+            distance_values = []
+            distance_values.append(np.linalg.norm(cart2-cart1))
+            if(pbc == True):
+                x = self.cell[-1][0]
+                y = self.cell[-1][1]
+                distance_values.append(np.linalg.norm(cart2-cart1+x))
+                distance_values.append(np.linalg.norm(cart2-cart1-x))
+                distance_values.append(np.linalg.norm(cart2-cart1+y))
+                distance_values.append(np.linalg.norm(cart2-cart1-y))
+                distance_values.append(np.linalg.norm(cart2-cart1+x+y))
+                distance_values.append(np.linalg.norm(cart2-cart1+x-y))
+                distance_values.append(np.linalg.norm(cart2-cart1-x+y))
+                distance_values.append(np.linalg.norm(cart2-cart1-x-y))
+            distances = np.array(distance_values)
+            print distances.min()
     def getDipols(self):
         pass
     def writeList3(self, list3, decimals_in = 6, spaces_in = 3):

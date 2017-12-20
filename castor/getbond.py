@@ -21,9 +21,9 @@ from classes.class_chargemol import Chargemol
 class Arguments:
     """Defines a set of arguments"""
     def __init__(self):
-        self.input    = "./"
-        self.atoms1   = None
-        self.atoms2   = None
+        self.input    = "VASP_DDEC_analysis.output"
+        self.atoms1   = []
+        self.atoms2   = []
         self.printmode = "normal"
     def setup(self, arg_in):
         readmode = None
@@ -33,7 +33,15 @@ class Arguments:
                 readmode = None
                 continue
             if(readmode=="atoms1"):
-                self.numbers = arg_in[i]
+                numberstring = arg_in[i]
+                numberstring = numberstring.split(',')
+                try:
+                    for number in numberstring:
+                        self.atoms1.append(int(number))
+                except ValueError:
+                    print "ValueError - invalid atoms1:" + numberstring
+                    self.help()
+                    sys.exit()
                 readmode = None
                 continue
             if(readmode=="atoms2"):
@@ -74,9 +82,9 @@ class Arguments:
     def help(self):
         print "Use: getbond.py <options>"
         print "Options:"
-        print "-i or --input <input path>    | Input to read. Example: $getbond.py -i chargemol (Default = .)"
-        print "-a1 or --atoms1 <atoms1>      | Atom to display bond orders of. Example: $getbond.py -a1 48 (Default = None)"
-        print "-a2 or --atoms2 <atoms2>      | Specific atoms to connect to atoms of interest. Example: $getbond.py -a2 50 (Default = None)"
+        print "-i or --input <input path>    | Input to read. Example: $getbond.py -i chargemol (Default = VASP_DDEC_analysis.output)"
+        print "-a1 or --atoms1 <atoms1>      | Atoms to display bond orders of. Example: $getbond.py -a1 48,49 (Default = None)"
+        print "-a2 or --atoms2 <atoms2>      | Specific atoms to connect to atoms of interest. Example: $getbond.py -a2 50,51 (Default = None)"
         print "-l or --less                  | Set printmode to 'less' (Default = normal)"
         print "-ll or --least                | Set printmode to 'least' (Default = normal)"
         print "-a or --all                   | Set printmode to 'all' to also print displacements (Default = normal)"

@@ -45,7 +45,15 @@ class Arguments:
                 readmode = None
                 continue
             if(readmode=="atoms2"):
-                self.element = arg_in[i]
+                numberstring = arg_in[i]
+                numberstring = numberstring.split(',')
+                try:
+                    for number in numberstring:
+                        self.atoms2.append(int(number))
+                except ValueError:
+                    print "ValueError - invalid atoms1:" + numberstring
+                    self.help()
+                    sys.exit()
                 readmode = None
                 continue
             if(sys.argv[i] == "-h" or sys.argv[i] == "--help"):

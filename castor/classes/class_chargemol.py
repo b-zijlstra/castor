@@ -83,20 +83,38 @@ class Chargemol:
         elif(readmode ==3):
             print "Error: Could not read pair matrix"
     def getbond(self, atoms1_in, atoms2_in, printmode):
+        tabwidth = 12
+        header = ["at", "BOt", "BOr"]
+        for atom in atoms2_in:
+            header.append(str(atom))
+        headerstring = ""
+        for element in header:
+            headerstring += '{0:>{width}}'.format(element, width=tabwidth)
+        data = []
+        for atom in atoms1_in:
+            datarow = []
+            datarow.append(atom)
+            BOsum = self.BOsums[atom]
+            datarow.append(BOsum)
+            BOsum_reduced = BOsum
+            datarow.append(BOsum_reduced)
+            for otheratom in atoms2_in:
+                BO = 0.0
+                for row in self.pairmatrix:
+                    if (row[0] == atom and row[1] == otheratom) or (row[0] == otheratom and row[1] == atom):
+                        if row[19] > BO:
+                            BO = row[19]
+                datarow.append(BO)
+                BOsum_reduced -= BO
+                datarow[2] = BOsum_reduced
+            data.append(datarow)
         if(printmode == "normal" or printmode == "all"):
-            for atom in atoms1_in:
-                BOsum = self.BOsums[atom]
-                BOsum_reduced = BOsum
-                print "BOsum of " + str(atom) + " = " + str(BOsum) 
-                for otheratom in atoms2_in:
-                    BO = 0.0
-                    for row in self.pairmatrix:
-                        if (row[0] == atom and row[1] == otheratom) or (row[0] == otheratom and row[1] == atom):
-                            if row[19] > BO:
-                                BO = row[19]
-                    BOsum_reduced -= BO
-                    print "BO of " + str(atom) + " with " + str(otheratom) + " = " + str(BO)
-                print "BOsum - BO others = " + str(BOsum_reduced) 
+            print headerstring
+            for row in data:
+                rowstring = ""
+                for element in row:
+                    rowstring += '{0:>{width}}'.format(element, width=tabwidth)
+                print rowstring
             if(printmode == "all"):
                 print "BO sums:"
                 for BOsum in self.BOsums:

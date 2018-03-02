@@ -43,6 +43,7 @@ class Hessian:
         self.matrix      = None             # Hessian matrix container.
         self.numberset   = set()            # Set of atom numbers listed for modification.
         self.massmap     = dict()           # Map with masses corresponding to atoms.
+        self.nummap      = dict()           # Map with modified masses corresponding to atoms.
         self.numbers     = None             # Optional selection of atoms.
         self.element     = None             # Selection of element to modify.
         self.mass        = None             # Mass to give to selected element.
@@ -366,6 +367,22 @@ class Hessian:
                     self.massmap[atom] = mass_in
                 else:
                     self.massmap[atom] = self.getMass(atom)
+    def mapMass_nummap(self, nummap_in = None):
+        self.nummap = self.string2numbermap(nummap_in)
+        if(self.nummap == None):
+            print "Error: nummap == None"
+            sys.exit()
+        
+        self.massmap.clear()
+        for degree in self.matrix.freedom:
+            atom = int(degree[:-1])
+            if(atom not in self.massmap):
+                if(atom in self.nummap):
+                    if(self.changes == False and self.nummap[atom] != self.getMass(atom)):
+                        self.changes = True
+                    self.massmap[atom] = self.nummap[atom]
+                else:
+                    self.massmap[atom] = self.getMass(atom)
     def setSkip(self, numbers_in = None):
         self.skipset = self.string2numberset(numbers_in, "all")
         if (len(self.skipset) > 0):
@@ -424,6 +441,26 @@ class Hessian:
                     return skipset
         else:
             return numberset
+    def string2numbermap(self, string_in):
+        numbermap = dict()
+        maxatom = 0
+        for degree in self.matrix.freedom:
+            atom = int(degree[:-1])
+            if(atom>maxatom):
+                maxatom = atom
+        templist = string_in.split(',')
+        templist = [x.strip() for x in templist]
+        for x in templist:
+            pair = x.split('=')
+            try:
+                pair[0] = int(pair[0])
+                pair[1] = float(pair[1])
+            except ValueError:
+                print "Could not set numbers setting for pair:"
+                print pair
+                sys.exit()
+            numbermap[pair[0]] = pair[1]
+        return numbermap
     def getElement(self, number_in):
         atomsum = 0
         for number, element in zip(self.elnr, self.elements):
@@ -458,7 +495,9 @@ class Hessian:
             print "---------------------------"
             print "-        Settings:        -"
             print "---------------------------"
-            if(self.element == None):
+            if(len(self.nummap)>0):
+                print "Using input nummap to set new mass."
+            elif(self.element == None):
                 print "No elements selected to set new mass."
             else:
                 print "Element to set new mass = " + str(self.element)
@@ -648,7 +687,18 @@ class Hessian:
                 string = "Skip atom nr: "
                 string += str(i)
                 print string
-        if(len(self.numberset)==0 and len(self.skipset)==0):
+        if(len(self.nummap)>0):
+            for i in self.nummap:
+                string = "El: "
+                string += self.getElement(i)
+                string += "  Nr: "
+                string += str(i)
+                string += "    Mass: "
+                string += str(self.getMass(i))
+                string += " -> "
+                string += str(self.massmap[i])
+                print string
+        if(len(self.numberset)==0 and len(self.skipset)==0 and len(self.nummap)==0):
             print "None"
     def getDipols(self, frequencies_in = None):
         self.dipols = Dipols()

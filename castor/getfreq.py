@@ -29,6 +29,7 @@ class Arguments:
         self.printmode = "normal"
         self.skip      = None
         self.first     = None
+        self.nummap    = None
     def setup(self, arg_in):
         readmode = None
         for i in range(1,len(arg_in)):
@@ -54,6 +55,10 @@ class Arguments:
                     except ValueError:
                         print "Mass must be a number!"
                         sys.exit()
+                readmode = None
+                continue
+            if(readmode=="nummap"):
+                self.nummap = arg_in[i]
                 readmode = None
                 continue
             if(readmode=="skip"):
@@ -84,6 +89,9 @@ class Arguments:
                 continue
             elif(sys.argv[i] == "-m" or sys.argv[i] == "--mass"):
                 readmode = "mass"
+                continue
+            elif(sys.argv[i] == "--nummap"):
+                readmode = "nummap"
                 continue
             elif(sys.argv[i] == "-s" or sys.argv[i] == "--skip"):
                 readmode = "skip"
@@ -120,6 +128,7 @@ class Arguments:
         print "-e or --element <element>     | Element type to change mass. Example: $getfreq.py -e H (Default = None)"
         print "-n or --numbers <numbers>     | Atom numbers of type. Example: $getfreq.py -n 34,36,38-40 (Default = all)"
         print "-m or --mass <mass>           | Mass to set for selected atoms. Example: $getfreq.py -m 13.0 (Default = 2.0)"
+        print "--nummap <num=mass>           | Set atom number to certain mass. Example: $getfreq.py --nummap 34=13.0,35=2.0 (Default = None)"
         print "-s or --skip <numbers>        | Removes matrix elements for <numbers>. Example: $getfreq.py -s 38-40"
         print "-f or --first <number>        | Only print the first <number> of frequencies (Default = all)"
         print "-c or --calc                  | Calculate Hessian from forces. (Default = read Hessian from OUTCAR)"
@@ -141,7 +150,10 @@ def main(arg_in):
     if(hessian.idipol > 0):
         hessian.getDipols()
         # hessian.writeDipols()
-    hessian.mapMass(arguments.element, arguments.mass, arguments.numbers) # from numberlist, change all element masses to mass
+    if(arguments.nummap == None):
+        hessian.mapMass(arguments.element, arguments.mass, arguments.numbers) # from numberlist, change all element masses to mass
+    else:
+        hessian.mapMass_nummap(arguments.nummap) #change mass of specific atom numbers
     hessian.setSkip(arguments.skip) # from skiplist, change all matrix elements to zero
     if(hessian.changes == True):
         hessian.addmatrix()

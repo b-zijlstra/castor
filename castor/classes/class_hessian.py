@@ -24,7 +24,7 @@ from hessian.subclass_frequency import Frequency
 
 class Hessian:
     """Defines a Hessian"""
-    def __init__(self, temp_in = 800):
+    def __init__(self, temp_in = [800]):
         # General storage
         self.ibrion      = None             # IBRION tag (should be 5).
         self.decimals    = 6                # Number of decimals to output.
@@ -483,8 +483,8 @@ class Hessian:
             if(freq.imaginary==False):
                 zpe += freq.meV
         return 0.0005 * zpe
-    def calcPartition(self, freqs_in):
-        kbT = self.temp * self.kb
+    def calcPartition(self, freqs_in, temp_in):
+        kbT = temp_in * self.kb
         nu  = 1.0
         for freq in freqs_in:
             if(freq.imaginary==False):
@@ -556,9 +556,10 @@ class Hessian:
                         freq.writeDiff()
                 print "\n"
                 zpe = self.calcZPE(self.matrix.frequencies)
-                nu = self.calcPartition(self.matrix.frequencies)
                 print 'Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
-                print 'Vibrational partition function: {0:.{width}E}'.format(nu, width=self.decimals)
+                for temperature in self.temp:
+                    nu = self.calcPartition(self.matrix.frequencies,temperature)
+                    print 'Vibrational partition function at {0:.2f} K: {1:.{width}E}'.format(temperature,nu, width=self.decimals)
                 print "\n"
             for newmatrix in self.newmatrices:
                 print "---------------------------"
@@ -575,19 +576,23 @@ class Hessian:
                         freq.writeDiff()
                 print "\n"
                 zpe = self.calcZPE(newmatrix.frequencies)
-                nu = self.calcPartition(newmatrix.frequencies)
                 print 'Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
-                print 'Vibrational partition function: {0:.{width}E}'.format(nu, width=self.decimals)
+                for temperature in self.temp:
+                    nu = self.calcPartition(self.newmatrix.frequencies,temperature)
+                    print 'Vibrational partition function at {0:.2f} K: {1:.{width}E}'.format(temperature,nu, width=self.decimals)
                 print "\n"
         elif(self.matrix != None):
             zpe = self.calcZPE(self.matrix.frequencies)
-            nu = self.calcPartition(self.matrix.frequencies)
             if(printmode == "least"):
                 print '{0:.{width}f}'.format(zpe, width=self.decimals)
-                print '{0:.{width}E}'.format(nu, width=self.decimals)
+                for temperature in self.temp:
+                    nu = self.calcPartition(self.matrix.frequencies,temperature)
+                    print '{0:.{width}E}'.format(nu, width=self.decimals)
             else:
                 print 'Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
-                print 'Vibrational partition function: {0:.{width}E}'.format(nu, width=self.decimals)
+                for temperature in self.temp:
+                    nu = self.calcPartition(self.matrix.frequencies,temperature)
+                    print 'Vibrational partition function at {0:.2f} K: {1:.{width}E}'.format(temperature,nu, width=self.decimals)
                 if(self.idipol > 0):
                     count    = 0
                     highfreq = None
@@ -626,14 +631,17 @@ class Hessian:
                     print 'Highest intensity: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hi_str, hi_f,hi_i, width=self.decimals)
             for newmatrix in self.newmatrices:
                 zpe = self.calcZPE(newmatrix.frequencies)
-                nu = self.calcPartition(newmatrix.frequencies)
                 if(printmode == "least"):
                     print '{0:.{width}f}'.format(zpe, width=self.decimals)
-                    print '{0:.{width}E}'.format(nu, width=self.decimals)
+                    for temperature in self.temp:
+                        nu = self.calcPartition(newmatrix.frequencies,temperature)
+                        print '{0:.{width}E}'.format(nu, width=self.decimals)
                 else:
                     self.printChanges()
                     print 'Total ZPE contribution of new frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
-                    print 'New vibrational partition function: {0:.{width}E}'.format(nu, width=self.decimals)
+                    for temperature in self.temp:
+                        nu = self.calcPartition(newmatrix.frequencies,temperature)
+                        print 'New vibrational partition function at {0:.2f} K: {1:.{width}E}'.format(temperature,nu, width=self.decimals)
                     if(self.idipol > 0):
                         count    = 0
                         highfreq = None

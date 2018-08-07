@@ -29,6 +29,7 @@ class Arguments:
         self.printmode = "normal"
         self.skip      = None
         self.first     = None
+        self.temp      = [800]
         self.nummap    = None
     def setup(self, arg_in):
         readmode = None
@@ -75,6 +76,20 @@ class Arguments:
                         sys.exit()
                 readmode = None
                 continue
+            if(readmode=="temp"):
+                self.temp = []
+                templist = arg_in[i].split(',')
+                for temperature in templist:
+                    try:
+                        self.temp.append(float(temperature))
+                    except ValueError:
+                        print temperature + " must be a float!"
+                        sys.exit()
+                if(self.temp == 0):
+                    print "self.temp is empty!"
+                    sys.exit()
+                readmode = None
+                continue
             if(sys.argv[i] == "-h" or sys.argv[i] == "--help"):
                 self.help()
                 sys.exit()
@@ -98,6 +113,9 @@ class Arguments:
                 continue
             elif(sys.argv[i] == "-f" or sys.argv[i] == "--first"):
                 readmode = "first"
+                continue
+            elif(sys.argv[i] == "-t" or sys.argv[i] == "--temp"):
+                readmode = "temp"
                 continue
             elif(sys.argv[i] == "-c" or sys.argv[i] == "--calc"):
                 self.hessian = "calc"
@@ -131,6 +149,7 @@ class Arguments:
         print "--nummap <num=mass>           | Set atom number to certain mass. Example: $getfreq.py --nummap 34=13.0,35=2.0 (Default = None)"
         print "-s or --skip <numbers>        | Removes matrix elements for <numbers>. Example: $getfreq.py -s 38-40"
         print "-f or --first <number>        | Only print the first <number> of frequencies (Default = all)"
+        print "-t or --temp <temperatures>   | Set temperatures for calculating partition functions. Example: $getfreq.py -t 493.15,513.15 (Default = 800 K)"
         print "-c or --calc                  | Calculate Hessian from forces. (Default = read Hessian from OUTCAR)"
         print "-l or --less                  | Set printmode to 'less' (Default = normal)"
         print "-ll or --least                | Set printmode to 'least' (Default = normal)"
@@ -143,7 +162,7 @@ class Arguments:
 def main(arg_in):
     arguments = Arguments()
     arguments.setup(arg_in)
-    hessian = Hessian()
+    hessian = Hessian(arguments.temp)
     hessian.read(arguments.outcar,arguments.hessian)
     hessian.matrix.mass2diag()
     hessian.matrix.diag2freq(hessian.massmap)

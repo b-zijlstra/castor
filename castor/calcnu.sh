@@ -9,6 +9,12 @@ if [ ! -r "$1" ] ; then
   exit 1
 fi
 
+if [ -z "$2" ] ; then
+	TEMPERATURE="800"
+else
+	TEMPERATURE="$2"
+fi
+
 vaspfull="$(head -n 1 $1 | awk '{print $1;}')"
 vaspnum="$(head -n 1 $1 | tr "." " " | awk '{print $2;}')"
 mode=0
@@ -31,4 +37,4 @@ fi
 # grab all frequency strengths in meV
 LIST=`grep "meV" $1 | tail -n $LINES | awk '{print $10}'`
 
-calcnu.py $LIST
+calcnu.py $TEMPERATURE $LIST

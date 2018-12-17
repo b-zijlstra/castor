@@ -17,7 +17,7 @@ import numpy as np
 #MY PATHS
 
 #MY CLASSES
-from subclass_frequency import Frequency
+from .subclass_frequency import Frequency
 
 class Matrix:
     """Defines the matrices of a Hessian"""
@@ -35,10 +35,10 @@ class Matrix:
     def getnonsym(self, degrees_freedom, diff, forces_in, epsilon, volume, dipol_in = []):
         #check if the amount of forces/dipols match the degrees of freedom
         if(len(forces_in)!= 2*len(degrees_freedom)):
-            print "Error, amounts of forces and degrees of freedom do not match!"
+            print("Error, amounts of forces and degrees of freedom do not match!")
             sys.exit()
         if(dipol_in != [] and len(forces_in)!= 2*len(degrees_freedom)):
-            print "Error, amounts of dipols and degrees of freedom do not match!"
+            print("Error, amounts of dipols and degrees of freedom do not match!")
             sys.exit()
         self.nonsym   = []
         forces        = forces_in
@@ -86,7 +86,7 @@ class Matrix:
             count_row += 2
     def nonsym2sym(self):
         if(self.nonsym == None or len(self.nonsym) == 0 or len(self.nonsym[0]) == 0):
-            print "Can not symmetrize matrix because not symmetrized matrix does not exist!"
+            print("Can not symmetrize matrix because not symmetrized matrix does not exist!")
             sys.exit()
         else:
             self.sym = []
@@ -101,7 +101,7 @@ class Matrix:
     def sym2mass(self, map_in,set_in):
         self.skipset = set_in
         if(self.sym == None or len(self.sym) == 0 or len(self.sym[0]) == 0):
-            print "Can not make mass matrix because symmetrized matrix does not exist!"
+            print("Can not make mass matrix because symmetrized matrix does not exist!")
             sys.exit()
         else:
             self.mass = []
@@ -123,7 +123,7 @@ class Matrix:
     def mass2diag(self):
         # self.printMass()
         if(self.mass == None or len(self.mass) == 0 or len(self.mass[0]) == 0):
-            print "Can not diagonalize mass matrix because it does not exist!"
+            print("Can not diagonalize mass matrix because it does not exist!")
             sys.exit()
         else:
             numpymat = np.matrix(self.mass)
@@ -157,8 +157,8 @@ class Matrix:
                     atdiff[atom][1] = diff/math.sqrt(mass)
                 elif(direction == "Z"):
                     atdiff[atom][2] = diff/math.sqrt(mass)
-        # print "Filled fulldiff"
-        # print fulldiff
+        # print("Filled fulldiff")
+        # print(fulldiff)
 
         for eigenval,atdiff in zip(self.diag[0],fulldiff):
             newfreq = Frequency()
@@ -181,7 +181,7 @@ class Matrix:
             string = ""
             string += '{0:>{width}} '.format(count, width=self.spaces+1)
             string += freq.getString()
-            print string
+            print(string)
     def printMatrix(self, matrix_in):
         if(len(matrix_in) < len(self.freedom)):
             self.printAxis_X(True)
@@ -200,7 +200,7 @@ class Matrix:
             for column in row:
                 data = '{0:.{width}f}'.format(column, width=self.decimals)
                 string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+3)
-            print string
+            print(string)
     def printAxis_X(self,skip_bool = False):
         string = '{0:^{width}}'.format("", width=self.spaces+2)
         for degree in self.freedom:
@@ -209,7 +209,7 @@ class Matrix:
                 pass
             else:
                 string += '{0:>{width}}'.format(degree, width=self.decimals+self.spaces+3)
-        print string
+        print(string)
 
 class Dipols:
     """Defines the dipol matrix from a Hessian"""
@@ -220,7 +220,7 @@ class Dipols:
     def setup(self, dipol_diff, degrees_freedom, diff):
         #check if the amount of dipols match the degrees of freedom
         if(len(dipol_diff)!= 2*len(degrees_freedom)):
-            print "Error, amounts of dipols and degrees of freedom do not match!"
+            print("Error, amounts of dipols and degrees of freedom do not match!")
             sys.exit()
 
         atom      = 0
@@ -262,7 +262,7 @@ class Dipols:
 
     def printMatrix(self):
         for dipol in self.dipols:
-            print dipol
+            print(dipol)
 
     def printMatrix(self, decimals_in = 6, spaces_in = 3):
         self.decimals = decimals_in
@@ -277,4 +277,4 @@ class Dipols:
             string += '{0:>{width}}'.format(xcor, width=self.decimals+self.spaces+4)
             string += '{0:>{width}}'.format(ycor, width=self.decimals+self.spaces+4)
             string += '{0:>{width}}'.format(zcor, width=self.decimals+self.spaces+4)
-            print string
+            print(string)

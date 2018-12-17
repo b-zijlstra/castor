@@ -17,9 +17,9 @@ import re
 #MY PATHS
 
 #MY CLASSES
-from class_vector import Vector
-# from class_atom import Atom
-from class_unitcell import Unitcell
+from .class_vector import Vector
+# from .class_atom import Atom
+from .class_unitcell import Unitcell
 
 class Poscar:
     """Defines the poscar content"""
@@ -83,7 +83,7 @@ class Poscar:
                         self.beforeatoms.append(line.rstrip())
                         continue
                     else:
-                        print >> sys.stderr, 'ERROR IN INPUT FILE (not direct?)'
+                        print('ERROR IN INPUT FILE (not direct?)', file=sys.stderr)
                         sys.exit()
                 elif(linecount>7 and direct==True):
                     match = re.search('^\s*([0-9.-]+)\s+([0-9.-]+)\s+([0-9.-]+)\s*$',line);
@@ -95,9 +95,9 @@ class Poscar:
         self.decimals = decimals_in
         self.spaces = spaces_in
         if(rewrite==True):
-            print self.name
+            print(self.name)
             temp = '{0:.{width}f}'.format(self.unitcell.lc, width=self.decimals)
-            print '{0:>{width}}'.format(temp, width=self.decimals+self.spaces+2)
+            print('{0:>{width}}'.format(temp, width=self.decimals+self.spaces+2))
             self.unitcell.vec_1.write(self.decimals,self.spaces)
             self.unitcell.vec_2.write(self.decimals,self.spaces)
             self.unitcell.vec_3.write(self.decimals,self.spaces)
@@ -112,7 +112,7 @@ class Poscar:
                         for i in range(0, self.spaces):
                             string += " "
                         string += name
-                print string
+                print(string)
             firstnum = True
             string = ""
             for number in self.elnr:
@@ -123,12 +123,12 @@ class Poscar:
                     for i in range(0, self.spaces):
                         string += " "
                     string += str(number)
-            print string
+            print(string)
             for line in self.extra:
-                print line
+                print(line)
         else:
             for line in self.beforeatoms:
-                print line
+                print(line)
         for atom in self.atoms:
             atom.write(self.decimals,self.spaces)
     def translate(self, transX_in, transY_in, sizeX_in, sizeY_in, transZ_in = 0, sizeZ_in = 1):
@@ -155,8 +155,8 @@ class Poscar:
         if(z_min <= 0.0):
             z_min = 0.01
 
-        # print >> sys.stderr, z_max
-        # print >> sys.stderr, z_min
+        # print(z_max, file=sys.stderr)
+        # print(z_min, file=sys.stderr)
 
         # cell_center = self.getCellCenter()
         # cell_center.write()
@@ -196,8 +196,8 @@ class Poscar:
 
             atom_center_top = self.getAtomCenter(metaltop)
             atom_center_bottom = self.getAtomCenter(metalbottom)
-            # print >> sys.stderr, str(atom_center_top.x) + " " + str(atom_center_top.y) + " " + str(atom_center_top.z)
-            # print >> sys.stderr, str(atom_center_bottom.x) + " " + str(atom_center_bottom.y) + " " + str(atom_center_bottom.z)
+            # print(str(atom_center_top.x) + " " + str(atom_center_top.y) + " " + str(atom_center_top.z), file=sys.stderr)
+            # print(str(atom_center_bottom.x) + " " + str(atom_center_bottom.y) + " " + str(atom_center_bottom.z), file=sys.stderr)
             offset = atom_center_top + atom_center_bottom - cell_center * 2
 
         if(symmetry[0] == "mirror"):
@@ -231,7 +231,7 @@ class Poscar:
             sym_y = cell_center.y
 
         sym_z = z_plane
-        print >> sys.stderr, "Offset = " + str(offset.x) + ":" + str(offset.y) + ":" + str(offset.z)
+        print("Offset = " + str(offset.x) + ":" + str(offset.y) + ":" + str(offset.z), file=sys.stderr)
 
         newatoms = []
         newelnr = []
@@ -261,7 +261,7 @@ class Poscar:
 
 
         if(newelnr[0] != self.elnr[0]):
-            print >> sys.stderr, 'WARNING: NUMBER OF METAL ATOMS CHANGED!'
+            print('WARNING: NUMBER OF METAL ATOMS CHANGED!', file=sys.stderr)
 
         self.atoms = newatoms
         self.elnr = newelnr
@@ -311,7 +311,7 @@ class Poscar:
                 atom.z -= 1
     def relabel(self,poscar_in, target = "metal"):
         if((target == "all" and self.elnr!=poscar_in.elnr) or (target == "metal" and self.elnr[0]!=poscar_in.elnr[0]) or (target == "adsorbate" and self.elnr[1:]!=poscar_in.elnr[1:])):
-            print >> sys.stderr, 'Number of elements do not match for relabeling'
+            print('Number of elements do not match for relabeling', file=sys.stderr)
             sys.exit()
 
         dictionary1 = {}
@@ -334,16 +334,16 @@ class Poscar:
                                 match = j
                                 foundmatch = True
                 if(foundmatch==True):
-                    # print >> sys.stderr, str(i) +  "--" + str(match)
+                    # print(str(i) +  "--" + str(match), file=sys.stderr)
                     dictionary1[i]= match
                     dictionary2[match]= i
                 else:
                     if((i in dictionary2) == False):
-                        # print >> sys.stderr, str(i) +  "--" + str(i)
+                        # print(str(i) +  "--" + str(i), file=sys.stderr)
                         dictionary1[i]= i
                         dictionary2[i]= i
                     else:
-                        print >> sys.stderr, 'Failed to create label dictionary'
+                        print('Failed to create label dictionary', file=sys.stderr)
                         sys.exit()
 
             offset += self.elnr[el];

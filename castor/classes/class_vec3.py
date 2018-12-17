@@ -24,7 +24,7 @@ class Vec3_int:
         self.z = int(int3_in)
     def scale(self, xx, yy = None, zz = None):
         if((yy == None and zz != None) or (yy != None and zz == None)):
-            print >> sys.stderr, 'scale funtion of Vec3_int has wrong amount of arguments'
+            print('scale funtion of Vec3_int has wrong amount of arguments', file=sys.stderr)
             sys.exit()
         elif(yy is None and zz is None):
             self.x *= int(xx)
@@ -36,7 +36,7 @@ class Vec3_int:
             self.z *= int(zz)
     def add(self, xx, yy = None, zz = None):
         if((yy == None and zz != None) or (yy != None and zz == None)):
-            print >> sys.stderr, 'add funtion of Vec3_int has wrong amount of arguments'
+            print('add funtion of Vec3_int has wrong amount of arguments', file=sys.stderr)
             sys.exit()
         elif(yy is None and zz is None):
             self.x += int(xx)
@@ -65,7 +65,7 @@ class Vec3_float:
         return string
     def scale(self, xx, yy = None, zz = None):
         if((yy == None and zz != None) or (yy != None and zz == None)):
-            print >> sys.stderr, 'scale funtion of Vec3_float has wrong amount of arguments'
+            print('scale funtion of Vec3_float has wrong amount of arguments', file=sys.stderr)
             sys.exit()
         elif(yy is None and zz is None):
             self.x *= float(xx)
@@ -77,7 +77,7 @@ class Vec3_float:
             self.z *= float(zz)
     def add(self, xx, yy = None, zz = None):
         if((yy == None and zz != None) or (yy != None and zz == None)):
-            print >> sys.stderr, 'add funtion of Vec3_float has wrong amount of arguments'
+            print('add funtion of Vec3_float has wrong amount of arguments', file=sys.stderr)
             sys.exit()
         elif(yy is None and zz is None):
             self.x += float(xx)

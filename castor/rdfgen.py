@@ -90,30 +90,30 @@ class Arguments:
                 self.readmode = None
                 continue
             elif(sys.argv[i] == "--bever"):
-                print "                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'"
+                print("                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'")
                 sys.exit()
             elif(sys.argv[i] == "--bahnhof"):
-                print "  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)"
+                print("  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)")
                 sys.exit()
             elif(self.readmode=="xyz"):
                 self.xyz.append(arg_in[i])
                 continue
             else:
-                print "Unexpected argument: " + sys.argv[i]
+                print("Unexpected argument: " + sys.argv[i])
                 self.help()
                 sys.exit()
     def help(self):
-        print "Use: rdfgen.py <options>"
-        print "Options:"
-        print "-x <xyz name> <xyz_2 name>       | Example: $rdfgen.py -o fcc.xyz (Default = out.xyz)"
-        print "-b or --mb or --bins               | Sets the maximum number of bins for the rdf. Example: $rdfgen.py -b 50 (Default = 100)"
-        print "-r or --br or --range or --binrange | Sets the bin range for the rdf in angstrom. Example: $rdfgen.py -r 10 (Default = 20)"
-        print "-l or --less                      | Only the most important output is printed."
-        print "--overlay                         | When multiple trajectories are given, use same bins and print an rdf column for each averaged trajectory."
-        print "--avg or --average                 | When multiple trajectories are given, average all frames and print one rdf column."
-        print "--trans or --transient             | For all trajectories use overlay for every frame."
-        print ""
-        print "-h or --help                      | displays this help message."
+        print("Use: rdfgen.py <options>")
+        print("Options:")
+        print("-x <xyz name> <xyz_2 name>       | Example: $rdfgen.py -o fcc.xyz (Default = out.xyz)")
+        print("-b or --mb or --bins               | Sets the maximum number of bins for the rdf. Example: $rdfgen.py -b 50 (Default = 100)")
+        print("-r or --br or --range or --binrange | Sets the bin range for the rdf in angstrom. Example: $rdfgen.py -r 10 (Default = 20)")
+        print("-l or --less                      | Only the most important output is printed.")
+        print("--overlay                         | When multiple trajectories are given, use same bins and print an rdf column for each averaged trajectory.")
+        print("--avg or --average                 | When multiple trajectories are given, average all frames and print one rdf column.")
+        print("--trans or --transient             | For all trajectories use overlay for every frame.")
+        print("")
+        print("-h or --help                      | displays this help message.")
 
 #DEFINES
 
@@ -140,11 +140,11 @@ def main(arg_in):
     elif(arguments.multimode == "transient"):
         for rdf in rdflist:
             rdf.printTransient(arguments.printmode)
-            print ""
+            print("")
     else:
         for rdf in rdflist:
             rdf.write(arguments.printmode)
-            print ""
+            print("")
 
 
 

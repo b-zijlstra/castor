@@ -34,4 +34,4 @@ elif len(sys.argv)==4:
 	arguments = sys.argv[1], sys.argv[2], sys.argv[3]
 	main(*arguments)
 else:
-	print "Unexpected amount of arguments."
+	print("Unexpected amount of arguments.")

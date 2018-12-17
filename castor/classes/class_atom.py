@@ -15,7 +15,7 @@ import sys
 #MY PATHS
 
 #MY CLASSES
-from class_vector import Vector
+from .class_vector import Vector
 
 class Atom:
     """Defines an atom"""
@@ -39,4 +39,4 @@ class Atom:
         self.spaces = spaces_in
         string = '{0:^{width}}'.format(self.el, width=2)
         string += self.vec.getString(self.decimals, self.spaces)
-        print string
+        print(string)

@@ -16,10 +16,10 @@ import re
 #MY PATHS
 
 #MY CLASSES
-from class_unitcell import Unitcell
-from class_frame import Frame
-from class_atom import Atom
-from class_vector import Vector
+from .class_unitcell import Unitcell
+from .class_frame import Frame
+from .class_atom import Atom
+from .class_vector import Vector
 
 class Trajectory:
     """Defines a trajectory, which can hold multiple frames and a unitcell"""
@@ -54,12 +54,12 @@ class Trajectory:
                         continue
                     atom = self.checkAtomXYZ(line)
                     if(atom == None):
-                        print "WARNING - No method available for line " + str(linecount) + ":"
-                        print "--- " + line;
+                        print("WARNING - No method available for line " + str(linecount) + ":")
+                        print("--- " + line)
                         continue
                     else:
-                        print "WARNING - Atom entry on line " + str(linecount) + " does not belong to any structure"
-                        print "--- " + line;
+                        print("WARNING - Atom entry on line " + str(linecount) + " does not belong to any structure")
+                        print("--- " + line)
                         continue
 
                 if(self.readmode=="number"):
@@ -84,7 +84,7 @@ class Trajectory:
                         continue
                     number = checkNumberAtoms(line)
                     if(number != None):
-                        print "WARNING - Adsorbate structure " + str(len(self.self.frames)+1) + " has less atoms than defined. Ending prematurely!"
+                        print("WARNING - Adsorbate structure " + str(len(self.self.frames)+1) + " has less atoms than defined. Ending prematurely!")
                         self.frames.append(self.frame)
                         self.frame = Frame()
                         self.atomcount = 0
@@ -92,12 +92,12 @@ class Trajectory:
                         self.numberofatoms = number
                         continue
                     else:
-                        print "WARNING - No method available for line " + str(linecount) + ":"
-                        print "--- " + line
+                        print("WARNING - No method available for line " + str(linecount) + ":")
+                        print("--- " + line)
                         continue
 
             if(self.readmode != "empty"):
-                print "WARNING - Adsorbate structure " + str(len(self.frames)+1) + " has less atoms than defined. Ending prematurely at end of file!"
+                print("WARNING - Adsorbate structure " + str(len(self.frames)+1) + " has less atoms than defined. Ending prematurely at end of file!")
                 self.frames.append(self.frame)
 
     def checkEmpty(self, string_in):
@@ -164,7 +164,7 @@ class Trajectory:
                 comment = "Frame "+str(count)
                 frame.write(comment, decimals_in, spaces_in)
         else:
-            print str(len(self.frames)) + " frames read from " + self.xyz
+            print(str(len(self.frames)) + " frames read from " + self.xyz)
 
     def getLastElnames(self):
         frame = self.frames[-1]

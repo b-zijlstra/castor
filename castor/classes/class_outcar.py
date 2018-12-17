@@ -19,7 +19,7 @@ import numpy as np
 
 #MY CLASSES
 #from class_vector import Vector
-from class_unitcell import Unitcell
+from .class_unitcell import Unitcell
 
 class Outcar:
     """Defines an OUTCAR"""
@@ -65,7 +65,7 @@ class Outcar:
                     if(match): # vasp version found
                         vaspversion = int(match.group(1))
                         if(vaspversion != 4 and vaspversion != 5):
-                            print "Error: Unknown Vasp version: " + str(vaspversion)
+                            print("Error: Unknown Vasp version: " + str(vaspversion))
                             sys.exit()
                         readmode += 1
                         continue
@@ -108,7 +108,7 @@ class Outcar:
                             if(int(match.group(1)) >= 0 and int(match.group(1)) <= 4):
                                 self.idipol = int(match.group(1))
                             else:
-                                print "Error: Unknown IDIPOL tag: " + line
+                                print("Error: Unknown IDIPOL tag: " + line)
                                 sys.exit()
                             continue
                     # Which LDIPOL tag has been set
@@ -120,7 +120,7 @@ class Outcar:
                             elif(match.group(1)=="F"):
                                 self.ldipol = False
                             else:
-                                print "Error: Unknown LDIPOL tag: " + line
+                                print("Error: Unknown LDIPOL tag: " + line)
                                 sys.exit()
                             continue
                     # What EPSILON has been set
@@ -204,30 +204,30 @@ class Outcar:
                             readmode += 1
                             continue
                 elif(readmode == 4):
-                    # print "self.forces_ref"
+                    # print("self.forces_ref")
                     # for force in self.forces_ref:
-                    #     print force
-                    # print "self.forces_diff"
+                    #     print(force)
+                    # print("self.forces_diff")
                     # for diff in self.forces_diff:
-                    #     print "---"
+                    #     print("---")
                     #     for force in diff:
-                    #         print force
+                    #         print(force)
                     break
         if(readmode == 0):
-            print "Error: Could not find Vasp version"
+            print("Error: Could not find Vasp version")
         elif(readmode ==1):
-            print "Error: Could not find elemental properties"
+            print("Error: Could not find elemental properties")
         elif(readmode ==2):
-            print "Error: Could not find DIPOL tags"
+            print("Error: Could not find DIPOL tags")
         elif(readmode ==3):
-            print "Error: Could not find end of OUTCAR"
+            print("Error: Could not find end of OUTCAR")
     def getElement(self, number_in):
         atomsum = 0
         for number, element in zip(self.elnr, self.elements):
             atomsum += number
             if(number_in <= atomsum):
                 return element
-        print "Could not get element name"
+        print("Could not get element name")
         sys.exit()
 
     def getDistance(self, atom1, atom2, printmode = "all",pbc = False):
@@ -250,7 +250,7 @@ class Outcar:
                     distance_values.append(np.linalg.norm(cart2-cart1-x+y))
                     distance_values.append(np.linalg.norm(cart2-cart1-x-y))
                 distances = np.array(distance_values)
-                print distance.min()
+                print(distance.min())
 
         elif(printmode == "less"):
             cart1 = self.positions[-1][atom1-1]
@@ -270,7 +270,7 @@ class Outcar:
                 distance_values.append(np.linalg.norm(cart2-cart1-x+y))
                 distance_values.append(np.linalg.norm(cart2-cart1-x-y))
             distances = np.array(distance_values)
-            print distances.min()
+            print(distances.min())
     def getDipols(self):
         pass
     def writeList3(self, list3, decimals_in = 6, spaces_in = 3):

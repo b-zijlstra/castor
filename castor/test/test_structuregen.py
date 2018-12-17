@@ -42,7 +42,7 @@ def setup_slab(metal_in, lc_in, hc_in, packing_in, miller_1_in, miller_2_in, mil
     return structure
 
 def vectortest(vec, check):
-    print [vec.x, vec.y, vec.z]
+    print([vec.x, vec.y, vec.z])
     return all(round(x-y, 12) == 0 for x,y in zip([vec.x, vec.y, vec.z], check))
 
 def test_bulk():

@@ -76,10 +76,10 @@ class Frequency:
                 string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+7)
         return string
     def write(self, decimals_in = 6, spaces_in = 3, prefix = None, printmode = "all"):
-        print self.getString(decimals_in, spaces_in, prefix, printmode)
+        print(self.getString(decimals_in, spaces_in, prefix, printmode))
     def writeDiff(self, decimals_in = 6, spaces_in = 3):
-        print ""
-        print '{0:>{width1}} {1:>{width2}} {2:>{width3}}'.format("dx","dy","dz", width1=self.spaces+15,width2=self.spaces+9,width3=self.spaces+9)
+        print("")
+        print('{0:>{width1}} {1:>{width2}} {2:>{width3}}'.format("dx","dy","dz", width1=self.spaces+15,width2=self.spaces+9,width3=self.spaces+9))
         for atom in sorted(self.atdiff):
             dx      = '{0:.{width}f}'.format(self.atdiff[atom][0], width=self.decimals)
             dy      = '{0:.{width}f}'.format(self.atdiff[atom][1], width=self.decimals)
@@ -88,5 +88,5 @@ class Frequency:
             string += '{0:>{width}}'.format(dx, width=self.decimals+self.spaces+4)
             string += '{0:>{width}}'.format(dy, width=self.decimals+self.spaces+4)
             string += '{0:>{width}}'.format(dz, width=self.decimals+self.spaces+4)
-            print string
-        print ""
+            print(string)
+        print("")

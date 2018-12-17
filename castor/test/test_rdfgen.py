@@ -48,7 +48,7 @@ def getOverlay(analyse_in):
     return output.getvalue()
 
 def outputtest(output_in, file_in):
-    # print output_in
+    # print(output_in)
     with open(file_in, 'r') as inputfile:
         lines = inputfile.read()
     return output_in == lines

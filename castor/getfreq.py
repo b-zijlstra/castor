@@ -54,7 +54,7 @@ class Arguments:
                             self.mass = None
                         break
                     except ValueError:
-                        print "Mass must be a number!"
+                        print("Mass must be a number!")
                         sys.exit()
                 readmode = None
                 continue
@@ -72,7 +72,7 @@ class Arguments:
                         self.first = int(arg_in[i])
                         break
                     except ValueError:
-                        print "-f " + arg_in[i] + " must be an integer!"
+                        print("-f " + arg_in[i] + " must be an integer!")
                         sys.exit()
                 readmode = None
                 continue
@@ -83,10 +83,10 @@ class Arguments:
                     try:
                         self.temp.append(float(temperature))
                     except ValueError:
-                        print temperature + " must be a float!"
+                        print(temperature + " must be a float!")
                         sys.exit()
                 if(self.temp == 0):
-                    print "self.temp is empty!"
+                    print("self.temp is empty!")
                     sys.exit()
                 readmode = None
                 continue
@@ -130,32 +130,32 @@ class Arguments:
                 self.printmode = "all"
                 continue
             elif(sys.argv[i] == "--bever"):
-                print "                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'"
+                print("                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'")
                 sys.exit()
             elif(sys.argv[i] == "--bahnhof"):
-                print "  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)"
+                print("  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)")
                 sys.exit()
             else:
-                print "Unexpected argument: " + sys.argv[i]
+                print("Unexpected argument: " + sys.argv[i])
                 self.help()
                 sys.exit()
     def help(self):
-        print "Use: getfreq.py <options>"
-        print "Options:"
-        print "-o or --outcar <outcar name>  | OUTCAR name to read. Example: $getfreq.py -o out (Default = OUTCAR)"
-        print "-e or --element <element>     | Element type to change mass. Example: $getfreq.py -e H (Default = None)"
-        print "-n or --numbers <numbers>     | Atom numbers of type. Example: $getfreq.py -n 34,36,38-40 (Default = all)"
-        print "-m or --mass <mass>           | Mass to set for selected atoms. Example: $getfreq.py -m 13.0 (Default = 2.0)"
-        print "--nummap <num=mass>           | Set atom number to certain mass. Example: $getfreq.py --nummap 34=13.0,35=2.0 (Default = None)"
-        print "-s or --skip <numbers>        | Removes matrix elements for <numbers>. Example: $getfreq.py -s 38-40"
-        print "-f or --first <number>        | Only print the first <number> of frequencies (Default = all)"
-        print "-t or --temp <temperatures>   | Set temperatures for calculating partition functions. Example: $getfreq.py -t 493.15,513.15 (Default = 800 K)"
-        print "-c or --calc                  | Calculate Hessian from forces. (Default = read Hessian from OUTCAR)"
-        print "-l or --less                  | Set printmode to 'less' (Default = normal)"
-        print "-ll or --least                | Set printmode to 'least' (Default = normal)"
-        print "-a or --all                   | Set printmode to 'all' to also print displacements (Default = normal)"
-        print ""
-        print "-h or --help                  | displays this help message"
+        print("Use: getfreq.py <options>")
+        print("Options:")
+        print("-o or --outcar <outcar name>  | OUTCAR name to read. Example: $getfreq.py -o out (Default = OUTCAR)")
+        print("-e or --element <element>     | Element type to change mass. Example: $getfreq.py -e H (Default = None)")
+        print("-n or --numbers <numbers>     | Atom numbers of type. Example: $getfreq.py -n 34,36,38-40 (Default = all)")
+        print("-m or --mass <mass>           | Mass to set for selected atoms. Example: $getfreq.py -m 13.0 (Default = 2.0)")
+        print("--nummap <num=mass>           | Set atom number to certain mass. Example: $getfreq.py --nummap 34=13.0,35=2.0 (Default = None)")
+        print("-s or --skip <numbers>        | Removes matrix elements for <numbers>. Example: $getfreq.py -s 38-40")
+        print("-f or --first <number>        | Only print the first <number> of frequencies (Default = all)")
+        print("-t or --temp <temperatures>   | Set temperatures for calculating partition functions. Example: $getfreq.py -t 493.15,513.15 (Default = 800 K)")
+        print("-c or --calc                  | Calculate Hessian from forces. (Default = read Hessian from OUTCAR)")
+        print("-l or --less                  | Set printmode to 'less' (Default = normal)")
+        print("-ll or --least                | Set printmode to 'least' (Default = normal)")
+        print("-a or --all                   | Set printmode to 'all' to also print displacements (Default = normal)")
+        print("")
+        print("-h or --help                  | displays this help message")
 
 #DEFINES
 

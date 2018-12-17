@@ -16,7 +16,7 @@ import numpy as np
 #MY PATHS
 
 #MY CLASSES
-from class_vector import Vector
+from .class_vector import Vector
 
 
 class Unitcell:
@@ -88,12 +88,12 @@ class Unitcell:
         string = self.vec_1_lc.getString(self.decimals, self.spaces)
         if(self.periodic_1 == True):
             string += "   (periodic)"
-        print string
+        print(string)
         string = self.vec_2_lc.getString(self.decimals, self.spaces)
         if(self.periodic_2 == True):
             string += "   (periodic)"
-        print string
+        print(string)
         string = self.vec_3_lc.getString(self.decimals, self.spaces)
         if(self.periodic_3 == True):
             string += "   (periodic)"
-        print string
+        print(string)

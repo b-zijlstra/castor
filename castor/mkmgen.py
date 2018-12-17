@@ -51,24 +51,24 @@ class Arguments:
                 self.getOutput = True
                 continue
             elif(sys.argv[i] == "--bever"):
-                print "                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'"
+                print("                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'")
                 sys.exit()
             elif(sys.argv[i] == "--bahnhof"):
-                print "  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)"
+                print("  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)")
                 sys.exit()
             else:
-                print "Unexpected argument: " + sys.argv[i]
+                print("Unexpected argument: " + sys.argv[i])
                 self.help()
                 sys.exit()
     def help(self):
-        print "Use: mkmgen.py <options>"
-        print "Options:"
-        print "-p or --par <parfile name>       | Example: $mkmgen.py -p parfile (Default = par.mkm)"
-        print "-s or --source <source name>     | Example: $mkmgen.py -p sourcefile (Default = source.mkm)"
-        print "-r or --run                      | Automatically run all created input."
-        print "-o or --out                      | Automatically get all created output."
-        print ""
-        print "-h or --help                     | displays this help message"
+        print("Use: mkmgen.py <options>")
+        print("Options:")
+        print("-p or --par <parfile name>       | Example: $mkmgen.py -p parfile (Default = par.mkm)")
+        print("-s or --source <source name>     | Example: $mkmgen.py -p sourcefile (Default = source.mkm)")
+        print("-r or --run                      | Automatically run all created input.")
+        print("-o or --out                      | Automatically get all created output.")
+        print("")
+        print("-h or --help                     | displays this help message")
 
 #DEFINES
 

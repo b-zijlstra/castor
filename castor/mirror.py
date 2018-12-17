@@ -73,7 +73,7 @@ class Arguments:
                 if(len(s)==3):
                     self.setOffset = [s[0], s[1], s[2]]
                 else:
-                    print "Offset input has wrong length: 3 != " + str(len(s))
+                    print("Offset input has wrong length: 3 != " + str(len(s)))
                     self.help()
                     sys.exit()
                 self.readmode = None
@@ -112,37 +112,37 @@ class Arguments:
                 self.getOffset = True
                 continue
             elif(sys.argv[i] == "-bever"):
-                print "                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'"
+                print("                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'")
                 sys.exit()
             elif(sys.argv[i] == "-bahnhof"):
-                print "  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)"
+                print("  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)")
                 sys.exit()
             else:
-                print "Unexpected argument: " + sys.argv[i]
+                print("Unexpected argument: " + sys.argv[i])
                 self.help()
                 sys.exit()
     def help(self):
-        print "Use: mirror.py <options>"
-        print "Options:"
-        print "-s or --sym or --symmetry <sym>          | Set symmetry mode. Example: $mirror.py -s 'cell-atom' (Default = mirror-mirror)"
-        print "-z or --zp or --zplane <val>             | Direct middle of the z-axis of the structure. Example: $mirror.py -z 0.6 (Default = 0.5)"
-        print "-r or --zr or --zrange <range>           | Z-deviation tolerance in angstrom. Example: $mirror.py -r 1.0 (Default = 0.01)"
-        print "-p or --pos or --poscar <POSCAR name>    | Example: $mirror.py -p CONTCAR (Default = POSCAR)"
-        print "-a or --ads or --adsorbate               | Mirror only the adsorbate (Default = all)"
-        print "-b or --bottom                           | Mirror bottom atoms to top instead of top to bottom (Default = top)"
-        print "--setOffset                              | Set the offset vector Example: $mirror.py --setOffset 0.1:0.2:0.3 (Default = None)"
-        print ""
-        print "-h or -help                              | displays this help message."
-        print ""
-        print "Note on symmetry mode:"
-        print "Symmetry is set separately for 'a' and 'b' directions. -s 'option' = -s 'option-option'"
-        print "'mirror' only changes the z-position of the atom"
-        print "'cell_center' uses the middle of the cell as an inversion point"
-        print "'atom_center' uses the coordinate average of metal atoms as an inversion point"
-        print "'mirror-cell_center' uses the middle of the 'a-z' plane as an inversion point"
-        print "'offset' assumes that there is no inversion symmetry. The upper and lower part are shifted for correct symmetry."
-        print "   -when using 'offset' mode the offset gets calculated from the input structure. When using --setOffset, use another mode"
-        print "Short notations: 'mir' = 'mirror, 'cell' = 'cell_center', 'atom' = 'atom_center' and 'off' = 'offset'"
+        print("Use: mirror.py <options>")
+        print("Options:")
+        print("-s or --sym or --symmetry <sym>          | Set symmetry mode. Example: $mirror.py -s 'cell-atom' (Default = mirror-mirror)")
+        print("-z or --zp or --zplane <val>             | Direct middle of the z-axis of the structure. Example: $mirror.py -z 0.6 (Default = 0.5)")
+        print("-r or --zr or --zrange <range>           | Z-deviation tolerance in angstrom. Example: $mirror.py -r 1.0 (Default = 0.01)")
+        print("-p or --pos or --poscar <POSCAR name>    | Example: $mirror.py -p CONTCAR (Default = POSCAR)")
+        print("-a or --ads or --adsorbate               | Mirror only the adsorbate (Default = all)")
+        print("-b or --bottom                           | Mirror bottom atoms to top instead of top to bottom (Default = top)")
+        print("--setOffset                              | Set the offset vector Example: $mirror.py --setOffset 0.1:0.2:0.3 (Default = None)")
+        print("")
+        print("-h or -help                              | displays this help message.")
+        print("")
+        print("Note on symmetry mode:")
+        print("Symmetry is set separately for 'a' and 'b' directions. -s 'option' = -s 'option-option'")
+        print("'mirror' only changes the z-position of the atom")
+        print("'cell_center' uses the middle of the cell as an inversion point")
+        print("'atom_center' uses the coordinate average of metal atoms as an inversion point")
+        print("'mirror-cell_center' uses the middle of the 'a-z' plane as an inversion point")
+        print("'offset' assumes that there is no inversion symmetry. The upper and lower part are shifted for correct symmetry.")
+        print("   -when using 'offset' mode the offset gets calculated from the input structure. When using --setOffset, use another mode")
+        print("Short notations: 'mir' = 'mirror, 'cell' = 'cell_center', 'atom' = 'atom_center' and 'off' = 'offset'")
 
 
 #DEFINES

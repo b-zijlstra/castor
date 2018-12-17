@@ -48,10 +48,10 @@ class Arguments:
                 self.readmode = "poscar"
                 continue
             elif(sys.argv[i] == "--bever"):
-                print "                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'"
+                print("                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'")
                 sys.exit()
             elif(sys.argv[i] == "--bahnhof"):
-                print "  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)"
+                print("  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)")
                 sys.exit()
             elif(self.readmode=="xyz"):
                 self.xyz = arg_in[i]
@@ -62,19 +62,19 @@ class Arguments:
                 self.readmode = None
                 continue
             else:
-                print "Unexpected argument: " + sys.argv[i]
+                print("Unexpected argument: " + sys.argv[i])
                 self.help()
                 sys.exit()
     def help(self):
-        print "Use: xyz2pos.py <options>"
-        print "Options:"
-        print "-x <xyz name>                     | Which xyz file to read. Example: $xyz2pos.py -x tot.xyz (Default = out.xyz)"
-        print "-p <poscar file>                  | Which example poscar to use.  Example: $xyz2pos.py -p unitcell (Default = UNICAR)"
-        print "-c or --car or --cartesian        | Fill POSCAR with cartesian coordinates. Example: $xyz2pos.py -c (Default = direct)"
-        print "-d or --dir or --direct           | Fill POSCAR with direct coordinates. Example: $xyz2pos.py -d (Default = direct)"
-        print "-e or --ele or --elements         | Include names of elements in POSCAR. Example: $xyz2pos.py -e (Default = False)"
-        print ""
-        print "-h or --help                      | displays this help message."
+        print("Use: xyz2pos.py <options>")
+        print("Options:")
+        print("-x <xyz name>                     | Which xyz file to read. Example: $xyz2pos.py -x tot.xyz (Default = out.xyz)")
+        print("-p <poscar file>                  | Which example poscar to use.  Example: $xyz2pos.py -p unitcell (Default = UNICAR)")
+        print("-c or --car or --cartesian        | Fill POSCAR with cartesian coordinates. Example: $xyz2pos.py -c (Default = direct)")
+        print("-d or --dir or --direct           | Fill POSCAR with direct coordinates. Example: $xyz2pos.py -d (Default = direct)")
+        print("-e or --ele or --elements         | Include names of elements in POSCAR. Example: $xyz2pos.py -e (Default = False)")
+        print("")
+        print("-h or --help                      | displays this help message.")
 
 #DEFINES
 

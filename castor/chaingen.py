@@ -44,22 +44,22 @@ class Arguments:
                 readmode = "length"
                 continue
             elif(sys.argv[i] == "--bever"):
-                print "                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'"
+                print("                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'")
                 sys.exit()
             elif(sys.argv[i] == "--bahnhof"):
-                print "  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)"
+                print("  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)")
                 sys.exit()
             else:
-                print "Unexpected argument: " + sys.argv[i]
+                print("Unexpected argument: " + sys.argv[i])
                 self.help()
                 sys.exit()
     def help(self):
-        print "Use: chaingen.py <options>"
-        print "Options:"
-        print "-i or --mkm <input name>         | Example: $chaingen.py -i base.mkm (Default = input.mkm)"
-        print "-l or --length <length>          | Example: $chaingen.py -l 10 (Default = 50)"
-        print ""
-        print "-h or --help                     | displays this help message"
+        print("Use: chaingen.py <options>")
+        print("Options:")
+        print("-i or --mkm <input name>         | Example: $chaingen.py -i base.mkm (Default = input.mkm)")
+        print("-l or --length <length>          | Example: $chaingen.py -l 10 (Default = 50)")
+        print("")
+        print("-h or --help                     | displays this help message")
 
 #DEFINES
 
@@ -86,9 +86,9 @@ def makemkm(mkm_in, length_in):
                     if(end==0):
                         end = length_in
                     readmode = 1
-                    # print line
+                    # print(line)
                     continue
-                print line # just print the unmodified line
+                print(line) # just print the unmodified line
                 continue
             elif(readmode == 1): # Check for substitutions or @END
                 match = re.search(regex_end,line)
@@ -122,15 +122,15 @@ def makemkm(mkm_in, length_in):
                                     right =  match.group(2)
                                     subline = left + str(i) + right
                                     match = re.search(regex_swap_0,subline)
-                                print subline
+                                print(subline)
                                 continue
-                            print singleline
+                            print(singleline)
                     swap = []
                     continue
                 swap.append(line)
                 continue
         if(readmode == 1):
-            print "# WARNING: End of file reached before @END"
+            print("# WARNING: End of file reached before @END")
 
 def main(arg_in):
     arguments = Arguments()

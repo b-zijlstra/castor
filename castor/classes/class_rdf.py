@@ -75,7 +75,7 @@ class Rdf:
                         diffvec = self.trajectory.unitcell.direct2cartesian(diffvec)
                         r2 = diffvec.length2()
                     else:
-                        print "Error: Unknown coordinate method"
+                        print("Error: Unknown coordinate method")
                         sys.exit()
 
                     if(r2<self.CNrange**2):
@@ -100,7 +100,7 @@ class Rdf:
         self.printmode = printmode_in
 
         if(self.printmode != "less"):
-            print "RADIAL DISTRIBUTION"
+            print("RADIAL DISTRIBUTION")
         
         for i in range(0,len(self.bins)):
             string = ""
@@ -118,11 +118,11 @@ class Rdf:
             
             string += '{0:>{width}}'.format(x, width=self.decimals+self.spaces+3)
             string += '{0:>{width}}'.format(y, width=self.decimals+self.spaces+3)
-            print string
+            print(string)
 
         if(self.printmode != "less"):
-            print ""
-            print "COORDINATION NUMBERS"
+            print("")
+            print("COORDINATION NUMBERS")
             for i in range(0,17):
                 string = '{0:>{width}}'.format(i, width=3)
                 if(rdfnum_in==None):
@@ -139,7 +139,7 @@ class Rdf:
                         if(self.coordination[rdfnum_in][k] == i):
                             count += 1
                     string += '{0:>{width}}'.format(count, width=self.spaces+5)
-                print string
+                print(string)
 
 
     def printTransient(self, printmode_in = "all", decimals_in = 6, spaces_in = 3):
@@ -148,7 +148,7 @@ class Rdf:
         self.printmode = printmode_in
 
         if(self.printmode != "less"):
-            print "RADIAL DISTRIBUTION"
+            print("RADIAL DISTRIBUTION")
 
         for i in range(0,len(self.bins)):
             string = ""
@@ -160,12 +160,12 @@ class Rdf:
                 y = self.distribution[j][i]
                 y = '{0:.{width}f}'.format(y, width=self.decimals)
                 string += '{0:>{width}}'.format(y, width=self.decimals+self.spaces+3)
-            print string
+            print(string)
 
 
         if(self.printmode != "less"):
-            print ""
-            print "COORDINATION NUMBERS"
+            print("")
+            print("COORDINATION NUMBERS")
             for i in range(0,17):
                 string = '{0:>{width}}'.format(i, width=3)
                 for j in range(0,len(self.coordination)):
@@ -174,4 +174,4 @@ class Rdf:
                         if(self.coordination[j][k] == i):
                             count += 1
                     string += '{0:>{width}}'.format(count, width=self.spaces+5)
-                print string
+                print(string)

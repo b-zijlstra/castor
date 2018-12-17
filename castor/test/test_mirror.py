@@ -37,7 +37,7 @@ def mirror_1121():
     return poscar_out
 
 def vectortest(vec, check):
-    print [vec.x, vec.y, vec.z]
+    print([vec.x, vec.y, vec.z])
     return all(round(x-y, 12) == 0 for x,y in zip([vec.x, vec.y, vec.z], check))
 
 def test_0001():

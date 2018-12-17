@@ -15,7 +15,7 @@ import sys
 #MY PATHS
 
 #MY CLASSES
-from class_vec3 import Vec3_int, Vec3_float
+from .class_vec3 import Vec3_int, Vec3_float
 
 class Slab:
     """Defines the surface slab"""

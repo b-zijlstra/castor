@@ -36,7 +36,7 @@ def rotate(rotX1_in, rotY1_in, rotZ1_in, rotX2_in, rotY2_in, rotZ2_in, angle_in,
     return poscar
 
 def vectortest(vec, check):
-    print [vec.x, vec.y, vec.z]
+    print([vec.x, vec.y, vec.z])
     return all(round(x-y, 12) == 0 for x,y in zip([vec.x, vec.y, vec.z], check))
 
 def test_poscar():

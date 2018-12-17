@@ -67,7 +67,7 @@ class Chargemol:
                                 else:
                                     row.append(float(number))
                         except ValueError:
-                            print "ValueError - invalid pair matrix line:" + line
+                            print("ValueError - invalid pair matrix line:" + line)
                             self.help()
                             sys.exit()
                         self.pairmatrix.append(row)
@@ -75,13 +75,13 @@ class Chargemol:
                 elif(readmode == 4):
                     break
         if(readmode == 0):
-            print "Error: Could not find bond order sums"
+            print("Error: Could not find bond order sums")
         elif(readmode ==1):
-            print "Error: Could not read bond order sums"
+            print("Error: Could not read bond order sums")
         elif(readmode ==2):
-            print "Error: Could not find pair matrix"
+            print("Error: Could not find pair matrix")
         elif(readmode ==3):
-            print "Error: Could not read pair matrix"
+            print("Error: Could not read pair matrix")
     def getbond(self, atoms1_in, atoms2_in, printmode):
         tabwidth = 12
         header = ["at", "BOt", "BOr"]
@@ -109,17 +109,17 @@ class Chargemol:
                 datarow[2] = BOsum_reduced
             data.append(datarow)
         if(printmode == "normal" or printmode == "all"):
-            print headerstring
+            print(headerstring)
             for row in data:
                 rowstring = ""
                 for element in row:
                     rowstring += '{0:>{width}}'.format(element, width=tabwidth)
-                print rowstring
+                print(rowstring)
             if(printmode == "all"):
-                print "BO sums:"
+                print("BO sums:")
                 for BOsum in self.BOsums:
-                    print BOsum
-                print "pair matrix:"
+                    print(BOsum)
+                print("pair matrix:")
                 for row in self.pairmatrix:
                     rowstring = ""
                     rowstring += '{0:>{width}}'.format(row[0], width=5)
@@ -128,7 +128,7 @@ class Chargemol:
                     rowstring += '{0:>{width}}'.format(row[3], width=7)
                     rowstring += '{0:>{width}}'.format(row[4], width=7)
                     rowstring += '{0:>{width}}'.format(row[19], width=12)
-                    print rowstring
+                    print(rowstring)
         else:
             placeholder     = None # placeholder
             if(printmode == "least"):

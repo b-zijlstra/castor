@@ -69,7 +69,7 @@ class Frequency:
                 string += '{0:>{width}}'.format(data, width=self.decimals+self.spaces+7)
         return string
     def write(self, decimals_in = 6, spaces_in = 3, prefix = None, printmode = "all"):
-        print self.getString(decimals_in, spaces_in, prefix, printmode)
+        print(self.getString(decimals_in, spaces_in, prefix, printmode))
     def writeDiff(self):
         for diff in self.atdiff:
-            print diff
+            print(diff)

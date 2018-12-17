@@ -51,7 +51,7 @@ class Dipols:
                     if(match): # vasp version found
                         vaspversion = int(match.group(1))
                         if(vaspversion != 4 and vaspversion != 5):
-                            print "Error: Unknown Vasp version: " + str(vaspversion)
+                            print("Error: Unknown Vasp version: " + str(vaspversion))
                             sys.exit()
                         readmode += 1
                         continue
@@ -90,7 +90,7 @@ class Dipols:
                         elif(match.group(1)=="F"):
                             dipol_correction = False
                         else:
-                            print "Error: Unknown LDIPOL tag: " + line
+                            print("Error: Unknown LDIPOL tag: " + line)
                             sys.exit()
                         readmode += 1
                         continue
@@ -170,24 +170,24 @@ class Dipols:
                     break
 
         if(readmode == 0):
-            print "Error: Could not find Vasp version"
+            print("Error: Could not find Vasp version")
         elif(readmode ==1):
-            print "Error: Could not find elemental properties"
+            print("Error: Could not find elemental properties")
         elif(readmode ==2):
-            print "Error: Could not find LDIPOL tag"
+            print("Error: Could not find LDIPOL tag")
         elif(readmode ==3):
-            print "Error: Could not find dipol moments"
+            print("Error: Could not find dipol moments")
         elif(readmode ==4 or readmode == 5):
-            print "Error: Could not find dynamical matrix"
+            print("Error: Could not find dynamical matrix")
         elif(readmode ==6):
-            print "Error: Could not find all frequencies"
+            print("Error: Could not find all frequencies")
     def getMass(self, number_in):
         atomsum = 0
         for number, mass in zip(self.elnr, self.masses):
             atomsum += number
             if(number_in <= atomsum):
                 return mass
-        print "Could not get element mass"
+        print("Could not get element mass")
         sys.exit()
     def getMatrix(self):
         self.matrix = Matrix()
@@ -206,7 +206,7 @@ class Dipols:
         return string
     def write(self,printmode = "all"):
         if(printmode=="all"):
-            print "Initial dipole moment: " + self.writeList3(self.dipol_ref)
+            print("Initial dipole moment: " + self.writeList3(self.dipol_ref))
             self.matrix.printMatrix()
         count = 0
         for freq in self.frequencies:

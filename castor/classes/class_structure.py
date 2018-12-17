@@ -16,8 +16,8 @@ import math
 #MY PATHS
 
 #MY CLASSES
-from class_vec3 import Vec3_float
-from class_atom import Atom
+from .class_vec3 import Vec3_float
+from .class_atom import Atom
 
 class Structure:
     """Defines the poscar content"""
@@ -31,7 +31,7 @@ class Structure:
         elif(metal_in.packing=="HCP"):
             self.populate_HCP(metal_in,slab_in)
         else:
-            print "Unknown packing \"" + metal_in.packing + "\""
+            print("Unknown packing \"" + metal_in.packing + "\"")
             sys.exit()
     def populate_BCC(self, metal, slab = None):
         self.lc = metal.lc
@@ -42,7 +42,7 @@ class Structure:
             self.elnr = [1]
             self.atoms = [Atom(metal.metal, 0.0, 0.0, 0.0)]
         else:
-            print "BCC_Slab method not yet available"
+            print("BCC_Slab method not yet available")
             sys.exit()
     def populate_FCC(self, metal, slab = None):
         self.lc = metal.lc
@@ -53,7 +53,7 @@ class Structure:
             self.elnr = [1]
             self.atoms = [Atom(metal.metal, 0.0, 0.0, 0.0)]
         else:
-            print "FCC_Slab method not yet available"
+            print("FCC_Slab method not yet available")
             sys.exit()
     def populate_HCP(self, metal, slab = None):
         self.lc = metal.lc
@@ -104,7 +104,7 @@ class Structure:
                     slab.vec_V = self.vec_c #U and V defined for miller index with 2 zeros
 
             if(zerocount==3):
-                print "Cannot slice 000 surface"
+                print("Cannot slice 000 surface")
                 sys.exit()
             elif(zerocount==1):
                 if(slab.miller.x==0):
@@ -124,6 +124,6 @@ class Structure:
                 slab.vec_V = Vec3_float(-0.5*slab.miller.z, math.cos(math.pi/6)*slab.miller.z, -1.0*self.hc*slab.miller.y) #U and V defined for miller index with no zeros
             
             slab.vec_W = Vec3_float(2.0*slab.dim.z*slab.normal.x, 2.0*slab.dim.z*slab.normal.y, 2.0*slab.dim.z*slab.normal.z)
-            # print [slab.vec_U.x, slab.vec_U.y, slab.vec_U.z]
-            # print [slab.vec_V.x, slab.vec_V.y, slab.vec_V.z]
-            # print [slab.vec_W.x, slab.vec_W.y, slab.vec_W.z]
+            # print([slab.vec_U.x, slab.vec_U.y, slab.vec_U.z])
+            # print([slab.vec_V.x, slab.vec_V.y, slab.vec_V.z])
+            # print([slab.vec_W.x, slab.vec_W.y, slab.vec_W.z])

@@ -38,10 +38,10 @@ class Arguments:
                 self.readmode = "poscar"
                 continue
             elif(sys.argv[i] == "--bever"):
-                print "                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'"
+                print("                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'")
                 sys.exit()
             elif(sys.argv[i] == "--bahnhof"):
-                print "  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)"
+                print("  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)")
                 sys.exit()
             elif(self.readmode=="unifile"):
                 self.unifile = arg_in[i]
@@ -52,16 +52,16 @@ class Arguments:
                 self.readmode = None
                 continue
             else:
-                print "Unexpected argument: " + sys.argv[i]
+                print("Unexpected argument: " + sys.argv[i])
                 self.help()
                 sys.exit()
     def help(self):
-        print "Use: unitcopy.py <options>"
-        print "Options:"
-        print "-u <unitcell file>                | Which poscar to use for unitcell. Example: $unitcopy.py -u unitcell (Default = POSCAR1)"
-        print "-p <poscar file>                  | Which poscar to use for positions. Example: $unitcopy.py -p poscar (Default = POSCAR2)"
-        print ""
-        print "-h or --help                      | displays this help message."
+        print("Use: unitcopy.py <options>")
+        print("Options:")
+        print("-u <unitcell file>                | Which poscar to use for unitcell. Example: $unitcopy.py -u unitcell (Default = POSCAR1)")
+        print("-p <poscar file>                  | Which poscar to use for positions. Example: $unitcopy.py -p poscar (Default = POSCAR2)")
+        print("")
+        print("-h or --help                      | displays this help message.")
 
 #DEFINES
 

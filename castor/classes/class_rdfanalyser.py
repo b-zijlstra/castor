@@ -40,7 +40,7 @@ class RdfAnalyser:
             for i in range(0,len(list_a)):
                 if(list_a[i] != list_b[i]):
                     self.sameProperties = False
-                    # print "RDF properties not the same for " + list_id[i] + ": " + str(list_a[i]) + " != " + str(list_b[i])
+                    # print("RDF properties not the same for " + list_id[i] + ": " + str(list_a[i]) + " != " + str(list_b[i]))
 
     def printAverage(self, printmode_in = "all", decimals_in = 6, spaces_in = 3):
         if(self.sameRange==True):
@@ -49,7 +49,7 @@ class RdfAnalyser:
             self.printmode = printmode_in
 
             if(self.printmode != "less"):
-                print "RADIAL DISTRIBUTION"
+                print("RADIAL DISTRIBUTION")
             
             for i in range(0,len(self.reference.bins)):
                 string = ""
@@ -65,11 +65,11 @@ class RdfAnalyser:
 
                 string += '{0:>{width}}'.format(x, width=self.decimals+self.spaces+3)
                 string += '{0:>{width}}'.format(y, width=self.decimals+self.spaces+3)
-                print string
+                print(string)
 
             if(self.printmode != "less"):
-                print ""
-                print "COORDINATION NUMBERS"
+                print("")
+                print("COORDINATION NUMBERS")
                 for i in range(0,17):
                     string = '{0:>{width}}'.format(i, width=3)
                     count = 0.0
@@ -80,9 +80,9 @@ class RdfAnalyser:
                                     count += 1
                     count /= (len(self.rdfs) * len(self.rdfs[0].coordination))
                     string += '{0:>{width}}'.format(count, width=self.spaces+5)
-                    print string
+                    print(string)
         else:
-            print "Can not average the rdfs. X-range is not the same!"
+            print("Can not average the rdfs. X-range is not the same!")
 
     def printOverlay(self, printmode_in = "all", decimals_in = 6, spaces_in = 3):
         if(self.sameRange==True):
@@ -91,7 +91,7 @@ class RdfAnalyser:
             self.printmode = printmode_in
 
             if(self.printmode != "less"):
-                print "RADIAL DISTRIBUTION"
+                print("RADIAL DISTRIBUTION")
             
             for i in range(0,len(self.reference.bins)):
                 string = ""
@@ -106,11 +106,11 @@ class RdfAnalyser:
                     y /= len(self.rdfs[j].distribution)
                     y = '{0:.{width}f}'.format(y, width=self.decimals)
                     string += '{0:>{width}}'.format(y, width=self.decimals+self.spaces+3)
-                print string
+                print(string)
 
             if(self.printmode != "less"):
-                print ""
-                print "COORDINATION NUMBERS"
+                print("")
+                print("COORDINATION NUMBERS")
                 for i in range(0,17):
                     string = '{0:>{width}}'.format(i, width=3)
                     for j in range(0,len(self.rdfs)):
@@ -120,7 +120,7 @@ class RdfAnalyser:
                                 if(self.rdfs[j].coordination[k][l] == i):
                                     count += 1
                         string += '{0:>{width}}'.format(count, width=self.spaces+5)
-                    print string
+                    print(string)
 
         else:
-            print "Can not overlay the rdfs. X-range is not the same!"
+            print("Can not overlay the rdfs. X-range is not the same!")

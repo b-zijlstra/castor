@@ -39,7 +39,7 @@ class Arguments:
                     for number in numberstring:
                         self.atoms1.append(int(number))
                 except ValueError:
-                    print "ValueError - invalid atoms1:" + numberstring
+                    print("ValueError - invalid atoms1:" + numberstring)
                     self.help()
                     sys.exit()
                 readmode = None
@@ -51,7 +51,7 @@ class Arguments:
                     for number in numberstring:
                         self.atoms2.append(int(number))
                 except ValueError:
-                    print "ValueError - invalid atoms1:" + numberstring
+                    print("ValueError - invalid atoms1:" + numberstring)
                     self.help()
                     sys.exit()
                 readmode = None
@@ -78,26 +78,26 @@ class Arguments:
                 self.printmode = "all"
                 continue
             elif(sys.argv[i] == "--bever"):
-                print "                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'"
+                print("                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'")
                 sys.exit()
             elif(sys.argv[i] == "--bahnhof"):
-                print "  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)"
+                print("  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)")
                 sys.exit()
             else:
-                print "Unexpected argument: " + sys.argv[i]
+                print("Unexpected argument: " + sys.argv[i])
                 self.help()
                 sys.exit()
     def help(self):
-        print "Use: getbond.py <options>"
-        print "Options:"
-        print "-i or --input <input path>    | Input to read. Example: $getbond.py -i chargemol (Default = VASP_DDEC_analysis.output)"
-        print "-a1 or --atoms1 <atoms1>      | Atoms to display bond orders of. Example: $getbond.py -a1 48,49 (Default = None)"
-        print "-a2 or --atoms2 <atoms2>      | Specific atoms to connect to atoms of interest. Example: $getbond.py -a2 50,51 (Default = None)"
-        print "-l or --less                  | Set printmode to 'less' (Default = normal)"
-        print "-ll or --least                | Set printmode to 'least' (Default = normal)"
-        print "-a or --all                   | Set printmode to 'all' to also print displacements (Default = normal)"
-        print ""
-        print "-h or --help                  | displays this help message"
+        print("Use: getbond.py <options>")
+        print("Options:")
+        print("-i or --input <input path>    | Input to read. Example: $getbond.py -i chargemol (Default = VASP_DDEC_analysis.output)")
+        print("-a1 or --atoms1 <atoms1>      | Atoms to display bond orders of. Example: $getbond.py -a1 48,49 (Default = None)")
+        print("-a2 or --atoms2 <atoms2>      | Specific atoms to connect to atoms of interest. Example: $getbond.py -a2 50,51 (Default = None)")
+        print("-l or --less                  | Set printmode to 'less' (Default = normal)")
+        print("-ll or --least                | Set printmode to 'least' (Default = normal)")
+        print("-a or --all                   | Set printmode to 'all' to also print displacements (Default = normal)")
+        print("")
+        print("-h or --help                  | displays this help message")
 
 #DEFINES
 

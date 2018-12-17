@@ -37,7 +37,7 @@ def getfreq(hessian_in, writemode_in = "all"):
     return output.getvalue()
 
 def outputtest(output_in, file_in, offset_in = 0):
-    # print output_in
+    # print(output_in)
     with open(file_in, 'r') as inputfile:
         lines = inputfile.readlines()
     output = output_in.split('\n')
@@ -46,7 +46,7 @@ def outputtest(output_in, file_in, offset_in = 0):
     
 
 def vectortest(vec, check):
-    print [vec.x, vec.y, vec.z]
+    print([vec.x, vec.y, vec.z])
     return all(round(x-y, 12) == 0 for x,y in zip([vec.x, vec.y, vec.z], check))
 
 def test_hessian1():

@@ -97,7 +97,7 @@ class Hessian:
                     if(match): # vasp version found
                         vaspversion = int(match.group(1))
                         if(vaspversion != 4 and vaspversion != 5):
-                            print "Error: Unknown Vasp version: " + str(vaspversion)
+                            print("Error: Unknown Vasp version: " + str(vaspversion))
                             sys.exit()
                         readmode += 1
                         continue
@@ -131,7 +131,7 @@ class Hessian:
                     if(match):
                         self.ibrion = int(match.group(1))
                         if(self.ibrion != 5):
-                            print "Error: IBRION != 5: " + line
+                            print("Error: IBRION != 5: " + line)
                             sys.exit()
                         continue
                     # What POTIM was used?
@@ -150,7 +150,7 @@ class Hessian:
                                 if(self.idipol==0):
                                     recalc_cor = False
                             else:
-                                print "Error: Unknown IDIPOL tag: " + line
+                                print("Error: Unknown IDIPOL tag: " + line)
                                 sys.exit()
                             continue
                     # Which LDIPOL tag has been set
@@ -163,7 +163,7 @@ class Hessian:
                             elif(match.group(1)=="F"):
                                 self.ldipol = False
                             else:
-                                print "Error: Unknown LDIPOL tag: " + line
+                                print("Error: Unknown LDIPOL tag: " + line)
                                 sys.exit()
                             continue
                     # What EPSILON has been set
@@ -251,7 +251,7 @@ class Hessian:
                             atom = int(self.freedom[freedom_count][:-1])
                             direction = self.freedom[freedom_count][-1]
                             if(atom != int(match.group(1)) or direction != match.group(2)):
-                                print "Error: Degrees of freedom do not match: " + self.freedom[freedom_count] + " != " + match.group(1) + match.group(2)
+                                print("Error: Degrees of freedom do not match: " + self.freedom[freedom_count] + " != " + match.group(1) + match.group(2))
                                 sys.exit()
                             stringlist_row = match.group(3).split()
                             floatlist_values = []
@@ -321,31 +321,31 @@ class Hessian:
                             readmode += 1 # making sure no more freqs are read
                             continue
                 elif(readmode == 9):
-                    # print "self.forces_ref"
+                    # print("self.forces_ref")
                     # for force in self.forces_ref:
-                    #     print force
-                    # print "self.forces_diff"
+                    #     print(force)
+                    # print("self.forces_diff")
                     # for diff in self.forces_diff:
-                    #     print "---"
+                    #     print("---")
                     #     for force in diff:
-                    #         print force
+                    #         print(force)
                     break
         if(readmode == 0):
-            print "Error: Could not find Vasp version"
+            print("Error: Could not find Vasp version")
         elif(readmode ==1):
-            print "Error: Could not find elemental properties"
+            print("Error: Could not find elemental properties")
         elif(readmode ==2):
-            print "Error: Could not find DIPOL tags"
+            print("Error: Could not find DIPOL tags")
         elif(readmode ==3):
-            print "Error: Could not find start of hessian"
+            print("Error: Could not find start of hessian")
         elif(readmode ==4):
-            print "Error: Could not read degrees of freedom"
+            print("Error: Could not read degrees of freedom")
         elif(readmode ==5):
-            print "Error: Problem reading not symmetrized hessian matrix"
+            print("Error: Problem reading not symmetrized hessian matrix")
         elif(readmode ==6 or readmode == 7):
-            print "Error: Could not find dynamical matrix"
+            print("Error: Could not find dynamical matrix")
         elif(readmode ==8):
-            print "Error: Could not find all frequencies"
+            print("Error: Could not find all frequencies")
     
     def addmatrix(self):
         new = Matrix(self.matrix.freedom)
@@ -370,7 +370,7 @@ class Hessian:
     def mapMass_nummap(self, nummap_in = None):
         self.nummap = self.string2numbermap(nummap_in)
         if(self.nummap == None):
-            print "Error: nummap == None"
+            print("Error: nummap == None")
             sys.exit()
         
         self.massmap.clear()
@@ -420,10 +420,10 @@ class Hessian:
                                     if(x[1].strip()==":"):
                                         x = range(int(x[0]),maxatom+1)
                                     else:
-                                        print "Could not set numbers setting"
+                                        print("Could not set numbers setting")
                                         sys.exit()
                                 except ValueError:
-                                    print "Could not set numbers setting"
+                                    print("Could not set numbers setting")
                                     sys.exit()
                         for y in x:
                             if(element_in == "all" or self.getElement(y)==element_in):
@@ -456,8 +456,8 @@ class Hessian:
                 pair[0] = int(pair[0])
                 pair[1] = float(pair[1])
             except ValueError:
-                print "Could not set numbers setting for pair:"
-                print pair
+                print("Could not set numbers setting for pair:")
+                print(pair)
                 sys.exit()
             numbermap[pair[0]] = pair[1]
         return numbermap
@@ -467,7 +467,7 @@ class Hessian:
             atomsum += number
             if(number_in <= atomsum):
                 return element
-        print "Could not get element name"
+        print("Could not get element name")
         sys.exit()
     def getMass(self, number_in):
         atomsum = 0
@@ -475,7 +475,7 @@ class Hessian:
             atomsum += number
             if(number_in <= atomsum):
                 return mass
-        print "Could not get element mass"
+        print("Could not get element mass")
         sys.exit()
     def calcZPE(self, freqs_in):
         zpe = 0.0
@@ -492,59 +492,59 @@ class Hessian:
         return nu
     def write(self, printmode,first=None):
         if(printmode == "normal" or printmode == "all"):
-            print "---------------------------"
-            print "-        Settings:        -"
-            print "---------------------------"
+            print("---------------------------")
+            print("-        Settings:        -")
+            print("---------------------------")
             if(len(self.nummap)>0):
-                print "Using input nummap to set new mass."
+                print("Using input nummap to set new mass.")
             elif(self.element == None):
-                print "No elements selected to set new mass."
+                print("No elements selected to set new mass.")
             else:
-                print "Element to set new mass = " + str(self.element)
+                print("Element to set new mass = " + str(self.element))
                 if(self.numbers == None):
-                    print "Atom numbers of element to set new mass = all"
+                    print("Atom numbers of element to set new mass = all")
                 else:
-                    print "Atom numbers of element to set new mass = " + str(self.numbers)
-                print "New mass = " + str(self.mass)
-            print "\n"
+                    print("Atom numbers of element to set new mass = " + str(self.numbers))
+                print("New mass = " + str(self.mass))
+            print("\n")
             if(self.idipol > 0):
-                print "---------------------------"
-                print "-   Dipole information:   -"
-                print "---------------------------"
-                print "IDIPOL = " + str(self.idipol)
-                print "Initial dipole moment: " + self.writeList3(self.dipol_ref)
+                print("---------------------------")
+                print("-   Dipole information:   -")
+                print("---------------------------")
+                print("IDIPOL = " + str(self.idipol))
+                print("Initial dipole moment: " + self.writeList3(self.dipol_ref))
                 self.dipols.printMatrix()
-                print "\n"
+                print("\n")
             if(printmode == "all" and self.matrix != None):
-                # print "---------------------------"
-                # print "-  Original nonsym matrix:  -"
-                # print "---------------------------"
+                # print("---------------------------")
+                # print("-  Original nonsym matrix:  -")
+                # print("---------------------------")
                 # self.matrix.printNonsym()
-                # print "---------------------------"
-                # print "-  Original sym matrix:  -"
-                # print "---------------------------"
+                # print("---------------------------")
+                # print("-  Original sym matrix:  -")
+                # print("---------------------------")
                 # self.matrix.printSym()
-                print "---------------------------"
-                print "-  Original mass matrix:  -"
-                print "---------------------------"
+                print("---------------------------")
+                print("-  Original mass matrix:  -")
+                print("---------------------------")
                 self.matrix.printMass()
-                print "\n"
+                print("\n")
             for newmatrix in self.newmatrices:
-                print "---------------------------"
-                print "-        Changes:         -"
-                print "---------------------------"
+                print("---------------------------")
+                print("-        Changes:         -")
+                print("---------------------------")
                 self.printChanges()
-                print "\n"
+                print("\n")
                 if(printmode == "all"):
-                    print "---------------------------"
-                    print "-    New mass matrix:     -"
-                    print "---------------------------"
+                    print("---------------------------")
+                    print("-    New mass matrix:     -")
+                    print("---------------------------")
                     newmatrix.printMass()
-                    print "\n"
+                    print("\n")
             if(self.matrix != None):
-                print "---------------------------"
-                print "-  Original frequencies:  -"
-                print "---------------------------"
+                print("---------------------------")
+                print("-  Original frequencies:  -")
+                print("---------------------------")
                 # self.matrix.printFreq()
                 count = 0
                 for freq in self.matrix.frequencies:
@@ -554,17 +554,17 @@ class Hessian:
                     freq.write(prefix=count, printmode=printmode)
                     if(printmode=="all"):
                         freq.writeDiff()
-                print "\n"
+                print("\n")
                 zpe = self.calcZPE(self.matrix.frequencies)
-                print 'Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
+                print('Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals))
                 for temperature in self.temp:
                     nu = self.calcPartition(self.matrix.frequencies,temperature)
-                    print 'Vibrational partition function at {0:.2f} K: {1:.{width}E}'.format(temperature,nu, width=self.decimals)
-                print "\n"
+                    print('Vibrational partition function at {0:.2f} K: {1:.{width}E}'.format(temperature,nu, width=self.decimals))
+                print("\n")
             for newmatrix in self.newmatrices:
-                print "---------------------------"
-                print "-    New frequencies:     -"
-                print "---------------------------"
+                print("---------------------------")
+                print("-    New frequencies:     -")
+                print("---------------------------")
                 # newmatrix.printFreq()
                 count = 0
                 for freq in newmatrix.frequencies:
@@ -574,25 +574,25 @@ class Hessian:
                     freq.write(prefix=count, printmode=printmode)
                     if(printmode=="all"):
                         freq.writeDiff()
-                print "\n"
+                print("\n")
                 zpe = self.calcZPE(newmatrix.frequencies)
-                print 'Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
+                print('Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals))
                 for temperature in self.temp:
                     nu = self.calcPartition(self.newmatrix.frequencies,temperature)
-                    print 'Vibrational partition function at {0:.2f} K: {1:.{width}E}'.format(temperature,nu, width=self.decimals)
-                print "\n"
+                    print('Vibrational partition function at {0:.2f} K: {1:.{width}E}'.format(temperature,nu, width=self.decimals))
+                print("\n")
         elif(self.matrix != None):
             zpe = self.calcZPE(self.matrix.frequencies)
             if(printmode == "least"):
-                print '{0:.{width}f}'.format(zpe, width=self.decimals)
+                print('{0:.{width}f}'.format(zpe, width=self.decimals))
                 for temperature in self.temp:
                     nu = self.calcPartition(self.matrix.frequencies,temperature)
-                    print '{0:.{width}E}'.format(nu, width=self.decimals)
+                    print('{0:.{width}E}'.format(nu, width=self.decimals))
             else:
-                print 'Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
+                print('Total ZPE contribution of frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals))
                 for temperature in self.temp:
                     nu = self.calcPartition(self.matrix.frequencies,temperature)
-                    print 'Vibrational partition function at {0:.2f} K: {1:.{width}E}'.format(temperature,nu, width=self.decimals)
+                    print('Vibrational partition function at {0:.2f} K: {1:.{width}E}'.format(temperature,nu, width=self.decimals))
                 if(self.idipol > 0):
                     count    = 0
                     highfreq = None
@@ -627,21 +627,21 @@ class Hessian:
                         hi_str += "f  ="
                     elif(highint.imaginary==True):
                         hi_str += "f/i="
-                    print 'Highest frequency: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hf_str, hf_f,hf_i, width=self.decimals)
-                    print 'Highest intensity: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hi_str, hi_f,hi_i, width=self.decimals)
+                    print('Highest frequency: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hf_str, hf_f,hf_i, width=self.decimals))
+                    print('Highest intensity: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hi_str, hi_f,hi_i, width=self.decimals))
             for newmatrix in self.newmatrices:
                 zpe = self.calcZPE(newmatrix.frequencies)
                 if(printmode == "least"):
-                    print '{0:.{width}f}'.format(zpe, width=self.decimals)
+                    print('{0:.{width}f}'.format(zpe, width=self.decimals))
                     for temperature in self.temp:
                         nu = self.calcPartition(newmatrix.frequencies,temperature)
-                        print '{0:.{width}E}'.format(nu, width=self.decimals)
+                        print('{0:.{width}E}'.format(nu, width=self.decimals))
                 else:
                     self.printChanges()
-                    print 'Total ZPE contribution of new frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals)
+                    print('Total ZPE contribution of new frequencies in eV: {0:.{width}f}'.format(zpe, width=self.decimals))
                     for temperature in self.temp:
                         nu = self.calcPartition(newmatrix.frequencies,temperature)
-                        print 'New vibrational partition function at {0:.2f} K: {1:.{width}E}'.format(temperature,nu, width=self.decimals)
+                        print('New vibrational partition function at {0:.2f} K: {1:.{width}E}'.format(temperature,nu, width=self.decimals))
                     if(self.idipol > 0):
                         count    = 0
                         highfreq = None
@@ -676,8 +676,8 @@ class Hessian:
                             hi_str += "f  ="
                         elif(highint.imaginary==True):
                             hi_str += "f/i="
-                        print 'Highest frequency: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hf_str, hf_f,hf_i, width=self.decimals)
-                        print 'Highest intensity: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hi_str, hi_f,hi_i, width=self.decimals)
+                        print('Highest frequency: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hf_str, hf_f,hf_i, width=self.decimals))
+                        print('Highest intensity: {0} {1:.{width}f} cm-1 | {2:.{width}f} int'.format(hi_str, hi_f,hi_i, width=self.decimals))
     def printChanges(self):
         if(len(self.numberset)>0):
             for i in self.numberset:
@@ -689,12 +689,12 @@ class Hessian:
                 string += str(self.getMass(i))
                 string += " -> "
                 string += str(self.massmap[i])
-                print string
+                print(string)
         if(len(self.skipset)>0):
             for i in self.skipset:
                 string = "Skip atom nr: "
                 string += str(i)
-                print string
+                print(string)
         if(len(self.nummap)>0):
             for i in self.nummap:
                 string = "El: "
@@ -705,9 +705,9 @@ class Hessian:
                 string += str(self.getMass(i))
                 string += " -> "
                 string += str(self.massmap[i])
-                print string
+                print(string)
         if(len(self.numberset)==0 and len(self.skipset)==0 and len(self.nummap)==0):
-            print "None"
+            print("None")
     def getDipols(self, frequencies_in = None):
         self.dipols = Dipols()
         self.dipols.setup(self.dipol_diff,self.freedom,self.finitdiff)
@@ -731,8 +731,8 @@ class Hessian:
         return string
     def writeDipols(self,printmode = "all"):
         if(printmode == "normal" or printmode=="all"):
-            print "IDIPOL = " + str(self.idipol)
-            print "Initial dipole moment: " + self.writeList3(self.dipol_ref)
+            print("IDIPOL = " + str(self.idipol))
+            print("Initial dipole moment: " + self.writeList3(self.dipol_ref))
             self.dipols.printMatrix()
         count = 0
         for freq in self.frequencies:

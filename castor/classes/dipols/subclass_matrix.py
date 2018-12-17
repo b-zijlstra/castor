@@ -17,7 +17,7 @@ import numpy as np
 #MY PATHS
 
 #MY CLASSES
-from subclass_frequency import Frequency
+from .subclass_frequency import Frequency
 
 class Matrix:
     """Defines the dipol matrix from a Hessian"""
@@ -28,7 +28,7 @@ class Matrix:
     def setup(self, dipol_diff, degrees_freedom, diff):
         #check if the amount of dipols match the degrees of freedom
         if(len(dipol_diff)!= 2*len(degrees_freedom)):
-            print "Error, amounts of dipols and degrees of freedom do not match!"
+            print("Error, amounts of dipols and degrees of freedom do not match!")
             sys.exit()
 
         atom      = 0
@@ -70,7 +70,7 @@ class Matrix:
 
     def printMatrix(self):
         for dipol in self.dipols:
-            print dipol
+            print(dipol)
 
     def printMatrix(self, decimals_in = 6, spaces_in = 3):
         self.decimals = decimals_in
@@ -85,4 +85,4 @@ class Matrix:
             string += '{0:>{width}}'.format(xcor, width=self.decimals+self.spaces+4)
             string += '{0:>{width}}'.format(ycor, width=self.decimals+self.spaces+4)
             string += '{0:>{width}}'.format(zcor, width=self.decimals+self.spaces+4)
-            print string
+            print(string)

@@ -15,7 +15,7 @@ import sys, math
 #MY PATHS
 
 #MY CLASSES
-from class_rotation import Matrix as rmat
+from .class_rotation import Matrix as rmat
 
 class Vector:
     """Defines a vector of size 3"""
@@ -71,4 +71,4 @@ class Vector:
         self.decimals = decimals_in
         self.spaces = spaces_in
         string = self.getString(self.decimals, self.spaces)
-        print string
+        print(string)

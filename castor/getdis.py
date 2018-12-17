@@ -35,13 +35,13 @@ class Arguments:
                 numberstring = arg_in[i]
                 numberpair = numberstring.split('-')
                 if(len(numberpair) != 2):
-                    print "StringError - invalid numberpair:" + numberstring
+                    print("StringError - invalid numberpair:" + numberstring)
                     self.help()
                     sys.exit()
                 try:
                     self.numbers = [int(numberpair[0]),int(numberpair[1])]
                 except ValueError:
-                    print "ValueError - invalid numberpair:" + numberstring
+                    print("ValueError - invalid numberpair:" + numberstring)
                     self.help()
                     sys.exit()
                 readmode = None
@@ -64,28 +64,28 @@ class Arguments:
                 self.printmode = "all"
                 continue
             elif(sys.argv[i] == "--bever"):
-                print "                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'"
+                print("                   |    :|\n                   |     |\n                   |    .|\n               ____|    .|\n             .' .  ).   ,'\n           .' c   '7 ) (       nom-nom-nom\n       _.-\"       |.'   `.\n     .'           \"8E   :|\n     |          _}\"\"    :|\n     |         (   |     |\n    .'         )   |    :|\n/.beVER_.---.__8E  |    .|\n`BEver\"\"       \"\"  `-...-'")
                 sys.exit()
             elif(sys.argv[i] == "--bahnhof"):
-                print "  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)"
+                print("  ____        _           _            __   _ \n |  _ \      | |         | |          / _| | |\n | |_) | __ _| |__  _ __ | |__   ___ | |_  | |\n |  _ < / _` | '_ \| '_ \| '_ \ / _ \|  _| | |\n | |_) | (_| | | | | | | | | | | (_) | |   |_|\n |____/ \__,_|_| |_|_| |_|_| |_|\___/|_|   (_)")
                 sys.exit()
             else:
-                print "Unexpected argument: " + sys.argv[i]
+                print("Unexpected argument: " + sys.argv[i])
                 self.help()
                 sys.exit()
         if(len(self.numbers) != 2):
-            print "No atom pair selected. Did you specify '-n <numbers>'?"
+            print("No atom pair selected. Did you specify '-n <numbers>'?")
             self.help()
             sys.exit()
     def help(self):
-        print "Use: getdis.py <options>"
-        print "Options:"
-        print "-n or --numbers <numbers>     | Atom pair to get distance from. Example: $getdis.py -n 34-36 (No Default Value)"
-        print "-o or --outcar <outcar name>  | OUTCAR name to read. Example: $getdis.py -o out (Default = OUTCAR)"
-        print "-l or --less                  | Set printmode to 'less' to print only the last distance (Default = all)"
-        print "-a or --all                   | Set printmode to 'all' to print the distance for all frames (Default = all)"
-        print ""
-        print "-h or --help                  | displays this help message"
+        print("Use: getdis.py <options>")
+        print("Options:")
+        print("-n or --numbers <numbers>     | Atom pair to get distance from. Example: $getdis.py -n 34-36 (No Default Value)")
+        print("-o or --outcar <outcar name>  | OUTCAR name to read. Example: $getdis.py -o out (Default = OUTCAR)")
+        print("-l or --less                  | Set printmode to 'less' to print only the last distance (Default = all)")
+        print("-a or --all                   | Set printmode to 'all' to print the distance for all frames (Default = all)")
+        print("")
+        print("-h or --help                  | displays this help message")
 
 #DEFINES
 

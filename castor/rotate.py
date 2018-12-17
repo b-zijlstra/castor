@@ -43,4 +43,4 @@ elif len(sys.argv)==9:
 	arguments = float(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5]), float(sys.argv[6]), float(sys.argv[7]), sys.argv[8]
 	main(*arguments)
 else:
-	print "Unexpected amount of arguments."
+	print("Unexpected amount of arguments.")

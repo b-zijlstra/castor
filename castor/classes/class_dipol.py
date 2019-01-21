@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 # 
 # class_dipol.py
@@ -18,8 +18,8 @@ import numpy as np
 #MY PATHS
 
 #MY CLASSES
-from dipols.subclass_matrix import Matrix
-from dipols.subclass_frequency import Frequency
+from .dipols.subclass_matrix import Matrix
+from .dipols.subclass_frequency import Frequency
 
 class Dipols:
     """Holds the dipols from calculating the Hessian"""

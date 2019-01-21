@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 # 
 # class_hessian.py
@@ -18,9 +18,9 @@ import numpy as np
 #MY PATHS
 
 #MY CLASSES
-from hessian.subclass_matrix import Matrix
-from hessian.subclass_matrix import Dipols
-from hessian.subclass_frequency import Frequency
+from .hessian.subclass_matrix import Matrix
+from .hessian.subclass_matrix import Dipols
+from .hessian.subclass_frequency import Frequency
 
 class Hessian:
     """Defines a Hessian"""
